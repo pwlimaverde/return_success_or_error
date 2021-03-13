@@ -1,5 +1,8 @@
-import '../../../../retorno_success_ou_error_package.dart';
-import '../../../utilitarios/parameters.dart';
+import '../../../abstractions/datasource.dart';
+import '../../../abstractions/repository.dart';
+import '../../../core/errors.dart';
+import '../../../core/parameters.dart';
+import '../../../core/return_success_or_error_class.dart';
 
 class ReturnResultRepository<T> extends Repository<T, ParametersReturnResult> {
   final Datasource<T, ParametersReturnResult> datasource;

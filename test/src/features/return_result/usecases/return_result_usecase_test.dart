@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:retorno_success_ou_error_package/retorno_success_ou_error_package.dart';
-import 'package:retorno_success_ou_error_package/src/features/retorno_result/usecases/retorno_result_usecase.dart';
-import 'package:retorno_success_ou_error_package/src/utilitarios/Parameters.dart';
+import 'package:return_success_or_errorr/src/abstractions/repository.dart';
+import 'package:return_success_or_errorr/src/abstractions/usecase.dart';
+import 'package:return_success_or_errorr/src/core/errors.dart';
+import 'package:return_success_or_errorr/src/core/parameters.dart';
+import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_errorr/src/core/runtime_milliseconds.dart';
+import 'package:return_success_or_errorr/src/features/return_result/usecases/return_result_usecase.dart';
 
 class ReturnResultRepositoryMock extends Mock
     implements Repository<bool, ParametersReturnResult> {}
@@ -19,7 +23,7 @@ void main() {
   });
 
   test('Deve retornar um success com true', () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: true)));
@@ -40,8 +44,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
@@ -52,7 +56,7 @@ void main() {
   });
 
   test('Deve retornar um success com false', () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: false)));
@@ -73,8 +77,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
@@ -87,7 +91,7 @@ void main() {
   test(
       'Deve retornar um ErroReturnResult com Erro ao salvar os dados do header Cod.02-1',
       () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(repository).calls(#call).thenAnswer(
           (_) => Future.value(
             ErrorReturn<bool>(
@@ -114,15 +118,15 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<ErrorReturn<bool>>());
   });
 
   test(
       'Deve retornar um ErroReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-2',
       () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(repository).calls(#call).thenThrow(Exception());
     final result = await retornoResultadoUsecase(
       parameters: ParametersSalvarHeader(
@@ -141,8 +145,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<ErrorReturn<bool>>());
   });
 }

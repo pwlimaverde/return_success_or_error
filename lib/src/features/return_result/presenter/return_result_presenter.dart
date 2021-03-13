@@ -1,24 +1,26 @@
-import '../../../../retorno_success_ou_error_package.dart';
-import '../../../utilitarios/parameters.dart';
-import '../repositories/retorno_result_repository.dart';
-import '../usecases/retorno_result_usecase.dart';
+import '../../../abstractions/datasource.dart';
+import '../../../core/parameters.dart';
+import '../../../core/return_success_or_error_class.dart';
+import '../../../core/runtime_milliseconds.dart';
+import '../repositories/return_result_repository.dart';
+import '../usecases/return_result_usecase.dart';
 
 class ReturnResultPresenter<T> {
   final Datasource<T, ParametersReturnResult> datasource;
   final bool mostrarRuntimeMilliseconds;
-  final String nomeFeature;
+  final String nameFeature;
 
   ReturnResultPresenter({
     required this.datasource,
     required this.mostrarRuntimeMilliseconds,
-    required this.nomeFeature,
+    required this.nameFeature,
   });
 
   Future<ReturnSuccessOrError<T>> retornoResultado(
       {required ParametersReturnResult parameters}) async {
-    RuntimeMilliseconds tempo = RuntimeMilliseconds();
+    RuntimeMilliseconds runtime = RuntimeMilliseconds();
     if (mostrarRuntimeMilliseconds) {
-      tempo.iniciar();
+      runtime.startScore();
     }
     final result = await ReturnResultUsecase<T>(
       repository: ReturnResultRepository<T>(
@@ -26,8 +28,8 @@ class ReturnResultPresenter<T> {
       ),
     )(parameters: parameters);
     if (mostrarRuntimeMilliseconds) {
-      tempo.terminar();
-      print("Tempo de Execução do $nomeFeature: ${tempo.calcularExecucao()}ms");
+      runtime.finishScore();
+      print("Execution Time $nameFeature: ${runtime.calculateRuntime()}ms");
     }
     return result;
   }

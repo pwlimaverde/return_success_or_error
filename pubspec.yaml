@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+  mocktail: 0.0.1-dev.12
   flutter_test:
     sdk: flutter
 

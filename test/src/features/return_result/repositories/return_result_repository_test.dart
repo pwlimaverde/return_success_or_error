@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:retorno_success_ou_error_package/retorno_success_ou_error_package.dart';
-import 'package:retorno_success_ou_error_package/src/features/retorno_result/repositories/retorno_result_repository.dart';
-import 'package:retorno_success_ou_error_package/src/utilitarios/Parameters.dart';
+import 'package:return_success_or_errorr/src/abstractions/datasource.dart';
+import 'package:return_success_or_errorr/src/abstractions/repository.dart';
+import 'package:return_success_or_errorr/src/core/parameters.dart';
+import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_errorr/src/core/runtime_milliseconds.dart';
+import 'package:return_success_or_errorr/src/features/return_result/repositories/return_result_repository.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
     implements Datasource<bool, ParametersReturnResult> {}
@@ -19,7 +22,7 @@ void main() {
   });
 
   test('Deve retornar um success com true', () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(datasource).calls(#call).thenAnswer((_) => Future.value(true));
     final result = await repository(
       parameters: ParametersSalvarHeader(
@@ -38,8 +41,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
@@ -50,7 +53,7 @@ void main() {
   });
 
   test('Deve retornar um success com false', () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(datasource).calls(#call).thenAnswer((_) => Future.value(false));
     final result = await repository(
       parameters: ParametersSalvarHeader(
@@ -69,8 +72,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
@@ -83,7 +86,7 @@ void main() {
   test(
       'Deve retornar ErroReturnResult com Erro ao salvar os dados do header Cod.02-1',
       () async {
-    tempo.iniciar();
+    tempo.startScore();
     when(datasource).calls(#call).thenThrow(Exception());
     final result = await repository(
       parameters: ParametersSalvarHeader(
@@ -102,8 +105,8 @@ void main() {
       success: (value) => value.result,
       error: (value) => value.error,
     )}");
-    tempo.terminar();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calcularExecucao()}ms");
+    tempo.finishScore();
+    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
     expect(result, isA<ErrorReturn<bool>>());
   });
 }

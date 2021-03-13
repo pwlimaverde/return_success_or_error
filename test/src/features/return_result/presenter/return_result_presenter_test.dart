@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:retorno_success_ou_error_package/retorno_success_ou_error_package.dart';
-import 'package:retorno_success_ou_error_package/src/features/retorno_result/presenter/retorno_result_presenter.dart';
-import 'package:retorno_success_ou_error_package/src/utilitarios/Parameters.dart';
+import 'package:return_success_or_errorr/src/abstractions/datasource.dart';
+import 'package:return_success_or_errorr/src/core/parameters.dart';
+import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_errorr/src/features/return_result/presenter/return_result_presenter.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
     implements Datasource<bool, ParametersReturnResult> {}
@@ -19,7 +20,7 @@ void main() {
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
       mostrarRuntimeMilliseconds: true,
-      nomeFeature: 'SalvarHeader',
+      nameFeature: 'SalvarHeader',
     ).retornoResultado(
       parameters: ParametersSalvarHeader(
         corHeader: {
@@ -51,7 +52,7 @@ void main() {
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
       mostrarRuntimeMilliseconds: true,
-      nomeFeature: 'SalvarHeader',
+      nameFeature: 'SalvarHeader',
     ).retornoResultado(
       parameters: ParametersSalvarHeader(
         corHeader: {
@@ -85,7 +86,7 @@ void main() {
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
       mostrarRuntimeMilliseconds: true,
-      nomeFeature: 'SalvarHeader',
+      nameFeature: 'SalvarHeader',
     ).retornoResultado(
       parameters: ParametersSalvarHeader(
         corHeader: {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:retorno_success_ou_error_package/src/utilitarios/errors.dart';
-import 'package:retorno_success_ou_error_package/src/utilitarios/retorno_success_ou_error.dart';
+import 'package:return_success_or_errorr/src/core/errors.dart';
+import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
 
 void main() {
   test('Deve retornar um success', () {
@@ -29,7 +29,7 @@ void main() {
 
   test('Deve retornar um errorr', () {
     final result = ErrorReturn(
-      error: ErroInesperado(
+      error: ErroReturnResult(
         message: "teste error",
       ),
     );
