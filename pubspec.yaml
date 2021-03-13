@@ -1,7 +1,7 @@
-name: return_success_or_error
-description: Usecase abstraction returning success or error from a call made by the data source
+name: return_success_or_errorr
+description: Usecase abstraction returning success or errorr from a call made by the data source
 version: 0.0.1
-homepage: https://github.com/pwlimaverde/return_success_or_error
+homepage: https://github.com/pwlimaverde/return_success_or_errorr
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+  mocktail: 0.0.1-dev.12
   flutter_test:
     sdk: flutter
 

@@ -1,6 +1,6 @@
-# return_success_or_error
+# return_success_or_errorr
 
-Usecase abstraction returning success or error from a call made by the data source
+Usecase abstraction returning success or errorr from a call made by the data source
 
 ## Getting Started
 
