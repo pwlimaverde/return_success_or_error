@@ -1,22 +1,21 @@
-import '../../../../retorno_sucesso_ou_erro_package.dart';
-import '../../../utilitarios/Parametros.dart';
+import '../../../../retorno_success_ou_error_package.dart';
+import '../../../utilitarios/parameters.dart';
 
-class RetornoResultadoRepositorio<T>
-    extends Repositorio<T, ParametrosRetornoResultado> {
-  final Datasource<T, ParametrosRetornoResultado> datasource;
+class ReturnResultRepository<T> extends Repository<T, ParametersReturnResult> {
+  final Datasource<T, ParametersReturnResult> datasource;
 
-  RetornoResultadoRepositorio({required this.datasource});
+  ReturnResultRepository({required this.datasource});
 
   @override
-  Future<RetornoSucessoOuErro<T>> call(
-      {required ParametrosRetornoResultado parametros}) async {
-    final resultado = await retornoDatasource(
+  Future<ReturnSuccessOrError<T>> call(
+      {required ParametersReturnResult parameters}) async {
+    final result = await returnDatasource(
       datasource: datasource,
-      erro: ErroRetornoResultado(
-        mensagem: "${parametros.mensagemErro} Cod.02-1",
+      error: ErroReturnResult(
+        message: "${parameters.messageError} Cod.02-1",
       ),
-      parametros: parametros,
+      parameters: parameters,
     );
-    return resultado;
+    return result;
   }
 }

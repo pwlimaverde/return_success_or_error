@@ -1,89 +1,89 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:retorno_sucesso_ou_erro_package/retorno_sucesso_ou_erro_package.dart';
-import 'package:retorno_sucesso_ou_erro_package/src/core/repositorio.dart';
+import 'package:retorno_success_ou_error_package/retorno_success_ou_error_package.dart';
+import 'package:retorno_success_ou_error_package/src/core/repository.dart';
 
 class ChecarConeccaoUsecase extends UseCase<bool, NoParams> {
-  final Repositorio<bool, NoParams> repositorio;
+  final Repository<bool, NoParams> repository;
 
-  ChecarConeccaoUsecase({required this.repositorio});
+  ChecarConeccaoUsecase({required this.repository});
 
   @override
-  Future<RetornoSucessoOuErro<bool>> call(
-      {required NoParams parametros}) async {
-    final resultado = await retornoRepositorio(
-      repositorio: repositorio,
-      erro: ErroInesperado(mensagem: "teste erro direto usecase"),
-      parametros: NoParams(mensagemErro: 'teste Usecase'),
+  Future<ReturnSuccessOrError<bool>> call(
+      {required NoParams parameters}) async {
+    final result = await returnRepository(
+      repository: repository,
+      error: ErroInesperado(message: "teste error direto usecase"),
+      parameters: NoParams(messageError: 'teste Usecase'),
     );
-    return resultado;
+    return result;
   }
 }
 
-class ChecarConeccaoRepositorio extends Repositorio<bool, NoParams> {
+class ChecarConeccaoRepository extends Repository<bool, NoParams> {
   final Datasource<bool, NoParams> datasource;
 
-  ChecarConeccaoRepositorio({required this.datasource});
+  ChecarConeccaoRepository({required this.datasource});
 
   @override
-  Future<RetornoSucessoOuErro<bool>> call({required NoParams parametros}) {
-    final resultado = retornoDatasource(
+  Future<ReturnSuccessOrError<bool>> call({required NoParams parameters}) {
+    final result = returnDatasource(
       datasource: datasource,
-      erro: ErroInesperado(mensagem: "teste erro direto repositorio"),
-      parametros: NoParams(mensagemErro: 'teste Usecase'),
+      error: ErroInesperado(message: "teste error direto repository"),
+      parameters: NoParams(messageError: 'teste Usecase'),
     );
-    return resultado;
+    return result;
   }
 }
 
 class DatasourceMock extends Mock implements Datasource<bool, NoParams> {}
 
 void main() {
-  late Repositorio<bool, NoParams> repositorio;
+  late Repository<bool, NoParams> repository;
   late Datasource<bool, NoParams> datasource;
   late UseCase<bool, NoParams> checarConeccaoUseCase;
 
   setUp(() {
     datasource = DatasourceMock();
-    repositorio = ChecarConeccaoRepositorio(datasource: datasource);
-    checarConeccaoUseCase = ChecarConeccaoUsecase(repositorio: repositorio);
+    repository = ChecarConeccaoRepository(datasource: datasource);
+    checarConeccaoUseCase = ChecarConeccaoUsecase(repository: repository);
   });
 
-  test('Deve retornar um sucesso com true', () async {
+  test('Deve retornar um success com true', () async {
     when(datasource).calls(#call).thenAnswer((_) => Future.value(true));
     final result = await checarConeccaoUseCase(
-        parametros: NoParams(mensagemErro: 'teste Usecase'));
+        parameters: NoParams(messageError: 'teste Usecase'));
     print("teste result - ${result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
-    expect(result, isA<SucessoRetorno<bool>>());
+    expect(result, isA<SuccessReturn<bool>>());
   });
 
-  test('Deve retornar um sucesso com false', () async {
-    checarConeccaoUseCase = ChecarConeccaoUsecase(repositorio: repositorio);
+  test('Deve retornar um success com false', () async {
+    checarConeccaoUseCase = ChecarConeccaoUsecase(repository: repository);
     when(datasource).calls(#call).thenAnswer((_) => Future.value(false));
     final result = await checarConeccaoUseCase(
-        parametros: NoParams(mensagemErro: 'teste Usecase'));
+        parameters: NoParams(messageError: 'teste Usecase'));
     print("teste result - ${result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
-    expect(result, isA<SucessoRetorno<bool>>());
+    expect(result, isA<SuccessReturn<bool>>());
   });
 
   test(
-      'Deve retornar um Erro com ErroInesperado com teste erro direto repositorio',
+      'Deve retornar um Erro com ErroInesperado com teste error direto repository',
       () async {
-    checarConeccaoUseCase = ChecarConeccaoUsecase(repositorio: repositorio);
+    checarConeccaoUseCase = ChecarConeccaoUsecase(repository: repository);
     when(datasource).calls(#call).thenThrow(Exception());
     final result = await checarConeccaoUseCase(
-        parametros: NoParams(mensagemErro: 'teste Usecase'));
+        parameters: NoParams(messageError: 'teste Usecase'));
     print("teste result - ${result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
-    expect(result, isA<ErroRetorno<bool>>());
+    expect(result, isA<ErrorReturn<bool>>());
   });
 }

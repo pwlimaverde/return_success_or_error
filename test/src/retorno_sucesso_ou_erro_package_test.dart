@@ -1,42 +1,42 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:retorno_sucesso_ou_erro_package/src/utilitarios/erros.dart';
-import 'package:retorno_sucesso_ou_erro_package/src/utilitarios/retorno_sucesso_ou_erro.dart';
+import 'package:retorno_success_ou_error_package/src/utilitarios/errors.dart';
+import 'package:retorno_success_ou_error_package/src/utilitarios/retorno_success_ou_error.dart';
 
 void main() {
-  test('Deve retornar um sucesso', () {
-    final result = SucessoRetorno(resultado: "teste sucesso");
+  test('Deve retornar um success', () {
+    final result = SuccessReturn(result: "teste success");
     print(result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     ));
-    expect(result, isA<RetornoSucessoOuErro<String>>());
+    expect(result, isA<ReturnSuccessOrError<String>>());
   });
 
-  test('Deve retornar um sucesso com o resultado da String', () {
-    final result = SucessoRetorno(resultado: "teste sucesso");
+  test('Deve retornar um success com o result da String', () {
+    final result = SuccessReturn(result: "teste success");
     print(result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     ));
 
     expect(
         result.fold(
-          sucesso: (value) => value.resultado,
-          erro: (value) => value.erro,
+          success: (value) => value.result,
+          error: (value) => value.error,
         ),
-        "teste sucesso");
+        "teste success");
   });
 
-  test('Deve retornar um error', () {
-    final result = ErroRetorno(
-      erro: ErroInesperado(
-        mensagem: "teste erro",
+  test('Deve retornar um errorr', () {
+    final result = ErrorReturn(
+      error: ErroInesperado(
+        message: "teste error",
       ),
     );
     print(result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     ));
-    expect(result, isA<ErroRetorno>());
+    expect(result, isA<ErrorReturn>());
   });
 }

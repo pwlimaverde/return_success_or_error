@@ -1,4 +1,4 @@
-library return_success_or_error;
+library return_success_or_errorr;
 
 /// A Calculator.
 class Calculator {

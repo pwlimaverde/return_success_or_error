@@ -1,30 +1,30 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:retorno_sucesso_ou_erro_package/retorno_sucesso_ou_erro_package.dart';
-import 'package:retorno_sucesso_ou_erro_package/src/features/retorno_resultado/usecases/retorno_resultado_usecase.dart';
-import 'package:retorno_sucesso_ou_erro_package/src/utilitarios/Parametros.dart';
+import 'package:retorno_success_ou_error_package/retorno_success_ou_error_package.dart';
+import 'package:retorno_success_ou_error_package/src/features/retorno_result/usecases/retorno_result_usecase.dart';
+import 'package:retorno_success_ou_error_package/src/utilitarios/Parameters.dart';
 
-class RetornoResultadoRepositorioMock extends Mock
-    implements Repositorio<bool, ParametrosRetornoResultado> {}
+class ReturnResultRepositoryMock extends Mock
+    implements Repository<bool, ParametersReturnResult> {}
 
 void main() {
-  late Repositorio<bool, ParametrosRetornoResultado> repositorio;
-  late UseCase<bool, ParametrosRetornoResultado> retornoResultadoUsecase;
-  late TempoExecucao tempo;
+  late Repository<bool, ParametersReturnResult> repository;
+  late UseCase<bool, ParametersReturnResult> retornoResultadoUsecase;
+  late RuntimeMilliseconds tempo;
 
   setUp(() {
-    tempo = TempoExecucao();
-    repositorio = RetornoResultadoRepositorioMock();
-    retornoResultadoUsecase = RetornoResultadoUsecase(repositorio: repositorio);
+    tempo = RuntimeMilliseconds();
+    repository = ReturnResultRepositoryMock();
+    retornoResultadoUsecase = ReturnResultUsecase(repository: repository);
   });
 
-  test('Deve retornar um sucesso com true', () async {
+  test('Deve retornar um success com true', () async {
     tempo.iniciar();
-    when(repositorio)
+    when(repository)
         .calls(#call)
-        .thenAnswer((_) => Future.value(SucessoRetorno<bool>(resultado: true)));
+        .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: true)));
     final result = await retornoResultadoUsecase(
-      parametros: ParametrosSalvarHeader(
+      parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
           "g": 60,
@@ -37,26 +37,27 @@ void main() {
       ),
     );
     print("teste result - ${await result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
     tempo.terminar();
     print("Tempo de Execução do SalvarHeader: ${tempo.calcularExecucao()}ms");
-    expect(result, isA<SucessoRetorno<bool>>());
+    expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
-          sucesso: (value) => value.resultado,
-          erro: (value) => value.erro,
+          success: (value) => value.result,
+          error: (value) => value.error,
         ),
         true);
   });
 
-  test('Deve retornar um sucesso com false', () async {
+  test('Deve retornar um success com false', () async {
     tempo.iniciar();
-    when(repositorio).calls(#call).thenAnswer(
-        (_) => Future.value(SucessoRetorno<bool>(resultado: false)));
+    when(repository)
+        .calls(#call)
+        .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: false)));
     final result = await retornoResultadoUsecase(
-      parametros: ParametrosSalvarHeader(
+      parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
           "g": 60,
@@ -69,35 +70,35 @@ void main() {
       ),
     );
     print("teste result - ${await result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
     tempo.terminar();
     print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
-    expect(result, isA<SucessoRetorno<bool>>());
+    expect(result, isA<SuccessReturn<bool>>());
     expect(
         result.fold(
-          sucesso: (value) => value.resultado,
-          erro: (value) => value.erro,
+          success: (value) => value.result,
+          error: (value) => value.error,
         ),
         false);
   });
 
   test(
-      'Deve retornar um ErroRetornoResultado com Erro ao salvar os dados do header Cod.02-1',
+      'Deve retornar um ErroReturnResult com Erro ao salvar os dados do header Cod.02-1',
       () async {
     tempo.iniciar();
-    when(repositorio).calls(#call).thenAnswer(
+    when(repository).calls(#call).thenAnswer(
           (_) => Future.value(
-            ErroRetorno<bool>(
-              erro: ErroRetornoResultado(
-                mensagem: "Erro ao salvar os dados do header Cod.02-1",
+            ErrorReturn<bool>(
+              error: ErroReturnResult(
+                message: "Erro ao salvar os dados do header Cod.02-1",
               ),
             ),
           ),
         );
     final result = await retornoResultadoUsecase(
-      parametros: ParametrosSalvarHeader(
+      parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
           "g": 60,
@@ -110,21 +111,21 @@ void main() {
       ),
     );
     print("teste result - ${await result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
     tempo.terminar();
     print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
-    expect(result, isA<ErroRetorno<bool>>());
+    expect(result, isA<ErrorReturn<bool>>());
   });
 
   test(
-      'Deve retornar um ErroRetornoResultado, pela exeption do repositorio com Erro ao salvar os dados do header Cod.01-2',
+      'Deve retornar um ErroReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-2',
       () async {
     tempo.iniciar();
-    when(repositorio).calls(#call).thenThrow(Exception());
+    when(repository).calls(#call).thenThrow(Exception());
     final result = await retornoResultadoUsecase(
-      parametros: ParametrosSalvarHeader(
+      parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
           "g": 60,
@@ -137,23 +138,23 @@ void main() {
       ),
     );
     print("teste result - ${await result.fold(
-      sucesso: (value) => value.resultado,
-      erro: (value) => value.erro,
+      success: (value) => value.result,
+      error: (value) => value.error,
     )}");
     tempo.terminar();
     print("Tempo de Execução do SignIn: ${tempo.calcularExecucao()}ms");
-    expect(result, isA<ErroRetorno<bool>>());
+    expect(result, isA<ErrorReturn<bool>>());
   });
 }
 
-class ParametrosSalvarHeader implements ParametrosRetornoResultado {
+class ParametersSalvarHeader implements ParametersReturnResult {
   final String doc;
   final String nome;
   final int prioridade;
   final Map corHeader;
   final String user;
 
-  ParametrosSalvarHeader({
+  ParametersSalvarHeader({
     required this.doc,
     required this.nome,
     required this.prioridade,
@@ -161,5 +162,5 @@ class ParametrosSalvarHeader implements ParametrosRetornoResultado {
     required this.user,
   });
   @override
-  String get mensagemErro => "Erro ao salvar os dados do Header Cod.01-1";
+  String get messageError => "Erro ao salvar os dados do Header Cod.01-1";
 }

@@ -1,29 +1,28 @@
-import '../../../../retorno_sucesso_ou_erro_package.dart';
-import '../../../utilitarios/Parametros.dart';
+import '../../../../retorno_success_ou_error_package.dart';
+import '../../../utilitarios/parameters.dart';
 
-class RetornoResultadoUsecase<T>
-    extends UseCase<T, ParametrosRetornoResultado> {
-  final Repositorio<T, ParametrosRetornoResultado> repositorio;
+class ReturnResultUsecase<T> extends UseCase<T, ParametersReturnResult> {
+  final Repository<T, ParametersReturnResult> repository;
 
-  RetornoResultadoUsecase({required this.repositorio});
+  ReturnResultUsecase({required this.repository});
 
   @override
-  Future<RetornoSucessoOuErro<T>> call({
-    required ParametrosRetornoResultado parametros,
+  Future<ReturnSuccessOrError<T>> call({
+    required ParametersReturnResult parameters,
   }) async {
     try {
-      final resultado = await retornoRepositorio(
-        repositorio: repositorio,
-        erro: ErroRetornoResultado(
-          mensagem: "${parametros.mensagemErro} Cod.01-1",
+      final result = await returnRepository(
+        repository: repository,
+        error: ErroReturnResult(
+          message: "${parameters.messageError} Cod.01-1",
         ),
-        parametros: parametros,
+        parameters: parameters,
       );
-      return resultado;
+      return result;
     } catch (e) {
-      return ErroRetorno(
-        erro: ErroRetornoResultado(
-          mensagem: "${e.toString()} - ${parametros.mensagemErro} Cod.01-2",
+      return ErrorReturn(
+        error: ErroReturnResult(
+          message: "${e.toString()} - ${parameters.messageError} Cod.01-2",
         ),
       );
     }
