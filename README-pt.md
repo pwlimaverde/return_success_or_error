@@ -3,7 +3,9 @@
 [Read this page in English](http....README.md)
 [Leia esta página em português](http....README-pt.md)
 
-Usecase abstraction returning success or error from a call made by the data source
+Abstração de Usecase retornando sucesso ou erro de uma chamada feita pelo datasource
+
+----
 
 Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
 
@@ -202,4 +204,3 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 ----
-
