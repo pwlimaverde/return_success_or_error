@@ -31,11 +31,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   ReturnSuccessOrError<bool>? _value;
+  bool? _result;
 
   void _checkConnection() async {
     _value = await ChecarConeccaoPresenter(
       showRuntimeMilliseconds: true,
     ).consultaConectividade();
+
+    _result = _value!.fold(
+      success: (value) => value.result,
+      error: (value) => value.error,
+    );
     setState(() {});
   }
 
@@ -50,10 +56,17 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Connection query result:',
+              'Connection query value:',
             ),
             Text(
               '$_value',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            Text(
+              'Connection query result:',
+            ),
+            Text(
+              '$_result',
               style: Theme.of(context).textTheme.headline6,
             ),
           ],

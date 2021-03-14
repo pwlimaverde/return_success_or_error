@@ -28,7 +28,37 @@ O tipo do dado esperado é passado na função ```ReturnResultPresenter<Tipo>```
 ```showRuntimeMilliseconds``` responsável por mostar o tempo que levou para executar a chamada em milesegundos;
 ```nameFeature``` responsável pela identificação da feature;
 ```datasource``` responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
-Apos a construção da função, é chamado o ```.returnResult``` onde os parametros necessários para o datasouce é passado.
+Apos a construção da função, é chamado o ```.returnResult``` onde os parametros necessários para o datasouce são passados.
+
+O resultado da função ```ReturnResultPresenter<Tipo>``` é um: ```ReturnSuccessOrError<Tipo>``` que armazena os 2 resultados possíveis:
+```SuccessReturn<Tipo>``` que por sua vez armazena o sucesso da chamada;
+```ErrorReturn<Tipo>``` que por sua vez armazena o erro da chamada;
+
+Exemplo de recuperação da informação contida no ```ReturnSuccessOrError<Tipo>```:
+
+```
+final result = await value.fold(
+      success: (value) => value.result,
+      error: (value) => value.error,
+    )
+```
+
+A partir do ```ReturnSuccessOrError<Tipo>``` poderar ser verificado se o retorno foi sucesso ou erro, apenas verificando:
+```is SuccessReturn<Tipo>```;
+```is ErrorReturn<Tipo>```;
+
+Exemplo de verificação:
+
+```
+if(value is SuccessReturn<Stream<User>>){
+  ...
+}
+```
+```
+if(value is ErrorReturn<Stream<User>>){
+  ...
+}
+```
 
 Exemplo de implementação de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
@@ -174,11 +204,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   ReturnSuccessOrError<bool>? _value;
+  bool? _result;
 
   void _checkConnection() async {
     _value = await ChecarConeccaoPresenter(
       showRuntimeMilliseconds: true,
     ).consultaConectividade();
+
+    _result = _value!.fold(
+      success: (value) => value.result,
+      error: (value) => value.error,
+    );
     setState(() {});
   }
 
@@ -193,10 +229,17 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Connection query result:',
+              'Connection query value:',
             ),
             Text(
               '$_value',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            Text(
+              'Connection query result:',
+            ),
+            Text(
+              '$_result',
               style: Theme.of(context).textTheme.headline6,
             ),
           ],
