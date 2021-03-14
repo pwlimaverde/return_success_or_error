@@ -1,3 +1,7 @@
+## [0.1.3] - 14/03/2021.
+
+Correction of environment flutter >= 2.0.0
+
 ## [0.1.2] - 14/03/2021.
 
 **BREAKING** Correction of the class name ´´´ErroReturnResult´´´ for ´´´ErrorReturnResult´´´
