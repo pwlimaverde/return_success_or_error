@@ -1,5 +1,6 @@
 import 'package:connectivity/connectivity.dart';
-import 'package:example/features/datasources/connectivity_datasource.dart';
+import 'package:example/features/check_connection/datasources/connectivity_datasource.dart';
+
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 class ChecarConeccaoPresenter {
