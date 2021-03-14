@@ -2,7 +2,7 @@
 
 Usecase abstraction returning success or error from a call made by the data source
 
-Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
 
 Exemplo de chamada à partir de um banco de dados:
 
@@ -13,11 +13,11 @@ final value = await ReturnResultPresenter<Stream<User>>(
     ).returnResult(
         parametros:
             NoParams(mensagemErro: "Erro ao carregar os dados do User"));
-    return resultado;
+    return value;
 
 O tipo do dado esperado é passado na função ReturnResultPresenter<Tipo>. Os parametros esperados são:
 "showRuntimeMilliseconds" responsável por mostar o tempo que levou para executar a chamada em milesegundos;
-"nameFeature" responsavel pela identificação da feature;
+"nameFeature" responsável pela identificação da feature;
 "datasource" responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
 Apos a construção da função, é chamado o ".returnResult" onde os parametros necessários para o datasouce é passado.
 
@@ -65,6 +65,31 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
   }
 }
 ----
+A classe responsavel pela consulta, nesse caso "ConnectivityDatasource", precisa implementar a abstração do datasource "Datasource<Tipo, ParametersReturnResult>", que por sua vez precisa declarar o Tipo do dado a ser retornado e os ParametersReturnResult para chegar ao resultado. ex: Datasource<bool, NoParams> ou Datasource<bool, ParametersEmail>. A classe ParametersReturnResult é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
+
+____
+
+class ParametrosSalvarHeader implements ParametrosRetornoResultado {
+  final String doc;
+  final String nome;
+  final int prioridade;
+  final Map<String, int> corHeader;
+  final String user;
+
+  ParametrosSalvarHeader({
+    required this.doc,
+    required this.nome,
+    required this.prioridade,
+    required this.corHeader,
+    required this.user,
+  });
+
+  @override
+  String get mensagemErro => "Erro ao atualizar os dados da seção";
+}
+____
+
+Ao implementar a classe ParametrosRetornoResultado, precisa sorescrever o get mensagemErro, que é o responsável por identificar a menssagem que será apresentada em caso de erro. Nessa classe é armazenado os dados que serão consultados.
 
 ----
 presenter:
@@ -84,7 +109,7 @@ class ChecarConeccaoPresenter {
   });
 
   Future<ReturnSuccessOrError<bool>> consultaConectividade() async {
-    final resultado = await ReturnResultPresenter<bool>(
+    final value = await ReturnResultPresenter<bool>(
       showRuntimeMilliseconds: showRuntimeMilliseconds,
       nameFeature: "Checar Conecção",
       datasource: ConnectivityDatasource(
@@ -92,7 +117,7 @@ class ChecarConeccaoPresenter {
       ),
     ).returnResult(parameters: NoParams(messageError: "Você está offline"));
 
-    return resultado;
+    return value;
   }
 }
 ----
