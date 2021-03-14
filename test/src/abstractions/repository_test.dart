@@ -17,7 +17,7 @@ class TesteRepositoryMock extends Repository<bool, NoParams> {
   Future<ReturnSuccessOrError<bool>> call({required NoParams parameters}) {
     final result = returnDatasource(
       datasource: datasource,
-      error: ErroReturnResult(message: "teste error direto repository"),
+      error: ErrorReturnResult(message: "teste error direto repository"),
       parameters: NoParams(messageError: 'teste Usecase'),
     );
     return result;

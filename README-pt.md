@@ -67,11 +67,11 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
     try {
       final result = await isOnline;
       if (!result) {
-        throw ErroReturnResult(message: "${parameters.messageError}");
+        throw ErrorReturnResult(message: "${parameters.messageError}");
       }
       return result;
     } catch (e) {
-      throw ErroReturnResult(message: "${parameters.messageError}");
+      throw ErrorReturnResult(message: "${parameters.messageError}");
     }
   }
 }
