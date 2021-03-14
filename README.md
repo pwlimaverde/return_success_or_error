@@ -29,6 +29,36 @@ The expected data type is passed in the function ```ReturnResultPresenter<Tipo>`
 ```datasource``` responsible for the external call, where the expected result or error is returned;
 After building the function, it is called the ```.returnResult``` where the necessary parameters for the datasouce are passed.
 
+The result of the function ```ReturnResultPresenter<Tipo>``` it is a: ```ReturnSuccessOrError<Tipo>``` which stores the 2 possible results:
+```SuccessReturn<Tipo>``` which in turn stores the success of the call;
+```ErrorReturn<Tipo>``` which in turn stores the error of the call;
+
+Example of retrieving the information contained in ```ReturnSuccessOrError<Tipo>```:
+
+```
+final result = await value.fold(
+      success: (value) => value.result,
+      error: (value) => value.error,
+    )
+```
+
+A partir do ```ReturnSuccessOrError<Tipo>``` it can be checked if the return was successful or an error, just by checking:
+```is SuccessReturn<Tipo>```;
+```is ErrorReturn<Tipo>```;
+
+Verification example:
+
+```
+if(value is SuccessReturn<Stream<User>>){
+  ...
+}
+```
+```
+if(value is ErrorReturn<Stream<User>>){
+  ...
+}
+```
+
 Example of implementing a feature:
 Get connection - Check if the device is connected to the internet and returns a bool:
 
