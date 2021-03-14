@@ -107,7 +107,8 @@ Ao implementar a classe ```ParametrosRetornoResultado```, precisa sorescrever o 
 ----
 presenter:
     checar_coneccao_presenter.dart
-    
+
+```    
 import 'package:connectivity/connectivity.dart';
 import 'package:example/features/datasources/connectivity_datasource.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
@@ -133,11 +134,13 @@ class ChecarConeccaoPresenter {
     return value;
   }
 }
+```
 ----
 
 ----
 main.dart
-    
+
+```    
 import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
@@ -207,4 +210,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+```
 ----

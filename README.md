@@ -6,9 +6,11 @@
 
 Usecase abstraction returning success or error from a call made by the data source
 
-Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+----
 
-Exemplo de chamada à partir de um banco de dados:
+Package created in order to abstract and simplify the use cases, repositories, datasouces and parameters, disseminated by Uncle Bob. Where the result of the datasource is returned and errors are handled in a simple way.
+
+Example of a call from a database:
 
 ```
 final value = await ReturnResultPresenter<Stream<User>>(
@@ -21,15 +23,14 @@ final value = await ReturnResultPresenter<Stream<User>>(
     return value;
 ```
 
+The expected data type is passed in the function ```ReturnResultPresenter<Tipo>```. The expected parameters are:
+```showRuntimeMilliseconds``` responsible for showing the time it took to execute the call in mileseconds;
+```nameFeature``` responsible for identifying the feature;
+```datasource``` responsible for the external call, where the expected result or error is returned;
+After building the function, it is called the ```.returnResult``` where the necessary parameters for the datasouce are passed.
 
-O tipo do dado esperado é passado na função ReturnResultPresenter<Tipo>. Os parametros esperados são:
-"showRuntimeMilliseconds" responsável por mostar o tempo que levou para executar a chamada em milesegundos;
-"nameFeature" responsável pela identificação da feature;
-"datasource" responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
-Apos a construção da função, é chamado o ".returnResult" onde os parametros necessários para o datasouce é passado.
-
-Exemplo de implementação de uma feature:
-Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
+Example of implementing a feature:
+Get connection - Check if the device is connected to the internet and returns a bool:
 
 ```
 hierarquia:
@@ -46,6 +47,7 @@ lib:
 datasouces:
     connectivity_datasource.dart
 
+```
 import 'package:connectivity/connectivity.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
@@ -72,11 +74,13 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
     }
   }
 }
+```
 ----
-A classe responsavel pela consulta, nesse caso "ConnectivityDatasource", precisa implementar a abstração do datasource "Datasource<Tipo, ParametersReturnResult>", que por sua vez precisa declarar o Tipo do dado a ser retornado e os ParametersReturnResult para chegar ao resultado. ex: Datasource<bool, NoParams> ou Datasource<bool, ParametersEmail>. A classe ParametersReturnResult é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
+The class responsible for the query, in this case ```ConnectivityDatasource```, need to implement the datasource abstraction ```Datasource<Tipo, ParametersReturnResult>```, which in turn needs to declare the ```Tipo``` of the data to be returned and the ```ParametersReturnResult``` to get to the result.
+ex: ```Datasource<bool, NoParams>``` or ```Datasource<bool, ParametersEmail>```. The class ```ParametersReturnResult``` is an abstraction to load the necessary parameters to make the external call, ex:
 
 ____
-
+```
 class ParametrosSalvarHeader implements ParametrosRetornoResultado {
   final String doc;
   final String nome;
@@ -95,14 +99,16 @@ class ParametrosSalvarHeader implements ParametrosRetornoResultado {
   @override
   String get mensagemErro => "Erro ao atualizar os dados da seção";
 }
+```
 ____
 
-Ao implementar a classe ParametrosRetornoResultado, precisa sorescrever o get mensagemErro, que é o responsável por identificar a menssagem que será apresentada em caso de erro. Nessa classe é armazenado os dados que serão consultados.
+When implementing the class ```ParametrosRetornoResultado```, need to write the ```get mensagemErro```, who is responsible for identifying the message that will be displayed in case of error. In this class, the data to be consulted is stored.
 
 ----
 presenter:
     checar_coneccao_presenter.dart
-    
+
+```    
 import 'package:connectivity/connectivity.dart';
 import 'package:example/features/datasources/connectivity_datasource.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
@@ -128,11 +134,13 @@ class ChecarConeccaoPresenter {
     return value;
   }
 }
+```
 ----
 
 ----
 main.dart
-    
+
+```    
 import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
@@ -202,5 +210,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+```
 ----
-
