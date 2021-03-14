@@ -1,7 +1,8 @@
 # return_success_or_error
 
-[Read this page in English](http....README.md)
-[Leia esta página em português](http....README-pt.md)
+[Read this page in English](https://github.com/pwlimaverde/return_success_or_error/blob/master/README.md)
+
+[Leia esta página em português](https://github.com/pwlimaverde/return_success_or_error/blob/master/README-pt.md)
 
 Abstração de Usecase retornando sucesso ou erro de uma chamada feita pelo datasource
 
@@ -23,11 +24,11 @@ final value = await ReturnResultPresenter<Stream<User>>(
 ```
 
 
-O tipo do dado esperado é passado na função ReturnResultPresenter<Tipo>. Os parametros esperados são:
-"showRuntimeMilliseconds" responsável por mostar o tempo que levou para executar a chamada em milesegundos;
-"nameFeature" responsável pela identificação da feature;
-"datasource" responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
-Apos a construção da função, é chamado o ".returnResult" onde os parametros necessários para o datasouce é passado.
+O tipo do dado esperado é passado na função ```ReturnResultPresenter<Tipo>```. Os parametros esperados são:
+```showRuntimeMilliseconds``` responsável por mostar o tempo que levou para executar a chamada em milesegundos;
+```nameFeature``` responsável pela identificação da feature;
+```datasource``` responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
+Apos a construção da função, é chamado o ```.returnResult``` onde os parametros necessários para o datasouce é passado.
 
 Exemplo de implementação de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
@@ -47,6 +48,7 @@ lib:
 datasouces:
     connectivity_datasource.dart
 
+```
 import 'package:connectivity/connectivity.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
@@ -73,6 +75,7 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
     }
   }
 }
+```
 ----
 A classe responsavel pela consulta, nesse caso "ConnectivityDatasource", precisa implementar a abstração do datasource "Datasource<Tipo, ParametersReturnResult>", que por sua vez precisa declarar o Tipo do dado a ser retornado e os ParametersReturnResult para chegar ao resultado. ex: Datasource<bool, NoParams> ou Datasource<bool, ParametersEmail>. A classe ParametersReturnResult é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
 

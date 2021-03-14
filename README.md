@@ -1,7 +1,8 @@
 # return_success_or_error
 
-[Read this page in English](http....README.md)
-[Leia esta página em português](http....README-pt.md)
+[Read this page in English](https://github.com/pwlimaverde/return_success_or_error/blob/master/README.md)
+
+[Leia esta página em português](https://github.com/pwlimaverde/return_success_or_error/blob/master/README-pt.md)
 
 Usecase abstraction returning success or error from a call made by the data source
 
