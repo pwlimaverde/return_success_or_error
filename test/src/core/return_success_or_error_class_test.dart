@@ -29,7 +29,7 @@ void main() {
 
   test('Deve retornar um errorr', () {
     final result = ErrorReturn(
-      error: ErroReturnResult(
+      error: ErrorReturnResult(
         message: "teste error",
       ),
     );

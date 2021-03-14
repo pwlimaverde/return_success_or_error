@@ -16,7 +16,7 @@ class ReturnResultUsecase<T> extends UseCase<T, ParametersReturnResult> {
     try {
       final result = await returnRepository(
         repository: repository,
-        error: ErroReturnResult(
+        error: ErrorReturnResult(
           message: "${parameters.messageError} Cod.01-1",
         ),
         parameters: parameters,
@@ -24,7 +24,7 @@ class ReturnResultUsecase<T> extends UseCase<T, ParametersReturnResult> {
       return result;
     } catch (e) {
       return ErrorReturn(
-        error: ErroReturnResult(
+        error: ErrorReturnResult(
           message: "${e.toString()} - ${parameters.messageError} Cod.01-2",
         ),
       );

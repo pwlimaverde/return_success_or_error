@@ -19,7 +19,7 @@ class TesteUsecaseMock extends UseCase<bool, NoParams> {
     final result = await returnRepository(
       repository: repository,
       parameters: NoParams(messageError: 'teste Usecase'),
-      error: ErroReturnResult(message: "teste error direto usecase"),
+      error: ErrorReturnResult(message: "teste error direto usecase"),
     );
     return result;
   }
@@ -62,7 +62,7 @@ void main() {
 
   test('Deve retornar um Erro com ErroInesperado com teste error', () async {
     when(repository).calls(#call).thenAnswer((_) => Future.value(
-        ErrorReturn<bool>(error: ErroReturnResult(message: "teste error"))));
+        ErrorReturn<bool>(error: ErrorReturnResult(message: "teste error"))));
     final result =
         await usecase(parameters: NoParams(messageError: 'teste Usecase'));
     print("teste result - ${result.fold(

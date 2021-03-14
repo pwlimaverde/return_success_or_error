@@ -80,7 +80,7 @@ void main() {
   });
 
   test(
-      'Deve retornar ErroReturnResult com Erro ao salvar os dados do header Cod.02-1',
+      'Deve retornar ErrorReturnResult com Erro ao salvar os dados do header Cod.02-1',
       () async {
     when(datasource).calls(#call).thenThrow(Exception());
     final result = await ReturnResultPresenter<bool>(
