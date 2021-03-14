@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_errorr/src/abstractions/datasource.dart';
-import 'package:return_success_or_errorr/src/abstractions/repository.dart';
-import 'package:return_success_or_errorr/src/core/errors.dart';
-import 'package:return_success_or_errorr/src/core/parameters.dart';
-import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/abstractions/datasource.dart';
+import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/core/parameters.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
 
 class DatasourceMock extends Mock implements Datasource<bool, NoParams> {}
 

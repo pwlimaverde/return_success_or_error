@@ -7,19 +7,19 @@ import '../usecases/return_result_usecase.dart';
 
 class ReturnResultPresenter<T> {
   final Datasource<T, ParametersReturnResult> datasource;
-  final bool mostrarRuntimeMilliseconds;
+  final bool showRuntimeMilliseconds;
   final String nameFeature;
 
   ReturnResultPresenter({
     required this.datasource,
-    required this.mostrarRuntimeMilliseconds,
+    required this.showRuntimeMilliseconds,
     required this.nameFeature,
   });
 
-  Future<ReturnSuccessOrError<T>> retornoResultado(
+  Future<ReturnSuccessOrError<T>> returnResult(
       {required ParametersReturnResult parameters}) async {
     RuntimeMilliseconds runtime = RuntimeMilliseconds();
-    if (mostrarRuntimeMilliseconds) {
+    if (showRuntimeMilliseconds) {
       runtime.startScore();
     }
     final result = await ReturnResultUsecase<T>(
@@ -27,7 +27,7 @@ class ReturnResultPresenter<T> {
         datasource: datasource,
       ),
     )(parameters: parameters);
-    if (mostrarRuntimeMilliseconds) {
+    if (showRuntimeMilliseconds) {
       runtime.finishScore();
       print("Execution Time $nameFeature: ${runtime.calculateRuntime()}ms");
     }

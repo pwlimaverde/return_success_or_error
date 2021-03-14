@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_errorr/src/core/errors.dart';
-import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
 
 void main() {
   test('Deve retornar um success', () {
