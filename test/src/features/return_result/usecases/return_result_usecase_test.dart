@@ -1,25 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_errorr/src/abstractions/repository.dart';
-import 'package:return_success_or_errorr/src/abstractions/usecase.dart';
-import 'package:return_success_or_errorr/src/core/errors.dart';
-import 'package:return_success_or_errorr/src/core/parameters.dart';
-import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
-import 'package:return_success_or_errorr/src/core/runtime_milliseconds.dart';
-import 'package:return_success_or_errorr/src/features/return_result/usecases/return_result_usecase.dart';
+import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'package:return_success_or_error/src/abstractions/usecase.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/core/parameters.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/core/runtime_milliseconds.dart';
+import 'package:return_success_or_error/src/features/return_result/usecases/return_result_usecase.dart';
 
 class ReturnResultRepositoryMock extends Mock
     implements Repository<bool, ParametersReturnResult> {}
 
 void main() {
   late Repository<bool, ParametersReturnResult> repository;
-  late UseCase<bool, ParametersReturnResult> retornoResultadoUsecase;
+  late UseCase<bool, ParametersReturnResult> returnResultUsecase;
   late RuntimeMilliseconds tempo;
 
   setUp(() {
     tempo = RuntimeMilliseconds();
     repository = ReturnResultRepositoryMock();
-    retornoResultadoUsecase = ReturnResultUsecase(repository: repository);
+    returnResultUsecase = ReturnResultUsecase(repository: repository);
   });
 
   test('Deve retornar um success com true', () async {
@@ -27,7 +27,7 @@ void main() {
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: true)));
-    final result = await retornoResultadoUsecase(
+    final result = await returnResultUsecase(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -60,7 +60,7 @@ void main() {
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: false)));
-    final result = await retornoResultadoUsecase(
+    final result = await returnResultUsecase(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -101,7 +101,7 @@ void main() {
             ),
           ),
         );
-    final result = await retornoResultadoUsecase(
+    final result = await returnResultUsecase(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -128,7 +128,7 @@ void main() {
       () async {
     tempo.startScore();
     when(repository).calls(#call).thenThrow(Exception());
-    final result = await retornoResultadoUsecase(
+    final result = await returnResultUsecase(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,

@@ -18,9 +18,19 @@ abstract class ReturnSuccessOrError<R> {
 class SuccessReturn<R> extends ReturnSuccessOrError<R> {
   final R result;
   const SuccessReturn({required this.result});
+
+  @override
+  String toString() {
+    return "Success: ${this.result}";
+  }
 }
 
 class ErrorReturn<R> extends ReturnSuccessOrError<R> {
   final AppError error;
   const ErrorReturn({required this.error});
+
+  @override
+  String toString() {
+    return "Error: ${this.error}";
+  }
 }

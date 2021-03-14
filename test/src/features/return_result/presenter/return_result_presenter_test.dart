@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_errorr/src/abstractions/datasource.dart';
-import 'package:return_success_or_errorr/src/core/parameters.dart';
-import 'package:return_success_or_errorr/src/core/return_success_or_error_class.dart';
-import 'package:return_success_or_errorr/src/features/return_result/presenter/return_result_presenter.dart';
+import 'package:return_success_or_error/src/abstractions/datasource.dart';
+import 'package:return_success_or_error/src/core/parameters.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/features/return_result/presenter/return_result_presenter.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
     implements Datasource<bool, ParametersReturnResult> {}
@@ -19,9 +19,9 @@ void main() {
     when(datasource).calls(#call).thenAnswer((_) => Future.value(true));
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
-      mostrarRuntimeMilliseconds: true,
+      showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).retornoResultado(
+    ).returnResult(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -51,9 +51,9 @@ void main() {
     when(datasource).calls(#call).thenAnswer((_) => Future.value(false));
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
-      mostrarRuntimeMilliseconds: true,
+      showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).retornoResultado(
+    ).returnResult(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -85,9 +85,9 @@ void main() {
     when(datasource).calls(#call).thenThrow(Exception());
     final result = await ReturnResultPresenter<bool>(
       datasource: datasource,
-      mostrarRuntimeMilliseconds: true,
+      showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).retornoResultado(
+    ).returnResult(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,

@@ -1,4 +1,4 @@
-library return_success_or_errorr;
+library return_success_or_error;
 
 export 'src/abstractions/datasource.dart';
 export 'src/features/return_result/presenter/return_result_presenter.dart';
