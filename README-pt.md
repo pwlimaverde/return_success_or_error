@@ -77,10 +77,10 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
 }
 ```
 ----
-A classe responsavel pela consulta, nesse caso "ConnectivityDatasource", precisa implementar a abstração do datasource "Datasource<Tipo, ParametersReturnResult>", que por sua vez precisa declarar o Tipo do dado a ser retornado e os ParametersReturnResult para chegar ao resultado. ex: Datasource<bool, NoParams> ou Datasource<bool, ParametersEmail>. A classe ParametersReturnResult é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
+A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo, ParametersReturnResult>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado e os ```ParametersReturnResult``` para chegar ao resultado. ex: ```Datasource<bool, NoParams>``` ou ```Datasource<bool, ParametersEmail>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
 
 ____
-
+```
 class ParametrosSalvarHeader implements ParametrosRetornoResultado {
   final String doc;
   final String nome;
@@ -99,9 +99,10 @@ class ParametrosSalvarHeader implements ParametrosRetornoResultado {
   @override
   String get mensagemErro => "Erro ao atualizar os dados da seção";
 }
+```
 ____
 
-Ao implementar a classe ParametrosRetornoResultado, precisa sorescrever o get mensagemErro, que é o responsável por identificar a menssagem que será apresentada em caso de erro. Nessa classe é armazenado os dados que serão consultados.
+Ao implementar a classe ```ParametrosRetornoResultado```, precisa sorescrever o ```get mensagemErro```, que é o responsável por identificar a menssagem que será apresentada em caso de erro. Nessa classe é armazenado os dados que serão consultados.
 
 ----
 presenter:
