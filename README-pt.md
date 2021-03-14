@@ -8,7 +8,7 @@ Abstração de Usecase retornando sucesso ou erro de uma chamada feita pelo data
 
 ----
 
-Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+Package criado com intuito de abstrair e simplificar os usecases, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
 
 Exemplo de chamada à partir de um banco de dados:
 
