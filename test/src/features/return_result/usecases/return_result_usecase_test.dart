@@ -89,13 +89,13 @@ void main() {
   });
 
   test(
-      'Deve retornar um ErroReturnResult com Erro ao salvar os dados do header Cod.02-1',
+      'Deve retornar um ErrorReturnResult com Erro ao salvar os dados do header Cod.02-1',
       () async {
     tempo.startScore();
     when(repository).calls(#call).thenAnswer(
           (_) => Future.value(
             ErrorReturn<bool>(
-              error: ErroReturnResult(
+              error: ErrorReturnResult(
                 message: "Erro ao salvar os dados do header Cod.02-1",
               ),
             ),
@@ -124,7 +124,7 @@ void main() {
   });
 
   test(
-      'Deve retornar um ErroReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-2',
+      'Deve retornar um ErrorReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-2',
       () async {
     tempo.startScore();
     when(repository).calls(#call).thenThrow(Exception());
