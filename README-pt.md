@@ -7,8 +7,12 @@
 Abstração de Usecase retornando sucesso ou erro de uma chamada feita pelo datasource
 
 ----
+<<<<<<< HEAD
 
 Package criado com intuito de abstrair e simplificar os usecases, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+=======
+Package criado com intuito de abstrair e simplificar os casos de uso, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+>>>>>>> f58d5b5fc3212ab4c9c96cd6b7df9ec3932dc6ce
 
 Exemplo de chamada à partir de um banco de dados:
 
