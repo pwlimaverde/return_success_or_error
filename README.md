@@ -6,7 +6,7 @@ Package criado com intuito de abstrair e simplificar os casos de uso, repositori
 
 Exemplo de chamada à partir de um banco de dados:
 
-'''
+"""
 final value = await ReturnResultPresenter<Stream<User>>(
       mostrarTempoExecucao: true,
       nomeFeature: "Carregar User",
@@ -15,7 +15,7 @@ final value = await ReturnResultPresenter<Stream<User>>(
         parametros:
             NoParams(mensagemErro: "Erro ao carregar os dados do User"));
     return value;
-'''
+"""
 
 O tipo do dado esperado é passado na função ReturnResultPresenter<Tipo>. Os parametros esperados são:
 "showRuntimeMilliseconds" responsável por mostar o tempo que levou para executar a chamada em milesegundos;
