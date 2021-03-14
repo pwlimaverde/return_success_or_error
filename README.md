@@ -17,6 +17,7 @@ final value = await ReturnResultPresenter<Stream<User>>(
     return value;
 ```
 
+
 O tipo do dado esperado é passado na função ReturnResultPresenter<Tipo>. Os parametros esperados são:
 "showRuntimeMilliseconds" responsável por mostar o tempo que levou para executar a chamada em milesegundos;
 "nameFeature" responsável pela identificação da feature;
@@ -26,6 +27,7 @@ Apos a construção da função, é chamado o ".returnResult" onde os parametros
 Exemplo de implementação de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
 
+```
 hierarquia:
 lib:
     features:
@@ -35,7 +37,7 @@ lib:
             presenter:
                 checar_coneccao_presenter.dart
     main.dart
-
+```
 ----
 datasouces:
     connectivity_datasource.dart
