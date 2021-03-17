@@ -1,11 +1,13 @@
-abstract class ParametersReturnResult {
-  final String messageError;
+import '../../return_success_or_error.dart';
 
-  ParametersReturnResult({required this.messageError});
+abstract class ParametersReturnResult {
+  final AppError error;
+
+  ParametersReturnResult({required this.error});
 }
 
 class NoParams implements ParametersReturnResult {
-  final String messageError;
+  final AppError error;
 
-  NoParams({required this.messageError});
+  NoParams({required this.error});
 }

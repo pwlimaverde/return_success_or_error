@@ -2,17 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:return_success_or_error/src/abstractions/datasource.dart';
 import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
 import 'package:return_success_or_error/src/core/runtime_milliseconds.dart';
 import 'package:return_success_or_error/src/features/return_result/repositories/return_result_repository.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
-    implements Datasource<bool, ParametersReturnResult> {}
+    implements Datasource<bool> {}
 
 void main() {
-  late Datasource<bool, ParametersReturnResult> datasource;
-  late Repository<bool, ParametersReturnResult> repository;
+  late Datasource<bool> datasource;
+  late Repository<bool> repository;
   late RuntimeMilliseconds tempo;
 
   setUp(() {
@@ -125,6 +126,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.corHeader,
     required this.user,
   });
+
   @override
-  String get messageError => "Erro ao salvar os dados do Header Cod.01-1";
+  AppError get error =>
+      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
 }
