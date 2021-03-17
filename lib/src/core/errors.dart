@@ -1,12 +1,21 @@
-abstract class AppError implements Exception {}
+abstract class AppError implements Exception {
+  String message;
+
+  AppError({required this.message});
+
+  @override
+  String toString() {
+    return "AppError - $message";
+  }
+}
 
 class ErrorReturnResult implements AppError {
-  final String message;
+  String message;
 
   ErrorReturnResult({required this.message});
 
   @override
   String toString() {
-    return "ErrorReturnResult - $message";
+    return message;
   }
 }

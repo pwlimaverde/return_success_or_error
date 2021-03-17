@@ -6,7 +6,7 @@ import '../repositories/return_result_repository.dart';
 import '../usecases/return_result_usecase.dart';
 
 class ReturnResultPresenter<T> {
-  final Datasource<T, ParametersReturnResult> datasource;
+  final Datasource<T> datasource;
   final bool showRuntimeMilliseconds;
   final String nameFeature;
 
@@ -16,7 +16,7 @@ class ReturnResultPresenter<T> {
     required this.nameFeature,
   });
 
-  Future<ReturnSuccessOrError<T>> returnResult(
+  Future<ReturnSuccessOrError<T>> call(
       {required ParametersReturnResult parameters}) async {
     RuntimeMilliseconds runtime = RuntimeMilliseconds();
     if (showRuntimeMilliseconds) {

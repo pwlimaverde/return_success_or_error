@@ -1,7 +1,7 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-class ConnectivityDatasource implements Datasource<bool, NoParams> {
+class ConnectivityDatasource implements Datasource<bool> {
   final Connectivity connectivity;
   ConnectivityDatasource({required this.connectivity});
 
@@ -12,15 +12,17 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
   }
 
   @override
-  Future<bool> call({required NoParams parameters}) async {
+  Future<bool> call({required ParametersReturnResult parameters}) async {
+    final String messageError = parameters.error.message;
     try {
       final result = await isOnline;
       if (!result) {
-        throw ErrorReturnResult(message: "${parameters.messageError}");
+        throw parameters.error..message = "Você está offline";
       }
       return result;
     } catch (e) {
-      throw ErrorReturnResult(message: "${parameters.messageError}");
+      throw parameters.error
+        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
     }
   }
 }

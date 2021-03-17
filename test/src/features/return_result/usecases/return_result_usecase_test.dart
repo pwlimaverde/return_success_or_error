@@ -8,18 +8,17 @@ import 'package:return_success_or_error/src/core/return_success_or_error_class.d
 import 'package:return_success_or_error/src/core/runtime_milliseconds.dart';
 import 'package:return_success_or_error/src/features/return_result/usecases/return_result_usecase.dart';
 
-class ReturnResultRepositoryMock extends Mock
-    implements Repository<bool, ParametersReturnResult> {}
+class ReturnResultRepositoryMock extends Mock implements Repository<bool> {}
 
 void main() {
-  late Repository<bool, ParametersReturnResult> repository;
-  late UseCase<bool, ParametersReturnResult> returnResultUsecase;
+  late Repository<bool> repository;
+  late UseCase<bool> returnResultUsecase;
   late RuntimeMilliseconds tempo;
 
   setUp(() {
     tempo = RuntimeMilliseconds();
     repository = ReturnResultRepositoryMock();
-    returnResultUsecase = ReturnResultUsecase(repository: repository);
+    returnResultUsecase = ReturnResultUsecase<bool>(repository: repository);
   });
 
   test('Deve retornar um success com true', () async {
@@ -124,7 +123,7 @@ void main() {
   });
 
   test(
-      'Deve retornar um ErrorReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-2',
+      'Deve retornar um ErrorReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-3',
       () async {
     tempo.startScore();
     when(repository).calls(#call).thenThrow(Exception());
@@ -165,6 +164,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.corHeader,
     required this.user,
   });
+
   @override
-  String get messageError => "Erro ao salvar os dados do Header Cod.01-1";
+  AppError get error =>
+      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
 }

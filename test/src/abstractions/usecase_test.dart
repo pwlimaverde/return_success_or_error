@@ -6,28 +6,27 @@ import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
 
-class RepositoryMock extends Mock implements Repository<bool, NoParams> {}
+class RepositoryMock extends Mock implements Repository<bool> {}
 
-class TesteUsecaseMock extends UseCase<bool, NoParams> {
-  final Repository<bool, NoParams> repository;
+class TesteUsecaseMock extends UseCase<bool> {
+  final Repository<bool> repository;
 
   TesteUsecaseMock({required this.repository});
 
   @override
   Future<ReturnSuccessOrError<bool>> call(
-      {required NoParams parameters}) async {
+      {required ParametersReturnResult parameters}) async {
     final result = await returnRepository(
       repository: repository,
-      parameters: NoParams(messageError: 'teste Usecase'),
-      error: ErrorReturnResult(message: "teste error direto usecase"),
+      parameters: parameters,
     );
     return result;
   }
 }
 
 void main() {
-  late Repository<bool, NoParams> repository;
-  late UseCase<bool, NoParams> usecase;
+  late Repository<bool> repository;
+  late UseCase<bool> usecase;
 
   setUp(() {
     repository = RepositoryMock();
@@ -38,8 +37,13 @@ void main() {
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: true)));
-    final result =
-        await usecase(parameters: NoParams(messageError: 'teste Usecase'));
+    final result = await usecase(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "teste error direto usecase",
+        ),
+      ),
+    );
     print("teste result - ${result.fold(
       success: (value) => value.result,
       error: (value) => value.error,
@@ -51,8 +55,13 @@ void main() {
     when(repository)
         .calls(#call)
         .thenAnswer((_) => Future.value(SuccessReturn<bool>(result: false)));
-    final result =
-        await usecase(parameters: NoParams(messageError: 'teste Usecase'));
+    final result = await usecase(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "teste error direto usecase",
+        ),
+      ),
+    );
     print("teste result - ${result.fold(
       success: (value) => value.result,
       error: (value) => value.error,
@@ -63,8 +72,13 @@ void main() {
   test('Deve retornar um Erro com ErroInesperado com teste error', () async {
     when(repository).calls(#call).thenAnswer((_) => Future.value(
         ErrorReturn<bool>(error: ErrorReturnResult(message: "teste error"))));
-    final result =
-        await usecase(parameters: NoParams(messageError: 'teste Usecase'));
+    final result = await usecase(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "teste error direto usecase",
+        ),
+      ),
+    );
     print("teste result - ${result.fold(
       success: (value) => value.result,
       error: (value) => value.error,
@@ -75,8 +89,13 @@ void main() {
   test('Deve retornar um Erro com ErroInesperado com error direto usecase',
       () async {
     when(repository).calls(#call).thenThrow(Exception());
-    final result =
-        await usecase(parameters: NoParams(messageError: 'teste Usecase'));
+    final result = await usecase(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "teste error direto usecase",
+        ),
+      ),
+    );
     print("teste result - ${result.fold(
       success: (value) => value.result,
       error: (value) => value.error,
