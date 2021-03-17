@@ -1,15 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:return_success_or_error/src/abstractions/datasource.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
 import 'package:return_success_or_error/src/features/return_result/presenter/return_result_presenter.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
-    implements Datasource<bool, ParametersReturnResult> {}
+    implements Datasource<bool> {}
 
 void main() {
-  late Datasource<bool, ParametersReturnResult> datasource;
+  late Datasource<bool> datasource;
 
   setUp(() {
     datasource = FairebaseSalvarHeaderDatasourceMock();
@@ -21,7 +22,7 @@ void main() {
       datasource: datasource,
       showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).returnResult(
+    )(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -53,7 +54,7 @@ void main() {
       datasource: datasource,
       showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).returnResult(
+    )(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -87,7 +88,7 @@ void main() {
       datasource: datasource,
       showRuntimeMilliseconds: true,
       nameFeature: 'SalvarHeader',
-    ).returnResult(
+    )(
       parameters: ParametersSalvarHeader(
         corHeader: {
           "r": 60,
@@ -122,6 +123,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.corHeader,
     required this.user,
   });
+
   @override
-  String get messageError => "Erro ao salvar os dados do Header";
+  AppError get error =>
+      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
 }

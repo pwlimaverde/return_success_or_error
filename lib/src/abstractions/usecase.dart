@@ -1,21 +1,24 @@
-import '../core/errors.dart';
-import '../core/return_success_or_error_class.dart';
-import 'repository.dart';
+import 'package:return_success_or_error/src/abstractions/repository.dart';
 
-abstract class UseCase<R, Parameters> {
-  Future<ReturnSuccessOrError<R>> call({required Parameters parameters});
+import '../../return_success_or_error.dart';
+
+abstract class UseCase<R> {
+  Future<ReturnSuccessOrError<R>> call({
+    required ParametersReturnResult parameters,
+  });
 
   Future<ReturnSuccessOrError<R>> returnRepository({
-    required AppError error,
-    required Parameters parameters,
-    required Repository<R, Parameters> repository,
+    required ParametersReturnResult parameters,
+    required Repository<R> repository,
   }) async {
+    final String messageError = parameters.error.message;
     try {
       final result = await repository(parameters: parameters);
       return result;
     } catch (e) {
       return ErrorReturn<R>(
-        error: error,
+        error: parameters.error
+          ..message = "$messageError - Cod. 01-3 --- Catch: $e",
       );
     }
   }
