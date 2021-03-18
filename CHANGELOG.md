@@ -1,3 +1,7 @@
+## [0.1.6] - 14/03/2021.
+
+Documentation update.
+
 ## [0.1.5] - 14/03/2021.
 
 **BREAKING** 1 - Removido a necessidade de tipar os parametros direto na classe: Antes ´´´UseCase<bool, Parameters>´´´; Depois ´´´UseCase<bool>´´´;
