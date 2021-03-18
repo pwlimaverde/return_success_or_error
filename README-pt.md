@@ -16,9 +16,12 @@ final value = await ReturnResultPresenter<Stream<User>>(
       showRuntimeMilliseconds: true,
       nameFeature: "Carregar User",
       datasource: datasource,
-    ).returnResult(
-        parameters:
-            NoParams(messageError: "Erro ao carregar os dados do User"));
+    )(parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "Erro de conexão",
+        ),
+      ),
+    );
     return value;
 ```
 
@@ -81,7 +84,7 @@ datasouces:
 import 'package:connectivity/connectivity.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-class ConnectivityDatasource implements Datasource<bool, NoParams> {
+class ConnectivityDatasource implements Datasource<bool> {
   final Connectivity connectivity;
   ConnectivityDatasource({required this.connectivity});
 
@@ -92,21 +95,23 @@ class ConnectivityDatasource implements Datasource<bool, NoParams> {
   }
 
   @override
-  Future<bool> call({required NoParams parameters}) async {
+  Future<bool> call({required ParametersReturnResult parameters}) async {
+    final String messageError = parameters.error.message;
     try {
       final result = await isOnline;
       if (!result) {
-        throw ErrorReturnResult(message: "${parameters.messageError}");
+        throw parameters.error..message = "Você está offline";
       }
       return result;
     } catch (e) {
-      throw ErrorReturnResult(message: "${parameters.messageError}");
+      throw parameters.error
+        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
     }
   }
 }
 ```
 ----
-A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo, ParametersReturnResult>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado e os ```ParametersReturnResult``` para chegar ao resultado. ex: ```Datasource<bool, NoParams>``` ou ```Datasource<bool, ParametersEmail>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
+A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado para chegar ao resultado. ex: ```Datasource<bool>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
 
 ____
 ```
@@ -116,6 +121,7 @@ class ParametrosSalvarHeader implements ParametrosRetornoResultado {
   final int prioridade;
   final Map<String, int> corHeader;
   final String user;
+  final AppError error;
 
   ParametrosSalvarHeader({
     required this.doc,
@@ -123,15 +129,13 @@ class ParametrosSalvarHeader implements ParametrosRetornoResultado {
     required this.prioridade,
     required this.corHeader,
     required this.user,
+    required this.error,
   });
-
-  @override
-  String get mensagemErro => "Erro ao atualizar os dados da seção";
 }
 ```
 ____
 
-Ao implementar a classe ```ParametrosRetornoResultado```, precisa sorescrever o ```get mensagemErro```, que é o responsável por identificar a menssagem que será apresentada em caso de erro. Nessa classe é armazenado os dados que serão consultados.
+Ao implementar a classe ```ParametrosRetornoResultado```, precisa sorescrever o ```AppError error```, que é o responsável por identificar o erro que será apresentado em caso de erro. Nessa classe é armazenado os dados que serão consultados.
 
 ----
 presenter:
@@ -139,7 +143,8 @@ presenter:
 
 ```    
 import 'package:connectivity/connectivity.dart';
-import 'package:example/features/datasources/connectivity_datasource.dart';
+import 'package:example/features/check_connection/datasources/connectivity_datasource.dart';
+
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 class ChecarConeccaoPresenter {
@@ -152,15 +157,21 @@ class ChecarConeccaoPresenter {
   });
 
   Future<ReturnSuccessOrError<bool>> consultaConectividade() async {
-    final value = await ReturnResultPresenter<bool>(
+    final resultado = await ReturnResultPresenter<bool>(
       showRuntimeMilliseconds: showRuntimeMilliseconds,
       nameFeature: "Checar Conecção",
       datasource: ConnectivityDatasource(
         connectivity: connectivity ?? Connectivity(),
       ),
-    ).returnResult(parameters: NoParams(messageError: "Você está offline"));
+    )(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "Erro de conexão",
+        ),
+      ),
+    );
 
-    return value;
+    return resultado;
   }
 }
 ```
