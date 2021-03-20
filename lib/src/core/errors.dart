@@ -1,3 +1,4 @@
+///calsse implements Exception and requires the String with the error message.
 abstract class AppError implements Exception {
   String message;
 
@@ -9,6 +10,7 @@ abstract class AppError implements Exception {
   }
 }
 
+///Implementation of AppError to customize errors.
 class ErrorReturnResult implements AppError {
   String message;
 
