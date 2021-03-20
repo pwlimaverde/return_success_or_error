@@ -7,14 +7,6 @@ library return_success_or_error;
 ///Exeption.
 export 'src/abstractions/datasource.dart';
 
-///Responsible for exposing the abstraction of the presenter.
-///
-///The ´´´ReturnResultPresenter´´´ is the class responsible for processing the
-///data returned by the datasource. The presenter passes the datasource and
-///parameters to the use case, which checks whether the return was a success or
-///error and returns the result within the class ´´´ReturnSuccessOrError´´´.
-export 'src/features/return_result/presenter/return_result_presenter.dart';
-
 ///Responsible for exposing the abstraction of the errors.
 ///
 ///The classes that represented the errors need to implement the AppError class
@@ -41,3 +33,11 @@ export 'src/core/return_success_or_error_class.dart';
 ///Auxiliary class that allows the observation of the time it took for the
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
+
+///Responsible for exposing the abstraction of the presenter.
+///
+///The ´´´ReturnResultPresenter´´´ is the class responsible for processing the
+///data returned by the datasource. The presenter passes the datasource and
+///parameters to the use case, which checks whether the return was a success or
+///error and returns the result within the class ´´´ReturnSuccessOrError´´´.
+export 'src/features/return_result/presenter/return_result_presenter.dart';
