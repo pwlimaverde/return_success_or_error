@@ -1,3 +1,7 @@
+## [0.1.7] - 19/03/2021.
+
+Documentation update.
+
 ## [0.1.6] - 14/03/2021.
 
 Documentation update.
