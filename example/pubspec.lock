@@ -129,7 +129,11 @@ packages:
       path: ".."
       relative: true
     source: path
+<<<<<<< HEAD
     version: "0.1.6"
+=======
+    version: "0.1.8"
+>>>>>>> hotfix/0.1.8
   sky_engine:
     dependency: transitive
     description: flutter
