@@ -36,6 +36,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: "Teste resukt",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -67,6 +69,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: "Teste resukt",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -100,6 +104,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: "Teste resukt",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -118,6 +124,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   final int prioridade;
   final Map corHeader;
   final String user;
+  final String nameFeature;
+  final bool showRuntimeMilliseconds;
 
   ParametersSalvarHeader({
     required this.doc,
@@ -125,6 +133,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.prioridade,
     required this.corHeader,
     required this.user,
+    required this.nameFeature,
+    required this.showRuntimeMilliseconds,
   });
 
   @override
