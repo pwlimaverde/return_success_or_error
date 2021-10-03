@@ -1,12 +1,5 @@
 library return_success_or_error;
 
-///Responsible for exposing the abstraction of the datasource.
-///
-///The ´´´Datasource´´´ is the class responsible for querying the external call. And
-///must return the type of the pre-defined data or an AppError which is an
-///Exeption.
-export 'src/abstractions/datasource.dart';
-
 ///Responsible for exposing the abstraction of the errors.
 ///
 ///The classes that represented the errors need to implement the AppError class
@@ -34,10 +27,17 @@ export 'src/core/return_success_or_error_class.dart';
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
 
-///Responsible for exposing the abstraction of the presenter.
+///Responsible for exposing the abstraction of the usecase implement.
 ///
-///The ´´´ReturnResultPresenter´´´ is the class responsible for processing the
+///The ´´´ReturnResultUsecaseImplement´´´ is the class responsible for processing the
 ///data returned by the datasource. The presenter passes the datasource and
 ///parameters to the use case, which checks whether the return was a success or
 ///error and returns the result within the class ´´´ReturnSuccessOrError´´´.
-export 'src/features/return_result/presenter/return_result_presenter.dart';
+export 'src/interfaces/usecase_implement.dart';
+
+///Responsible for exposing the abstraction of the datasource.
+///
+///The ´´´Datasource´´´ is the class responsible for querying the external call. And
+///must return the type of the pre-defined data or an AppError which is an
+///Exeption.
+export 'src/interfaces/datasource.dart';
