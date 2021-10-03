@@ -42,6 +42,8 @@ void main() {
         error: ErrorReturnResult(
           message: "teste error direto usecase",
         ),
+        nameFeature: "Teste Usecase",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${result.fold(
@@ -60,6 +62,8 @@ void main() {
         error: ErrorReturnResult(
           message: "teste error direto usecase",
         ),
+        nameFeature: "Teste Usecase",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${result.fold(
@@ -77,6 +81,8 @@ void main() {
         error: ErrorReturnResult(
           message: "teste error direto usecase",
         ),
+        nameFeature: "Teste Usecase",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${result.fold(
@@ -94,6 +100,8 @@ void main() {
         error: ErrorReturnResult(
           message: "teste error direto usecase",
         ),
+        nameFeature: "Teste Usecase",
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${result.fold(
