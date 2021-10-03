@@ -1,4 +1,4 @@
-import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'repository.dart';
 
 import '../../return_success_or_error.dart';
 
@@ -13,7 +13,9 @@ abstract class UseCase<R> {
   }) async {
     final String messageError = parameters.error.message;
     try {
-      final result = await repository(parameters: parameters);
+      final result = await repository(
+        parameters: parameters,
+      );
       return result;
     } catch (e) {
       return ErrorReturn<R>(

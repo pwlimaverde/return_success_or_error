@@ -1,7 +1,6 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
-
-import 'features/check_connection/presenter/checar_coneccao_presenter.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,11 +31,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   ReturnSuccessOrError<bool>? _value;
   bool? _result;
+  final checarConeccaoUsecase = ChecarConeccaoUsecase(
+    datasource: ConnectivityDatasource(
+      connectivity: Connectivity(),
+    ),
+  );
 
   void _checkConnection() async {
-    _value = await ChecarConeccaoPresenter(
-      showRuntimeMilliseconds: true,
-    ).consultaConectividade();
+    _value = await checarConeccaoUsecase(
+      parameters: NoParams(
+        error: ErrorReturnResult(
+          message: "Erro de conexão",
+        ),
+        nameFeature: "Checar Conecção",
+        showRuntimeMilliseconds: true,
+      ),
+    );
 
     _result = _value!.fold(
       success: (value) => value.result,
@@ -78,5 +88,48 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.cached),
       ),
     );
+  }
+}
+
+///Datasources
+class ConnectivityDatasource implements Datasource<bool> {
+  final Connectivity connectivity;
+  ConnectivityDatasource({required this.connectivity});
+
+  Future<bool> get isOnline async {
+    var result = await connectivity.checkConnectivity();
+    return result == ConnectivityResult.wifi ||
+        result == ConnectivityResult.mobile;
+  }
+
+  @override
+  Future<bool> call({required ParametersReturnResult parameters}) async {
+    final String messageError = parameters.error.message;
+    try {
+      final result = await isOnline;
+      if (!result) {
+        throw parameters.error..message = "Você está offline";
+      }
+      return result;
+    } catch (e) {
+      throw parameters.error
+        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
+    }
+  }
+}
+
+///Usecases
+class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+  final Datasource<bool> datasource;
+
+  ChecarConeccaoUsecase({required this.datasource});
+  @override
+  Future<ReturnSuccessOrError<bool>> call(
+      {required ParametersReturnResult parameters}) async {
+    final result = await returnUseCase(
+      parameters: parameters,
+      datasource: datasource,
+    );
+    return result;
   }
 }

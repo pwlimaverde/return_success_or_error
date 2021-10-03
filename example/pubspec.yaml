@@ -9,7 +9,7 @@ environment:
 dependencies:
   return_success_or_error:
     path: ../
-  connectivity: ^3.0.2
+  connectivity: ^3.0.6
   flutter:
     sdk: flutter
 
