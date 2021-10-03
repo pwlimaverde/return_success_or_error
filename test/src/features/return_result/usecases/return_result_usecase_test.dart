@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_error/src/abstractions/repository.dart';
-import 'package:return_success_or_error/src/abstractions/usecase.dart';
+import 'package:return_success_or_error/src/interfaces/repository.dart';
+import 'package:return_success_or_error/src/interfaces/usecase.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
@@ -18,7 +18,9 @@ void main() {
   setUp(() {
     tempo = RuntimeMilliseconds();
     repository = ReturnResultRepositoryMock();
-    returnResultUsecase = ReturnResultUsecase<bool>(repository: repository);
+    returnResultUsecase = ReturnResultUsecase<bool>(
+      repository: repository,
+    );
   });
 
   test('Deve retornar um success com true', () async {
@@ -37,6 +39,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: 'Teste Header',
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -70,6 +74,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: 'Teste Header',
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -111,6 +117,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: 'Teste Header',
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -138,6 +146,8 @@ void main() {
         nome: 'novidades',
         prioridade: 1,
         user: 'paulo',
+        nameFeature: 'Teste Header',
+        showRuntimeMilliseconds: true,
       ),
     );
     print("teste result - ${await result.fold(
@@ -156,6 +166,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   final int prioridade;
   final Map corHeader;
   final String user;
+  final String nameFeature;
+  final bool showRuntimeMilliseconds;
 
   ParametersSalvarHeader({
     required this.doc,
@@ -163,6 +175,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.prioridade,
     required this.corHeader,
     required this.user,
+    required this.nameFeature,
+    required this.showRuntimeMilliseconds,
   });
 
   @override

@@ -1,4 +1,4 @@
-import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'repository.dart';
 
 import '../../return_success_or_error.dart';
 

@@ -1,5 +1,5 @@
-import '../../../abstractions/datasource.dart';
-import '../../../abstractions/repository.dart';
+import '../../../interfaces/datasource.dart';
+import '../../../interfaces/repository.dart';
 import '../../../core/parameters.dart';
 import '../../../core/return_success_or_error_class.dart';
 

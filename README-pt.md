@@ -13,7 +13,7 @@ Package criado com intuito de abstrair e simplificar os usecases, repositorios, 
 Exemplo de chamada à partir de um banco de dados:
 
 ```
-final value = await ReturnResultPresenter<Stream<User>>(
+final value = await ReturnResultUsecaseImplement<Stream<User>>(
       showRuntimeMilliseconds: true,
       nameFeature: "Carregar User",
       datasource: datasource,
@@ -27,13 +27,13 @@ final value = await ReturnResultPresenter<Stream<User>>(
 ```
 
 
-O tipo do dado esperado é passado na função ```ReturnResultPresenter<Tipo>```. Os parametros esperados são:
+O tipo do dado esperado é passado na função ```ReturnResultUsecaseImplement<Tipo>```. Os parametros esperados são:
 ```showRuntimeMilliseconds``` responsável por mostar o tempo que levou para executar a chamada em milesegundos;
 ```nameFeature``` responsável pela identificação da feature;
 ```datasource``` responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
 Apos a construção da função, é chamado o ```.returnResult``` onde os parametros necessários para o datasouce são passados.
 
-O resultado da função ```ReturnResultPresenter<Tipo>``` é um: ```ReturnSuccessOrError<Tipo>``` que armazena os 2 resultados possíveis:
+O resultado da função ```ReturnResultUsecaseImplement<Tipo>``` é um: ```ReturnSuccessOrError<Tipo>``` que armazena os 2 resultados possíveis:
 ```SuccessReturn<Tipo>``` que por sua vez armazena o sucesso da chamada;
 ```ErrorReturn<Tipo>``` que por sua vez armazena o erro da chamada;
 
@@ -148,17 +148,17 @@ import 'package:example/features/check_connection/datasources/connectivity_datas
 
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-class ChecarConeccaoPresenter {
+class ChecarConeccaoUsecase {
   final Connectivity? connectivity;
   final bool showRuntimeMilliseconds;
 
-  ChecarConeccaoPresenter({
+  ChecarConeccaoUsecase({
     this.connectivity,
     required this.showRuntimeMilliseconds,
   });
 
   Future<ReturnSuccessOrError<bool>> consultaConectividade() async {
-    final resultado = await ReturnResultPresenter<bool>(
+    final resultado = await ReturnResultUsecaseImplement<bool>(
       showRuntimeMilliseconds: showRuntimeMilliseconds,
       nameFeature: "Checar Conecção",
       datasource: ConnectivityDatasource(
@@ -218,7 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool? _result;
 
   void _checkConnection() async {
-    _value = await ChecarConeccaoPresenter(
+    _value = await ChecarConeccaoUsecase(
       showRuntimeMilliseconds: true,
     ).consultaConectividade();
 

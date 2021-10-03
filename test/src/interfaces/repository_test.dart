@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_error/src/abstractions/datasource.dart';
-import 'package:return_success_or_error/src/abstractions/repository.dart';
+import 'package:return_success_or_error/src/interfaces/datasource.dart';
+import 'package:return_success_or_error/src/interfaces/repository.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
