@@ -31,7 +31,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   ReturnSuccessOrError<bool>? _value;
   bool? _result;
-  final checarConeccaoUsecase = ChecarConeccaoUsecase();
+  final checarConeccaoUsecase = ChecarConeccaoUsecase(
+    datasource: ConnectivityDatasource(
+      connectivity: Connectivity(),
+    ),
+  );
 
   void _checkConnection() async {
     _value = await checarConeccaoUsecase(
@@ -115,18 +119,16 @@ class ConnectivityDatasource implements Datasource<bool> {
 }
 
 ///Usecases
-class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
-  final Connectivity? connectivity;
+class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+  final Datasource<bool> datasource;
 
-  ChecarConeccaoUsecase({this.connectivity});
+  ChecarConeccaoUsecase({required this.datasource});
   @override
   Future<ReturnSuccessOrError<bool>> call(
       {required ParametersReturnResult parameters}) async {
     final result = await returnUseCase(
       parameters: parameters,
-      datasource: ConnectivityDatasource(
-        connectivity: connectivity ?? Connectivity(),
-      ),
+      datasource: datasource,
     );
     return result;
   }
