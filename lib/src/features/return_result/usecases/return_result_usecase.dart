@@ -22,8 +22,8 @@ class ReturnResultUsecase<T> extends UseCase<T> {
         runtime.startScore();
       }
       final result = await returnRepository(
-        repository: repository,
         parameters: parameters,
+        repository: repository,
       );
       if (parameters.showRuntimeMilliseconds) {
         runtime.finishScore();

@@ -1,6 +1,6 @@
 ## [0.2.0] - 25/03/2021.
 
-Arescentado na Classe "ParametersReturnResult", a necessidade do "showRuntimeMilliseconds" e "nameFeature".
+**BREAKING** Acrescentado na Classe "ParametersReturnResult", a necessidade do "showRuntimeMilliseconds" e "nameFeature". Classe "ReturnResulPresenter" substituida pela inteface UseCaseImplement.
 
 ## [0.1.8] - 25/03/2021.
 

@@ -5,5 +5,7 @@ import '../../return_success_or_error.dart';
 ///of success, or a throw returning the AppError received in the
 ///ParametersReturnResult.
 abstract class Datasource<R> {
-  Future<R> call({required ParametersReturnResult parameters});
+  Future<R> call({
+    required ParametersReturnResult parameters,
+  });
 }

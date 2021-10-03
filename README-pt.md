@@ -12,28 +12,115 @@ Package criado com intuito de abstrair e simplificar os usecases, repositorios, 
 
 Exemplo de chamada à partir de um banco de dados:
 
+Datasourse:
+A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado para chegar ao resultado. ex: ```Datasource<bool>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
 ```
-final value = await ReturnResultUsecaseImplement<Stream<User>>(
-      showRuntimeMilliseconds: true,
-      nameFeature: "Carregar User",
+class ParametersSalvarHeader implements ParametersReturnResult {
+  final String doc;
+  final String nome;
+  final int prioridade;
+  final Map corHeader;
+  final String user;
+  final String nameFeature;
+  final bool showRuntimeMilliseconds;
+
+  ParametersSalvarHeader({
+    required this.doc,
+    required this.nome,
+    required this.prioridade,
+    required this.corHeader,
+    required this.user,
+    required this.nameFeature,
+    required this.showRuntimeMilliseconds,
+  });
+
+  @override
+  AppError get error =>
+      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
+}
+```
+Ao implementar a classe ```ParametersReturnResult```, precisa sorescrever o ```AppError error```, que é o responsável por identificar o erro que será apresentado em caso de erro. Nessa classe é armazenado os dados que serão consultados.
+
+Implementa-se a chamada externa ```Datasource<Tipo>``` tipando com o dado desejado ex: ```Datasource<Stream<UserModel>>```, ex:
+```
+class ConnectivityDatasource implements Datasource<bool> {
+  final Connectivity connectivity;
+  ConnectivityDatasource({required this.connectivity});
+
+  Future<bool> get isOnline async {
+    var result = await connectivity.checkConnectivity();
+    return result == ConnectivityResult.wifi ||
+        result == ConnectivityResult.mobile;
+  }
+
+  @override
+  Future<bool> call({required ParametersReturnResult parameters}) async {
+    final String messageError = parameters.error.message;
+    try {
+      final result = await isOnline;
+      if (!result) {
+        throw parameters.error..message = "Você está offline";
+      }
+      return result;
+    } catch (e) {
+      throw parameters.error
+        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
+    }
+  }
+}
+```
+Usecase:
+Extende a regra de negócio ```Usecase<Tipo>``` com ```UseCaseImplement<Tipo>``` tipando ambos o dado desejado ex: ```UseCaseImplement<Stream<UserModel>>```
+```
+class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+  final Datasource<bool> datasource;
+
+  ChecarConeccaoUsecase({required this.datasource});
+  @override
+  Future<ReturnSuccessOrError<bool>> call(
+      {required ParametersReturnResult parameters}) async {
+    final result = await returnUseCase(
+      parameters: parameters,
       datasource: datasource,
-    )(parameters: NoParams(
+    );
+    return result;
+  }
+}
+```
+
+Instanciando a Class UseCaseImplement<Tipo> e extratindo o resultado:
+```
+ReturnSuccessOrError<bool>? _value;
+  bool? _result;
+  final checarConeccaoUsecase = ChecarConeccaoUsecase(
+    datasource: ConnectivityDatasource(
+      connectivity: Connectivity(),
+    ),
+  );
+
+  void _checkConnection() async {
+    _value = await checarConeccaoUsecase(
+      parameters: NoParams(
         error: ErrorReturnResult(
           message: "Erro de conexão",
         ),
+        nameFeature: "Checar Conecção",
+        showRuntimeMilliseconds: true,
       ),
     );
-    return value;
+
+    _result = _value!.fold(
+      success: (value) => value.result,
+      error: (value) => value.error,
+    );
 ```
 
-
-O tipo do dado esperado é passado na função ```ReturnResultUsecaseImplement<Tipo>```. Os parametros esperados são:
+A classe "ParametersReturnResult". Espera receber os parametros gerais necessários para a chamada do Usecase, juntamente com os parametros obrigatórios:
 ```showRuntimeMilliseconds``` responsável por mostar o tempo que levou para executar a chamada em milesegundos;
 ```nameFeature``` responsável pela identificação da feature;
-```datasource``` responsável pela chamada externa, onde e retornado o resultado esperado ou o erro;
-Apos a construção da função, é chamado o ```.returnResult``` onde os parametros necessários para o datasouce são passados.
+```AppError``` responsável pelo tratamento do Erro;
 
-O resultado da função ```ReturnResultUsecaseImplement<Tipo>``` é um: ```ReturnSuccessOrError<Tipo>``` que armazena os 2 resultados possíveis:
+O resultado da função ```UseCaseImplement<Tipo>``` é um: ```ReturnSuccessOrError<Tipo>``` que armazena os 2 resultados possíveis:
 ```SuccessReturn<Tipo>``` que por sua vez armazena o sucesso da chamada;
 ```ErrorReturn<Tipo>``` que por sua vez armazena o erro da chamada;
 
@@ -63,7 +150,7 @@ if(value is ErrorReturn<Stream<User>>){
 }
 ```
 
-Exemplo de implementação de uma feature:
+Exemplo de hierarquia de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
 
 ```
@@ -73,196 +160,9 @@ lib:
         check_connection:
             datasouces:
                 connectivity_datasource.dart
-            presenter:
-                checar_coneccao_presenter.dart
+            domain:
+                usecase:
+                checar_coneccao_usecase.dart
     main.dart
-```
-----
-datasouces:
-    connectivity_datasource.dart
-
-```
-import 'package:connectivity/connectivity.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
-
-class ConnectivityDatasource implements Datasource<bool> {
-  final Connectivity connectivity;
-  ConnectivityDatasource({required this.connectivity});
-
-  Future<bool> get isOnline async {
-    var result = await connectivity.checkConnectivity();
-    return result == ConnectivityResult.wifi ||
-        result == ConnectivityResult.mobile;
-  }
-
-  @override
-  Future<bool> call({required ParametersReturnResult parameters}) async {
-    final String messageError = parameters.error.message;
-    try {
-      final result = await isOnline;
-      if (!result) {
-        throw parameters.error..message = "Você está offline";
-      }
-      return result;
-    } catch (e) {
-      throw parameters.error
-        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
-    }
-  }
-}
-```
-----
-A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado para chegar ao resultado. ex: ```Datasource<bool>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
-
-____
-```
-class ParametrosSalvarHeader implements ParametrosRetornoResultado {
-  final String doc;
-  final String nome;
-  final int prioridade;
-  final Map<String, int> corHeader;
-  final String user;
-  final AppError error;
-
-  ParametrosSalvarHeader({
-    required this.doc,
-    required this.nome,
-    required this.prioridade,
-    required this.corHeader,
-    required this.user,
-    required this.error,
-  });
-}
-```
-____
-
-Ao implementar a classe ```ParametrosRetornoResultado```, precisa sorescrever o ```AppError error```, que é o responsável por identificar o erro que será apresentado em caso de erro. Nessa classe é armazenado os dados que serão consultados.
-
-----
-presenter:
-    checar_coneccao_presenter.dart
-
-```    
-import 'package:connectivity/connectivity.dart';
-import 'package:example/features/check_connection/datasources/connectivity_datasource.dart';
-
-import 'package:return_success_or_error/return_success_or_error.dart';
-
-class ChecarConeccaoUsecase {
-  final Connectivity? connectivity;
-  final bool showRuntimeMilliseconds;
-
-  ChecarConeccaoUsecase({
-    this.connectivity,
-    required this.showRuntimeMilliseconds,
-  });
-
-  Future<ReturnSuccessOrError<bool>> consultaConectividade() async {
-    final resultado = await ReturnResultUsecaseImplement<bool>(
-      showRuntimeMilliseconds: showRuntimeMilliseconds,
-      nameFeature: "Checar Conecção",
-      datasource: ConnectivityDatasource(
-        connectivity: connectivity ?? Connectivity(),
-      ),
-    )(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "Erro de conexão",
-        ),
-      ),
-    );
-
-    return resultado;
-  }
-}
-```
-----
-
-----
-main.dart
-
-```    
-import 'package:flutter/material.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
-
-import 'features/check_connection/presenter/checar_coneccao_presenter.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Check Connection'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
-
-  final String? title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  ReturnSuccessOrError<bool>? _value;
-  bool? _result;
-
-  void _checkConnection() async {
-    _value = await ChecarConeccaoUsecase(
-      showRuntimeMilliseconds: true,
-    ).consultaConectividade();
-
-    _result = _value!.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    );
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title!),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Connection query value:',
-            ),
-            Text(
-              '$_value',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            Text(
-              'Connection query result:',
-            ),
-            Text(
-              '$_result',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _checkConnection,
-        tooltip: 'check',
-        child: Icon(Icons.cached),
-      ),
-    );
-  }
-}
 ```
 ----
