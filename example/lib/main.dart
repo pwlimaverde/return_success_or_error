@@ -119,7 +119,7 @@ class ConnectivityDatasource implements Datasource<bool> {
 }
 
 ///Usecases
-class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
   final Datasource<bool> datasource;
 
   ChecarConeccaoUsecase({required this.datasource});
