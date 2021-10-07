@@ -35,13 +35,13 @@ class ConnectivityDatasource implements Datasource<bool> {
 void main() {
   late Connectivity connectivityMock;
   late Datasource<bool> connectivityDatasource;
-  late ChecarConeccaoUsecase<bool> usecase;
+  late ChecarConeccaoUsecase usecase;
 
   setUp(() {
     connectivityMock = ConnectivityMock();
     connectivityDatasource =
         ConnectivityDatasource(connectivity: connectivityMock);
-    usecase = ChecarConeccaoUsecase<bool>(datasource: connectivityDatasource);
+    usecase = ChecarConeccaoUsecase(datasource: connectivityDatasource);
   });
 
   test('Deve retornar um sucesso com true Coneção wifi', () async {

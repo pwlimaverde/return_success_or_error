@@ -70,9 +70,9 @@ class ConnectivityDatasource implements Datasource<bool> {
   }
 }
 ```
-Extends the ```Usecase<Type>``` business rule with ```UseCaseImplement<Type>``` by typing both the desired data eg ```UseCaseImplement<Stream<UserModel>>```
+Extend the ```Usecase``` business rule with ```UseCaseImplement<Type>``` by typing the ```UseCaseImplement<Type>``` with the desired data eg ```UseCaseImplement<Stream<UserModel>>`` `
 ```
-class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
   final Datasource<bool> datasource;
 
   ChecarConeccaoUsecase({required this.datasource});

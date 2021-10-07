@@ -1,3 +1,7 @@
+## [0.3.0] - 07/10/2021.
+
+Correção de bug. Antes ´´´UseCase<Tipo> extends UseCaseImplement<tipo>´´´; Depois ´´´UseCase extends UseCaseImplement<Tipo>´´´. Documentação Corrigida.
+
 ## [0.2.0] - 25/03/2021.
 
 **BREAKING** Acrescentado na Classe "ParametersReturnResult", a necessidade do "showRuntimeMilliseconds" e "nameFeature". Classe "ReturnResulPresenter" substituida pela inteface UseCaseImplement.
