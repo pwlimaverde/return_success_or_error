@@ -70,9 +70,9 @@ class ConnectivityDatasource implements Datasource<bool> {
 }
 ```
 Usecase:
-Extende a regra de negócio ```Usecase<Tipo>``` com ```UseCaseImplement<Tipo>``` tipando ambos o dado desejado ex: ```UseCaseImplement<Stream<UserModel>>```
+Extende a regra de negócio ```Usecase``` com ```UseCaseImplement<Tipo>``` tipando o ```UseCaseImplement<Tipo>``` com o dado desejado ex: ```UseCaseImplement<Stream<UserModel>>```
 ```
-class ChecarConeccaoUsecase<bool> extends UseCaseImplement<bool> {
+class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
   final Datasource<bool> datasource;
 
   ChecarConeccaoUsecase({required this.datasource});
