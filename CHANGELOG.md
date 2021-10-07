@@ -1,4 +1,4 @@
-## [0.3.0] - 25/03/2021.
+## [0.3.0] - 07/10/2021.
 
 Correção de bug. Antes ´´´UseCase<Tipo> extends UseCaseImplement<tipo>´´´; Depois ´´´UseCase extends UseCaseImplement<Tipo>´´´. Documentação Corrigida.
 
