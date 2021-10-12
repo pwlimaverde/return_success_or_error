@@ -5,11 +5,11 @@ import 'package:return_success_or_error/src/interfaces/usecase.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
-import 'package:return_success_or_error/src/mixins/return_result_mixin.dart';
+import 'package:return_success_or_error/src/mixins/return_repository_mixin.dart';
 
 class RepositoryMock extends Mock implements Repository<bool> {}
 
-class TesteUsecaseMock extends UseCase<bool> with ReturnResultMixin<bool> {
+class TesteUsecaseMock extends UseCase<bool> with ReturnRepositoryMixin<bool> {
   final Repository<bool> repository;
 
   TesteUsecaseMock({required this.repository});

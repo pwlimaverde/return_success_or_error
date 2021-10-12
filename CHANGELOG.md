@@ -1,3 +1,7 @@
+## [0.3.1] - 07/10/2021.
+
+Rrfator interfaces e mudança dos metodos ´´´returnUseCase´´´, ´´´returnDatasource´´´, ´´´returnRepository´´´ para minin.
+
 ## [0.3.0] - 07/10/2021.
 
 Correção de bug. Antes ´´´UseCase<Tipo> extends UseCaseImplement<tipo>´´´; Depois ´´´UseCase extends UseCaseImplement<Tipo>´´´. Documentação Corrigida.

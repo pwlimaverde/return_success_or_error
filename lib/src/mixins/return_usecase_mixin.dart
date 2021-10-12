@@ -1,6 +1,8 @@
+import '../core/parameters.dart';
+import '../core/return_success_or_error_class.dart';
+import '../interfaces/datasource.dart';
 import '../features/return_result/repositories/return_result_repository.dart';
 import '../features/return_result/usecases/return_result_usecase.dart';
-import '../../return_success_or_error.dart';
 
 mixin ReturnUsecaseMixin<R> {
   Future<ReturnSuccessOrError<R>> returnUseCase({
