@@ -5,10 +5,13 @@ import 'package:return_success_or_error/src/interfaces/repository.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/mixins/return_result_mixin.dart';
 
 class DatasourceMock extends Mock implements Datasource<bool> {}
 
-class TesteRepositoryMock extends Repository<bool> {
+class TesteRepositoryMock
+    with ReturnResultMixin<bool>
+    implements Repository<bool> {
   final Datasource<bool> datasource;
 
   TesteRepositoryMock({required this.datasource});

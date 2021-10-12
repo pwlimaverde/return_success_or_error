@@ -1,10 +1,12 @@
+import 'package:return_success_or_error/src/mixins/return_result_mixin.dart';
+
 import '../../../../return_success_or_error.dart';
 import '../../../core/parameters.dart';
 import '../../../core/return_success_or_error_class.dart';
 import '../../../interfaces/repository.dart';
 import '../../../interfaces/usecase.dart';
 
-class ReturnResultUsecase<T> extends UseCase<T> {
+class ReturnResultUsecase<T> with ReturnResultMixin<T> implements UseCase<T> {
   final Repository<T> repository;
 
   ReturnResultUsecase({
