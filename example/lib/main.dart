@@ -48,10 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    _result = _value!.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    );
+    _result = _value!.result;
     setState(() {});
   }
 
