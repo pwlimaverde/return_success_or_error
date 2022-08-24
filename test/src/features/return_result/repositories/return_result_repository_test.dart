@@ -1,11 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/repository.dart';
-import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
-import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
-import 'package:return_success_or_error/src/core/runtime_milliseconds.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/features/return_result/repositories/return_result_repository.dart';
 
 class FairebaseSalvarHeaderDatasourceMock extends Mock
@@ -14,130 +13,60 @@ class FairebaseSalvarHeaderDatasourceMock extends Mock
 void main() {
   late Datasource<bool> datasource;
   late Repository<bool> repository;
-  late RuntimeMilliseconds tempo;
+  final ParametersReturnResult paramets = NoParams(
+    error: ErrorReturnResult(
+      message: "teste error direto usecase",
+    ),
+    nameFeature: "Teste Usecase",
+    showRuntimeMilliseconds: true,
+  );
 
   setUp(() {
-    tempo = RuntimeMilliseconds();
     datasource = FairebaseSalvarHeaderDatasourceMock();
     repository = ReturnResultRepository<bool>(datasource: datasource);
   });
 
   test('Deve retornar um success com true', () async {
-    tempo.startScore();
-    when(datasource).calls(#call).thenAnswer((_) => Future.value(true));
+    when(
+      () => datasource(parameters: paramets),
+    ).thenAnswer((_) => Future.value(true));
     final result = await repository(
-      parameters: ParametersSalvarHeader(
-        corHeader: {
-          "r": 60,
-          "g": 60,
-          "b": 60,
-        },
-        doc: 'testedoc',
-        nome: 'novidades',
-        prioridade: 1,
-        user: 'paulo',
-        nameFeature: "Teste resukt",
-        showRuntimeMilliseconds: true,
-      ),
+      parameters: paramets,
     );
-    print("teste result - ${await result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    tempo.finishScore();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
-    expect(result, isA<SuccessReturn<bool>>());
-    expect(
-        result.fold(
-          success: (value) => value.result,
-          error: (value) => value.error,
-        ),
-        true);
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.success));
+    expect(result.result, equals(true));
   });
 
   test('Deve retornar um success com false', () async {
-    tempo.startScore();
-    when(datasource).calls(#call).thenAnswer((_) => Future.value(false));
+    when(
+      () => datasource(parameters: paramets),
+    ).thenAnswer((_) => Future.value(false));
     final result = await repository(
-      parameters: ParametersSalvarHeader(
-        corHeader: {
-          "r": 60,
-          "g": 60,
-          "b": 60,
-        },
-        doc: 'testedoc',
-        nome: 'novidades',
-        prioridade: 1,
-        user: 'paulo',
-        nameFeature: "Teste resukt",
-        showRuntimeMilliseconds: true,
-      ),
+      parameters: paramets,
     );
-    print("teste result - ${await result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    tempo.finishScore();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
-    expect(result, isA<SuccessReturn<bool>>());
-    expect(
-        result.fold(
-          success: (value) => value.result,
-          error: (value) => value.error,
-        ),
-        false);
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.success));
+    expect(result.result, equals(false));
   });
 
-  test(
-      'Deve retornar ErrorReturnResult com Erro ao salvar os dados do header Cod.02-1',
-      () async {
-    tempo.startScore();
-    when(datasource).calls(#call).thenThrow(Exception());
+  test('Deve retornar um Erro com ErrorReturnResult com Exception', () async {
+    when(
+      () => datasource(
+        parameters: paramets,
+      ),
+    ).thenThrow(
+      Exception(),
+    );
     final result = await repository(
-      parameters: ParametersSalvarHeader(
-        corHeader: {
-          "r": 60,
-          "g": 60,
-          "b": 60,
-        },
-        doc: 'testedoc',
-        nome: 'novidades',
-        prioridade: 1,
-        user: 'paulo',
-        nameFeature: "Teste resukt",
-        showRuntimeMilliseconds: true,
-      ),
+      parameters: paramets,
     );
-    print("teste result - ${await result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    tempo.finishScore();
-    print("Tempo de Execução do SalvarHeader: ${tempo.calculateRuntime()}ms");
-    expect(result, isA<ErrorReturn<bool>>());
+
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.error));
+    expect(result.result, isA<Exception>());
   });
-}
-
-class ParametersSalvarHeader implements ParametersReturnResult {
-  final String doc;
-  final String nome;
-  final int prioridade;
-  final Map corHeader;
-  final String user;
-  final String nameFeature;
-  final bool showRuntimeMilliseconds;
-
-  ParametersSalvarHeader({
-    required this.doc,
-    required this.nome,
-    required this.prioridade,
-    required this.corHeader,
-    required this.user,
-    required this.nameFeature,
-    required this.showRuntimeMilliseconds,
-  });
-
-  @override
-  AppError get error =>
-      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
 }

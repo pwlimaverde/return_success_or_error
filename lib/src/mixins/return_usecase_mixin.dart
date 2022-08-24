@@ -1,5 +1,5 @@
 import '../core/parameters.dart';
-import '../core/return_success_or_error_class.dart';
+import '../core/return_success_or_error.dart';
 import '../interfaces/datasource.dart';
 import '../features/return_result/repositories/return_result_repository.dart';
 import '../features/return_result/usecases/return_result_usecase.dart';
@@ -24,7 +24,7 @@ mixin ReturnUsecaseMixin<R> {
     } catch (e) {
       return ErrorReturn<R>(
         error: parameters.error
-          ..message = "$messageError - Cod. 01-4 --- Catch: $e",
+          ..message = "$messageError - Cod. 01-1 --- Catch: $e",
       );
     }
   }

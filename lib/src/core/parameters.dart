@@ -13,7 +13,7 @@ abstract class ParametersReturnResult {
   ///String responsible for identifying the feature.
   final String nameFeature;
 
-  ParametersReturnResult({
+  const ParametersReturnResult({
     required this.error,
     required this.showRuntimeMilliseconds,
     required this.nameFeature,
@@ -27,7 +27,7 @@ class NoParams implements ParametersReturnResult {
   final bool showRuntimeMilliseconds;
   final String nameFeature;
 
-  NoParams({
+  const NoParams({
     required this.error,
     required this.showRuntimeMilliseconds,
     required this.nameFeature,
