@@ -1,6 +1,10 @@
+## [0.4.0] - 28/08/2022.
+
+Refator ReturnSuccessOrError com implantação do enum StatusResult. Agora o acesso ao retorno é dado pelo ".result", e o acesso ao status é dado pelo ".status", onde retorna o enum "StatusResult.success" ou "StatusResult.error".
+
 ## [0.3.1] - 07/10/2021.
 
-Rrfator interfaces e mudança dos metodos ´´´returnUseCase´´´, ´´´returnDatasource´´´, ´´´returnRepository´´´ para minin.
+Refator interfaces e mudança dos metodos ´´´returnUseCase´´´, ´´´returnDatasource´´´, ´´´returnRepository´´´ para mixin.
 
 ## [0.3.0] - 07/10/2021.
 

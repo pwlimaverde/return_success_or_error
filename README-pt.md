@@ -109,10 +109,7 @@ ReturnSuccessOrError<bool>? _value;
       ),
     );
 
-    _result = _value!.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    );
+    _result = _value!.result;
 ```
 
 A classe "ParametersReturnResult". Espera receber os parametros gerais necessários para a chamada do Usecase, juntamente com os parametros obrigatórios:
@@ -127,25 +124,20 @@ O resultado da função ```UseCaseImplement<Tipo>``` é um: ```ReturnSuccessOrEr
 Exemplo de recuperação da informação contida no ```ReturnSuccessOrError<Tipo>```:
 
 ```
-final result = await value.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )
+final result = await value.result
 ```
 
-A partir do ```ReturnSuccessOrError<Tipo>``` poderar ser verificado se o retorno foi sucesso ou erro, apenas verificando:
-```is SuccessReturn<Tipo>```;
-```is ErrorReturn<Tipo>```;
+A partir do ```ReturnSuccessOrError<Tipo>``` poderar ser verificado se o retorno foi sucesso ou erro, apenas verificando o status.
 
 Exemplo de verificação:
 
 ```
-if(value is SuccessReturn<Stream<User>>){
+if(value.status == StatusResult.success){
   ...
 }
 ```
 ```
-if(value is ErrorReturn<Stream<User>>){
+if(value.status == StatusResult.error){
   ...
 }
 ```

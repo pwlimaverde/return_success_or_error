@@ -18,7 +18,7 @@ mixin ReturnDatasourcetMixin<R> {
     } catch (e) {
       return ErrorReturn<R>(
         error: parameters.error
-          ..message = "$messageError - Cod. 03-1 --- Catch: $e",
+          ..message = "$messageError. \n Cod. 03-1 --- Catch: $e",
       );
     }
   }

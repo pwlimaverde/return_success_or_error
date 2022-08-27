@@ -16,7 +16,7 @@ mixin ReturnRepositoryMixin<R> {
     } catch (e) {
       return ErrorReturn<R>(
         error: parameters.error
-          ..message = "$messageError - Cod. 02-1 --- Catch: $e",
+          ..message = "$messageError. \n Cod. 02-1 --- Catch: $e",
       );
     }
   }

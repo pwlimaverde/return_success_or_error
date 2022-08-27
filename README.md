@@ -108,10 +108,7 @@ ReturnSuccessOrError<bool>? _value;
       ),
     );
 
-    _result = _value!.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    );
+    _result = _value!.result;
 ```
 The "ParametersReturnResult" class. Expects to receive the general parameters necessary for the Usecase call, along with the mandatory parameters:
 ```showRuntimeMilliseconds``` responsible for showing the time it took to execute the call in milliseconds;
@@ -124,10 +121,7 @@ The result of the ```UseCaseImplement<Type>``` function is a: ```ReturnSuccessOr
 
 Example of retrieving information contained in ```ReturnSuccessOrError<Type>```:
 ```
-final result = await value.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )
+final result = await _value!.result
 ```
 from ```ReturnSuccessOrError<Type>``` can be checked if the return was success or error, just by checking:
 ```is SuccessReturn<Type>```;
@@ -135,12 +129,12 @@ from ```ReturnSuccessOrError<Type>``` can be checked if the return was success o
 
 Verification example:
 ```
-if(value is SuccessReturn<Stream<User>>){
+if(value.status == StatusResult.success){
   ...
 }
 ```
 ```
-if(value is ErrorReturn<Stream<User>>){
+if(value.status == StatusResult.error){
   ...
 }
 ```

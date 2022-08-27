@@ -48,8 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    _result = _value!.result;
-    setState(() {});
+    if (_value!.status == StatusResult.success) {
+      _result = _value!.result;
+      setState(() {});
+    } else {
+      _result = false;
+      setState(() {});
+    }
   }
 
   @override
@@ -101,7 +106,6 @@ class ConnectivityDatasource implements Datasource<bool> {
 
   @override
   Future<bool> call({required ParametersReturnResult parameters}) async {
-    final String messageError = parameters.error.message;
     try {
       final result = await isOnline;
       if (!result) {
@@ -109,8 +113,7 @@ class ConnectivityDatasource implements Datasource<bool> {
       }
       return result;
     } catch (e) {
-      throw parameters.error
-        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
+      throw parameters.error..message = "$e";
     }
   }
 }

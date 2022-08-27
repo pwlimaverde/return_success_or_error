@@ -24,7 +24,7 @@ mixin ReturnUsecaseMixin<R> {
     } catch (e) {
       return ErrorReturn<R>(
         error: parameters.error
-          ..message = "$messageError - Cod. 01-1 --- Catch: $e",
+          ..message = "$messageError. \n Cod. 01-1 --- Catch: $e",
       );
     }
   }
