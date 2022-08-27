@@ -1,5 +1,5 @@
 import '../core/parameters.dart';
-import '../core/return_success_or_error_class.dart';
+import '../core/return_success_or_error.dart';
 import '../interfaces/repository.dart';
 
 mixin ReturnRepositoryMixin<R> {
@@ -16,7 +16,7 @@ mixin ReturnRepositoryMixin<R> {
     } catch (e) {
       return ErrorReturn<R>(
         error: parameters.error
-          ..message = "$messageError - Cod. 01-3 --- Catch: $e",
+          ..message = "$messageError. \n Cod. 02-1 --- Catch: $e",
       );
     }
   }

@@ -2,7 +2,7 @@ import '../../../mixins/return_datasource_mixin.dart';
 import '../../../interfaces/datasource.dart';
 import '../../../interfaces/repository.dart';
 import '../../../core/parameters.dart';
-import '../../../core/return_success_or_error_class.dart';
+import '../../../core/return_success_or_error.dart';
 
 class ReturnResultRepository<T>
     with ReturnDatasourcetMixin<T>

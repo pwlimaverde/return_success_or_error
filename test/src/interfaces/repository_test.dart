@@ -4,10 +4,10 @@ import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/repository.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
-import 'package:return_success_or_error/src/core/return_success_or_error_class.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/mixins/return_datasource_mixin.dart';
 
-class DatasourceMock extends Mock implements Datasource<bool> {}
+class TestDatasourceMock extends Mock implements Datasource<bool> {}
 
 class TesteRepositoryMock
     with ReturnDatasourcetMixin<bool>
@@ -28,86 +28,64 @@ class TesteRepositoryMock
 }
 
 void main() {
-  late Repository<bool> repository;
-  late Datasource<bool> datasource;
-
-  setUp(() {
-    datasource = DatasourceMock();
-    repository = TesteRepositoryMock(datasource: datasource);
-  });
+  final Datasource<bool> datasource = TestDatasourceMock();
+  final Repository<bool> repository = TesteRepositoryMock(
+    datasource: datasource,
+  );
+  final ParametersReturnResult paramets = NoParams(
+    error: ErrorReturnResult(
+      message: "teste error direto usecase",
+    ),
+    nameFeature: "Teste Usecase",
+    showRuntimeMilliseconds: true,
+  );
 
   test('Deve retornar um success com true', () async {
-    when(datasource).calls(#call).thenAnswer((_) => Future.value(true));
-    final result = await repository(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto usecase",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
+    when(
+      () => datasource(
+        parameters: paramets,
       ),
+    ).thenAnswer(
+      (_) => Future.value(true),
     );
-    print("teste result - ${result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    expect(result, isA<SuccessReturn<bool>>());
+    final result = await repository(
+      parameters: paramets,
+    );
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.success));
+    expect(result.result, equals(true));
   });
 
   test('Deve retornar um success com false', () async {
-    when(datasource).calls(#call).thenAnswer((_) => Future.value(false));
-    final result = await repository(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto usecase",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
+    when(
+      () => datasource(
+        parameters: paramets,
       ),
+    ).thenAnswer(
+      (_) => Future.value(false),
     );
-    print("teste result - ${result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    expect(result, isA<SuccessReturn<bool>>());
+    final result = await repository(
+      parameters: paramets,
+    );
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.success));
+    expect(result.result, equals(false));
   });
 
   test('Deve retornar um Erro com ErrorReturnResult com Exception', () async {
-    when(datasource).calls(#call).thenThrow(Exception());
-    final result = await repository(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto usecase",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
+    when(
+      () => datasource(
+        parameters: paramets,
       ),
-    );
-    print("teste result - ${result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    expect(result, isA<ErrorReturn<bool>>());
-  });
-
-  test('Deve retornar um Erro com ErrorReturnResult com erro datasource',
-      () async {
-    when(datasource)
-        .calls(#call)
-        .thenThrow(ErrorReturnResult(message: "erro datasource"));
+    ).thenThrow(Exception());
     final result = await repository(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto usecase",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
-      ),
+      parameters: paramets,
     );
-    print("teste result - ${result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    )}");
-    expect(result, isA<ErrorReturn<bool>>());
+    print(result.status);
+    print(result.result);
+    expect(result.status, equals(StatusResult.error));
+    expect(result.result, isA<Exception>());
   });
 }
