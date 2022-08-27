@@ -19,7 +19,7 @@ export 'src/core/parameters.dart';
 ///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
 ///ErrorReturn which in turn stores the result in case of success or an
 ///AppError in case of failure.
-export 'src/core/return_success_or_error_class.dart';
+export 'src/core/return_success_or_error.dart';
 
 ///Responsible for exposing the abstraction of the runtime_milliseconds.
 ///

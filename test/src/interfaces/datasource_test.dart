@@ -1,22 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:return_success_or_error/src/core/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
+import 'package:return_success_or_error/src/interfaces/datasource.dart';
 
 class ExternalMock<bool> {
-  final bool teste;
+  final bool? teste;
   ExternalMock({
-    required this.teste,
+    this.teste,
   });
   bool returnBool() {
-    return teste;
+    if (teste != null) {
+      return teste!;
+    } else {
+      throw Exception();
+    }
   }
 }
 
-class TesteDataSourseMock extends Datasource<bool> {
+class TesteDataSourceMock extends Datasource<bool> {
   final ExternalMock<bool> external;
 
-  TesteDataSourseMock({required this.external});
+  TesteDataSourceMock({required this.external});
 
   @override
   Future<bool> call({
@@ -32,7 +36,7 @@ class TesteDataSourseMock extends Datasource<bool> {
 
 void main() {
   test('Deve retornar um success com true', () async {
-    final result = await TesteDataSourseMock(
+    final result = await TesteDataSourceMock(
       external: ExternalMock(teste: true),
     )(
       parameters: NoParams(
@@ -43,12 +47,12 @@ void main() {
         showRuntimeMilliseconds: true,
       ),
     );
-    print("teste result - ${result}");
+    print("teste result - $result");
     expect(result, isA<bool>());
   });
 
   test('Deve retornar um success com false', () async {
-    final result = await TesteDataSourseMock(
+    final result = await TesteDataSourceMock(
       external: ExternalMock(teste: false),
     )(
       parameters: NoParams(
@@ -59,7 +63,23 @@ void main() {
         showRuntimeMilliseconds: true,
       ),
     );
-    print("teste result - ${result}");
+    print("teste result - $result");
     expect(result, isA<bool>());
+  });
+
+  test('Deve retornar um erro', () async {
+    expect(
+        () async => await TesteDataSourceMock(
+              external: ExternalMock(),
+            )(
+              parameters: NoParams(
+                error: ErrorReturnResult(
+                  message: "teste error direto datasource",
+                ),
+                nameFeature: "Teste Usecase",
+                showRuntimeMilliseconds: true,
+              ),
+            ),
+        throwsA(isA<Exception>()));
   });
 }
