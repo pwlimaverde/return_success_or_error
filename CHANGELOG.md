@@ -1,3 +1,7 @@
+## [0.4.1] - 18/09/2022.
+
+Inclusão da interface Presenter, classe abstrata para garantir o retorno de um ReturnSuccessOrError
+
 ## [0.4.0] - 28/08/2022.
 
 Refator ReturnSuccessOrError com implantação do enum StatusResult. Agora o acesso ao retorno é dado pelo ".result", e o acesso ao status é dado pelo ".status", onde retorna o enum "StatusResult.success" ou "StatusResult.error".
