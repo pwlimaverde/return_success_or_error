@@ -1,6 +1,10 @@
+## [0.4.2] - 18/09/2022.
+
+Correção do export Presenter e ajuste na documentação.
+
 ## [0.4.1] - 18/09/2022.
 
-Inclusão da interface Presenter, classe abstrata para garantir o retorno de um ReturnSuccessOrError
+Inclusão da interface Presenter, classe abstrata para garantir o retorno de um ReturnSuccessOrError.
 
 ## [0.4.0] - 28/08/2022.
 

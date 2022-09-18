@@ -41,3 +41,6 @@ export 'src/interfaces/usecase_implement.dart';
 ///must return the type of the pre-defined data or an AppError which is an
 ///Exeption.
 export 'src/interfaces/datasource.dart';
+
+///Responsible for exposing the Presenter abstraction, which forces the return of ReturnSuccessOrError.
+export 'src/interfaces/presenter.dart';
