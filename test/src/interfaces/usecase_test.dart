@@ -35,6 +35,7 @@ void main() {
     ),
     nameFeature: "Teste Usecase",
     showRuntimeMilliseconds: true,
+    isIsolate: true,
   );
 
   setUp(() {

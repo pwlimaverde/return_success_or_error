@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import '../../../core/runtime_milliseconds.dart';
 import '../../../mixins/return_repository_mixin.dart';
 import '../../../core/parameters.dart';

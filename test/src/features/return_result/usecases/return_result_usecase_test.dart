@@ -15,6 +15,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   final String user;
   final String nameFeature;
   final bool showRuntimeMilliseconds;
+  final bool isIsolate;
 
   ParametersSalvarHeader({
     required this.doc,
@@ -24,6 +25,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.user,
     required this.nameFeature,
     required this.showRuntimeMilliseconds,
+    required this.isIsolate,
   });
 
   @override
@@ -48,6 +50,7 @@ void main() {
     user: 'paulo',
     nameFeature: 'Teste Header',
     showRuntimeMilliseconds: true,
+    isIsolate: true,
   );
 
   setUp(() {
