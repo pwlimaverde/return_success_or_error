@@ -1,8 +1,9 @@
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -45,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         nameFeature: "Checar Conecção",
         showRuntimeMilliseconds: true,
+        isIsolate: false,
       ),
     );
 
@@ -100,8 +102,10 @@ class ConnectivityDatasource implements Datasource<bool> {
 
   Future<bool> get isOnline async {
     var result = await connectivity.checkConnectivity();
+    print(result);
     return result == ConnectivityResult.wifi ||
-        result == ConnectivityResult.mobile;
+        result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.ethernet;
   }
 
   @override

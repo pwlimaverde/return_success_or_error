@@ -19,6 +19,7 @@ void main() {
     ),
     nameFeature: "Teste Usecase",
     showRuntimeMilliseconds: true,
+    isIsolate: false,
   );
 
   setUp(() {

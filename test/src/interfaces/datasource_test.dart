@@ -45,6 +45,7 @@ void main() {
         ),
         nameFeature: "Teste Usecase",
         showRuntimeMilliseconds: true,
+        isIsolate: true,
       ),
     );
     print("teste result - $result");
@@ -61,6 +62,7 @@ void main() {
         ),
         nameFeature: "Teste Usecase",
         showRuntimeMilliseconds: true,
+        isIsolate: true,
       ),
     );
     print("teste result - $result");
@@ -78,6 +80,7 @@ void main() {
                 ),
                 nameFeature: "Teste Usecase",
                 showRuntimeMilliseconds: true,
+                isIsolate: true,
               ),
             ),
         throwsA(isA<Exception>()));

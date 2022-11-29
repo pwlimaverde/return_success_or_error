@@ -1,3 +1,9 @@
+## [0.5.0] - 18/09/2022.
+
+1 - Inclusão de isIsolate em ParametersReturnResult.
+2 - Abilitação do datasource executado em isolate.
+3 - Atualizaçã do Exemplo.
+
 ## [0.4.2] - 18/09/2022.
 
 Correção do export Presenter e ajuste na documentação.

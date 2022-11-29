@@ -1,4 +1,4 @@
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:example/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,7 +13,8 @@ class ConnectivityDatasource implements Datasource<bool> {
   Future<bool> get isOnline async {
     var result = await connectivity.checkConnectivity();
     return result == ConnectivityResult.wifi ||
-        result == ConnectivityResult.mobile;
+        result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.ethernet;
   }
 
   @override
@@ -40,6 +41,7 @@ void main() {
     ),
     nameFeature: "Checar Conecção",
     showRuntimeMilliseconds: true,
+    isIsolate: false,
   );
 
   setUp(() {

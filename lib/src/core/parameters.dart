@@ -13,10 +13,13 @@ abstract class ParametersReturnResult {
   ///String responsible for identifying the feature.
   final String nameFeature;
 
+  final bool isIsolate;
+
   const ParametersReturnResult({
     required this.error,
     required this.showRuntimeMilliseconds,
     required this.nameFeature,
+    required this.isIsolate,
   });
 }
 
@@ -26,10 +29,12 @@ class NoParams implements ParametersReturnResult {
   final AppError error;
   final bool showRuntimeMilliseconds;
   final String nameFeature;
+  final bool isIsolate;
 
   const NoParams({
     required this.error,
     required this.showRuntimeMilliseconds,
     required this.nameFeature,
+    required this.isIsolate,
   });
 }

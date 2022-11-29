@@ -38,6 +38,7 @@ void main() {
     ),
     nameFeature: "Teste Usecase",
     showRuntimeMilliseconds: true,
+    isIsolate: false,
   );
 
   test('Deve retornar um success com true', () async {
