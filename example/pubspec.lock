@@ -288,11 +288,7 @@ packages:
       path: ".."
       relative: true
     source: path
-<<<<<<< HEAD
-    version: "0.4.2"
-=======
     version: "0.5.0"
->>>>>>> release/0.5.0
   shelf:
     dependency: transitive
     description:
