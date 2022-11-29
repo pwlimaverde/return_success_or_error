@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         nameFeature: "Checar Conecção",
         showRuntimeMilliseconds: true,
-        isIsolate: false,
+        isIsolate: true,
       ),
     );
 
