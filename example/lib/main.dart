@@ -41,12 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _checkConnection() async {
     _value = await checarConeccaoUsecase(
       parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "Erro de conexão",
+        basic: ParametersBasic(
+          error: ErrorReturnResult(
+            message: "Erro de conexão",
+          ),
+          nameFeature: "Checar Conecção",
+          showRuntimeMilliseconds: true,
+          isIsolate: true,
         ),
-        nameFeature: "Checar Conecção",
-        showRuntimeMilliseconds: true,
-        isIsolate: true,
       ),
     );
 
@@ -113,11 +115,11 @@ class ConnectivityDatasource implements Datasource<bool> {
     try {
       final result = await isOnline;
       if (!result) {
-        throw parameters.error..message = "Você está offline";
+        throw parameters.basic.error..message = "Você está offline";
       }
       return result;
     } catch (e) {
-      throw parameters.error..message = "$e";
+      throw parameters.basic.error..message = "$e";
     }
   }
 }
