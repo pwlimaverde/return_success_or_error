@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/interfaces/errors.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
   });
 
   test('Deve retornar o resultado ReturnSuccessOrError errot', () {
-    final resultError = ErrorReturn<int>(
+    final resultError = ErrorReturn(
       error: ErrorReturnResult(
         message: "teste error",
       ),
@@ -33,34 +33,4 @@ void main() {
     expect(status, equals(StatusResult.error));
     expect(error, isA<AppError>());
   });
-
-  /*depreciated
-  test('Deve retornar um success com o result da String', () {
-    final result = SuccessReturn(result: "teste success");
-    print(result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    ));
-
-    expect(
-        result.fold(
-          success: (value) => value.result,
-          error: (value) => value.error,
-        ),
-        "teste success");
-  });
-
-  test('Deve retornar um errorr', () {
-    final result = ErrorReturn(
-      error: ErrorReturnResult(
-        message: "teste error",
-      ),
-    );
-    print(result.fold(
-      success: (value) => value.result,
-      error: (value) => value.error,
-    ));
-    expect(result, isA<ErrorReturn>());
-  });
-  */
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/interfaces/errors.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/repository.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/src/core/errors.dart';
+import 'package:return_success_or_error/src/interfaces/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 

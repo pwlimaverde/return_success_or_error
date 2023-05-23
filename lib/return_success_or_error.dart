@@ -4,7 +4,7 @@ library return_success_or_error;
 ///
 ///The classes that represented the errors need to implement the AppError class
 ///and override the ´´´message´´´ parameter
-export 'src/core/errors.dart';
+export 'src/interfaces/errors.dart';
 
 ///Responsible for exposing the abstraction of the parameters.
 ///
