@@ -22,11 +22,11 @@ class ConnectivityDatasource implements Datasource<bool> {
     try {
       final result = await isOnline;
       if (!result) {
-        throw parameters.error..message = "Você está offline";
+        throw parameters.basic.error..message = "Você está offline";
       }
       return result;
     } catch (e) {
-      throw parameters.error..message = "$e";
+      throw parameters.basic.error..message = "$e";
     }
   }
 }

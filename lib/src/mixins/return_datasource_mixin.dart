@@ -9,9 +9,9 @@ mixin ReturnDatasourcetMixin<R> {
     required ParametersReturnResult parameters,
     required Datasource<R> datasource,
   }) async {
-    final String messageError = parameters.error.message;
+    final String messageError = parameters.basic.error.message;
     try {
-      final R result = parameters.isIsolate
+      final R result = parameters.basic.isIsolate
           ? await funcaoIsolate(
               funcao: await datasource.call(
               parameters: parameters,
@@ -24,7 +24,7 @@ mixin ReturnDatasourcetMixin<R> {
       );
     } catch (e) {
       return ErrorReturn<R>(
-        error: parameters.error
+        error: parameters.basic.error
           ..message = "$messageError. \n Cod. 03-1 --- Catch: $e",
       );
     }

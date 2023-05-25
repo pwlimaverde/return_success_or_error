@@ -55,15 +55,15 @@ class ConnectivityDatasource implements Datasource<bool> {
 
   @override
   Future<bool> call({required ParametersReturnResult parameters}) async {
-    final String messageError = parameters.error.message;
+    final String messageError = parameters.basic.error.message;
     try {
       final result = await isOnline;
       if (!result) {
-        throw parameters.error..message = "Você está offline";
+        throw parameters.basic.error..message = "Você está offline";
       }
       return result;
     } catch (e) {
-      throw parameters.error
+      throw parameters.basic.error
         ..message = "$messageError - Cod. 03-1 --- Catch: $e";
     }
   }

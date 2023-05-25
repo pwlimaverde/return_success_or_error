@@ -7,7 +7,7 @@ enum StatusResult {
 }
 
 ///Stores the result of success or failure.
-abstract base class ReturnSuccessOrError<R> {
+sealed class ReturnSuccessOrError<R> {
   final AppError? _error;
   final R? _success;
 
@@ -34,7 +34,7 @@ final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
 }
 
 ///Responsible for storing the returned data when error.
-final class ErrorReturn extends ReturnSuccessOrError {
+final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
   const ErrorReturn({
     required AppError super.error,
   });

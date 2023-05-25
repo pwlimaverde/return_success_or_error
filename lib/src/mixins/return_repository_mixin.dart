@@ -7,7 +7,7 @@ mixin ReturnRepositoryMixin<R> {
     required ParametersReturnResult parameters,
     required Repository<R> repository,
   }) async {
-    final String messageError = parameters.error.message;
+    final String messageError = parameters.basic.error.message;
     try {
       final result = await repository(
         parameters: parameters,
@@ -15,7 +15,7 @@ mixin ReturnRepositoryMixin<R> {
       return result;
     } catch (e) {
       return ErrorReturn<R>(
-        error: parameters.error
+        error: parameters.basic.error
           ..message = "$messageError. \n Cod. 02-1 --- Catch: $e",
       );
     }

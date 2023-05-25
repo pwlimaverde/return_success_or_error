@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import '../../../core/runtime_milliseconds.dart';
 import '../../../mixins/return_repository_mixin.dart';
 import '../../../core/parameters.dart';
@@ -20,25 +18,25 @@ class ReturnResultUsecase<T>
   Future<ReturnSuccessOrError<T>> call({
     required ParametersReturnResult parameters,
   }) async {
-    final String messageError = parameters.error.message;
+    final String messageError = parameters.basic.error.message;
     final RuntimeMilliseconds runtime = RuntimeMilliseconds();
     try {
-      if (parameters.showRuntimeMilliseconds) {
+      if (parameters.basic.showRuntimeMilliseconds) {
         runtime.startScore();
       }
       final result = await returnRepository(
         parameters: parameters,
         repository: repository,
       );
-      if (parameters.showRuntimeMilliseconds) {
+      if (parameters.basic.showRuntimeMilliseconds) {
         runtime.finishScore();
         print(
-            "Execution Time ${parameters.nameFeature}: ${runtime.calculateRuntime()}ms");
+            "Execution Time ${parameters.basic.nameFeature}: ${runtime.calculateRuntime()}ms");
       }
       return result;
     } catch (e) {
       return ErrorReturn<T>(
-        error: parameters.error
+        error: parameters.basic.error
           ..message = "$messageError - Cod. 01-1.1 --- Catch: $e",
       );
     }
