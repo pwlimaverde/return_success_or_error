@@ -4,8 +4,8 @@ import '../core/parameters.dart';
 ///call method involving logic in a try catch to return the typed data in case
 ///of success, or a throw returning the AppError received in the
 ///ParametersReturnResult.
-abstract class Datasource<R> {
-  Future<R> call({
+abstract interface class Datasource<TypeDatasource> {
+  Future<TypeDatasource> call({
     required ParametersReturnResult parameters,
   });
 }

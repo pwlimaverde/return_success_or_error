@@ -1,8 +1,8 @@
 import '../core/parameters.dart';
-import '../core/return_success_or_error.dart';
+import 'errors.dart';
 
 abstract interface class ResultSuccessOrError<R> {
-  Future<ReturnSuccessOrError<R>> call({
+  Future<({R? result, AppError? error})> call({
     required ParametersReturnResult parameters,
   });
 }

@@ -1,127 +1,88 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_error/src/interfaces/repository.dart';
-import 'package:return_success_or_error/src/interfaces/usecase.dart';
-import 'package:return_success_or_error/src/interfaces/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
-import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/features/return_result/usecases/return_result_usecase.dart';
+import 'package:return_success_or_error/src/interfaces/datasource.dart';
+import 'package:return_success_or_error/src/interfaces/errors.dart';
 
-class ParametersSalvarHeader implements ParametersReturnResult {
-  final String doc;
-  final String nome;
-  final int prioridade;
-  final Map corHeader;
-  final String user;
-  final String nameFeature;
-  final bool showRuntimeMilliseconds;
-  final bool isIsolate;
+final class ReturnResultDatasourceMock extends Mock
+    implements Datasource<bool> {}
 
-  ParametersSalvarHeader({
-    required this.doc,
-    required this.nome,
-    required this.prioridade,
-    required this.corHeader,
-    required this.user,
-    required this.nameFeature,
-    required this.showRuntimeMilliseconds,
-    required this.isIsolate,
-  });
+final class TesteUsecase extends ReturnResultUsecase<String, bool> {
+  TesteUsecase({required super.datasource});
 
   @override
-  AppError get error =>
-      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
+  Future<({AppError? error, String? result})> call(
+      {required ParametersReturnResult parameters}) async {
+    final teste = await returResult(
+      parameters: parameters,
+      datasource: datasource,
+    );
+    print("Teste retorno Datasource - $teste");
+    if (teste.error == null) {
+      return (
+        result: "Regra de negocio OK",
+        error: null,
+      );
+    } else {
+      return (
+        result: null,
+        error: parameters.basic.error,
+      );
+    }
+  }
 }
 
-class ReturnResultRepositoryMock extends Mock implements Repository<bool> {}
-
 void main() {
-  late Repository<bool> repository;
-  late UseCase<bool> returnResultUsecase;
-  final parameters = ParametersSalvarHeader(
-    corHeader: {
-      "r": 60,
-      "g": 60,
-      "b": 60,
-    },
-    doc: 'testedoc',
-    nome: 'novidades',
-    prioridade: 1,
-    user: 'paulo',
-    nameFeature: 'Teste Header',
-    showRuntimeMilliseconds: true,
-    isIsolate: true,
-  );
+  late Datasource<bool> datasource;
+  late ReturnResultUsecase<String, bool> returnResultUsecase;
+  final parameters = NoParamsGeneral();
 
   setUp(() {
-    repository = ReturnResultRepositoryMock();
-    returnResultUsecase = ReturnResultUsecase<bool>(
-      repository: repository,
-    );
+    datasource = ReturnResultDatasourceMock();
+    returnResultUsecase = TesteUsecase(datasource: datasource);
   });
 
-  test('Deve retornar um success com true', () async {
-    when(() => repository(parameters: parameters))
-        .thenAnswer((_) => Future.value(SuccessReturn<bool>(success: true)));
+  test('Deve retornar um success com "Regra de negocio OK" data "true"',
+      () async {
+    when(() => datasource(parameters: parameters)).thenAnswer(
+      (_) => Future.value(true),
+    );
     final result = await returnResultUsecase(
       parameters: parameters,
     );
-    print(result.status);
     print(result.result);
-    expect(result.status, equals(StatusResult.success));
-    expect(result.result, equals(true));
+    print(result.error);
+    expect(result.result, equals("Regra de negocio OK"));
+    expect(result.error, equals(null));
   });
 
-  test('Deve retornar um success com false', () async {
-    when(() => repository(parameters: parameters))
-        .thenAnswer((_) => Future.value(SuccessReturn<bool>(success: false)));
+  test('Deve retornar um success com "Regra de negocio OK" data "false"',
+      () async {
+    when(() => datasource(parameters: parameters)).thenAnswer(
+      (_) => Future.value(false),
+    );
     final result = await returnResultUsecase(
       parameters: parameters,
     );
-    print(result.status);
     print(result.result);
-    expect(result.status, equals(StatusResult.success));
-    expect(result.result, equals(false));
+    print(result.error);
+    expect(result.result, equals("Regra de negocio OK"));
+    expect(result.error, equals(null));
   });
 
   test(
-      'Deve retornar um ErrorReturnResult com Erro ao salvar os dados do header Cod.02-1',
+      'Deve retornar um AppError com ErrorReturnResult - Error General Feature. Cod. 03-1 --- Catch: Exception',
       () async {
-    when(() => repository(parameters: parameters)).thenAnswer(
-      (_) => Future.value(
-        ErrorReturn<bool>(
-          error: ErrorReturnResult(
-            message: "Erro ao salvar os dados do header Cod.02-1",
-          ),
-        ),
-      ),
-    );
-    final result = await returnResultUsecase(
-      parameters: parameters,
-    );
-    print(result.status);
-    print(result.result);
-    expect(result.status, equals(StatusResult.error));
-    expect(result, isA<ErrorReturn<bool>>());
-  });
-
-  test(
-      'Deve retornar um ErrorReturnResult, pela exeption do repository com Erro ao salvar os dados do header Cod.01-3',
-      () async {
-    when(
-      () => repository(
-        parameters: parameters,
-      ),
-    ).thenThrow(
+    when(() => datasource(parameters: parameters)).thenThrow(
       Exception(),
     );
     final result = await returnResultUsecase(
       parameters: parameters,
     );
-
-    print(result.status);
     print(result.result);
-    expect(result.status, equals(StatusResult.error));
-    expect(result, isA<ErrorReturn<bool>>());
+    print(result.error);
+    expect(result.result, equals(null));
+    expect(result.error, isA<ErrorReturnResult>());
   });
 }

@@ -39,13 +39,13 @@ final class NoParams implements ParametersReturnResult {
   NoParams({required this.basic});
 }
 
-final class NoParamsTeste implements ParametersReturnResult {
+final class NoParamsGeneral implements ParametersReturnResult {
   @override
   ParametersBasic get basic => ParametersBasic(
         error: ErrorReturnResult(
-          message: "Error Teste Feature",
+          message: "Error General Feature",
         ),
-        nameFeature: "Teste Feature",
+        nameFeature: "General Feature",
         showRuntimeMilliseconds: true,
         isIsolate: true,
       );

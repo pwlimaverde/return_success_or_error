@@ -1,17 +1,16 @@
 import 'dart:isolate';
-
 import '../core/parameters.dart';
-import '../core/return_success_or_error.dart';
 import '../interfaces/datasource.dart';
+import '../interfaces/errors.dart';
 
-mixin ReturnDatasourcetMixin<R> {
-  Future<ReturnSuccessOrError<R>> returnDatasource({
+mixin ReturnDatasourcetMixin<TypeDatasource> {
+  Future<({TypeDatasource? result, AppError? error})> returnDatasource({
     required ParametersReturnResult parameters,
-    required Datasource<R> datasource,
+    required Datasource<TypeDatasource> datasource,
   }) async {
     final String messageError = parameters.basic.error.message;
     try {
-      final R result = parameters.basic.isIsolate
+      final TypeDatasource _result = parameters.basic.isIsolate
           ? await funcaoIsolate(
               funcao: await datasource.call(
               parameters: parameters,
@@ -19,22 +18,22 @@ mixin ReturnDatasourcetMixin<R> {
           : await datasource.call(
               parameters: parameters,
             );
-      return SuccessReturn<R>(
-        success: result,
-      );
+      return (result: _result, error: null);
     } catch (e) {
-      return ErrorReturn<R>(
+      return (
+        result: null,
         error: parameters.basic.error
           ..message = "$messageError. \n Cod. 03-1 --- Catch: $e",
       );
     }
   }
 
-  Future<dynamic> funcaoIsolate({required R funcao}) async {
+  Future<dynamic> funcaoIsolate({required TypeDatasource funcao}) async {
     ReceivePort receiveIsolatePort = ReceivePort();
     await Isolate.spawn(_envioRetornoFuncao, receiveIsolatePort.sendPort);
     SendPort sendToIsolatePort = await receiveIsolatePort.first;
-    R result = await _recebimentoRetornoFuncao(sendToIsolatePort, funcao);
+    TypeDatasource result =
+        await _recebimentoRetornoFuncao(sendToIsolatePort, funcao);
     return result;
   }
 
@@ -42,7 +41,7 @@ mixin ReturnDatasourcetMixin<R> {
     ReceivePort port = ReceivePort();
     sendPort.send(port.sendPort);
     await for (var msg in port) {
-      R data = msg[0];
+      TypeDatasource data = msg[0];
       SendPort replyTo = msg[1];
       replyTo.send(data);
     }

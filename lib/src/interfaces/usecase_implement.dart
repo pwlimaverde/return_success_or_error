@@ -1,9 +1,9 @@
-import '../core/parameters.dart';
-import '../core/return_success_or_error.dart';
-import '../mixins/return_usecase_mixin.dart';
+// import '../../return_success_or_error.dart';
+// import '../features/return_result/usecases/return_result_usecase.dart';
 
-abstract class UseCaseImplement<R> with ReturnUsecaseMixin<R> {
-  Future<ReturnSuccessOrError<R>> call({
-    required ParametersReturnResult parameters,
-  });
-}
+// final class UseCaseImplement<TypeUsecase, TypeDatasource>
+//     extends ReturnResultUsecase<TypeUsecase, TypeDatasource> {
+//   UseCaseImplement({required super.datasource});
+//   Future<({AppError? error, TypeDatasource? result})> get teste async =>
+//       await returResult(parameters: NoParamsGeneral());
+// }

@@ -1,44 +1,43 @@
-import '../../../core/runtime_milliseconds.dart';
-import '../../../mixins/return_repository_mixin.dart';
-import '../../../core/parameters.dart';
-import '../../../core/return_success_or_error.dart';
-import '../../../interfaces/repository.dart';
-import '../../../interfaces/usecase.dart';
+import '../../../../return_success_or_error.dart';
+import '../../../mixins/return_usecase_mixin.dart';
 
-class ReturnResultUsecase<T>
-    with ReturnRepositoryMixin<T>
-    implements UseCase<T> {
-  final Repository<T> repository;
+abstract base class ReturnResultUsecase<TypeUsecase, TypeDatasource>
+    with ReturnUsecaseMixin<TypeDatasource> {
+  final Datasource<TypeDatasource> datasource;
 
-  ReturnResultUsecase({
-    required this.repository,
+  ReturnResultUsecase({required this.datasource});
+  Future<({TypeUsecase? result, AppError? error})> call({
+    required ParametersReturnResult parameters,
   });
 
-  @override
-  Future<ReturnSuccessOrError<T>> call({
-    required ParametersReturnResult parameters,
-  }) async {
-    final String messageError = parameters.basic.error.message;
-    final RuntimeMilliseconds runtime = RuntimeMilliseconds();
-    try {
-      if (parameters.basic.showRuntimeMilliseconds) {
-        runtime.startScore();
-      }
-      final result = await returnRepository(
-        parameters: parameters,
-        repository: repository,
-      );
-      if (parameters.basic.showRuntimeMilliseconds) {
-        runtime.finishScore();
-        print(
-            "Execution Time ${parameters.basic.nameFeature}: ${runtime.calculateRuntime()}ms");
-      }
-      return result;
-    } catch (e) {
-      return ErrorReturn<T>(
-        error: parameters.basic.error
-          ..message = "$messageError - Cod. 01-1.1 --- Catch: $e",
-      );
-    }
-  }
+  // ReturnResultUsecase({
+  //   required this.datasource,
+  // });
+
+  // Future<({TypeDatasource? result, AppError? error})> returResult({
+  //   required ParametersReturnResult parameters,
+  // }) async {
+  //   final String messageError = parameters.basic.error.message;
+  //   final RuntimeMilliseconds runtime = RuntimeMilliseconds();
+  //   try {
+  //     if (parameters.basic.showRuntimeMilliseconds) {
+  //       runtime.startScore();
+  //     }
+  //     final result = await ReturnResultRepository(datasource: datasource)(
+  //         parameters: parameters);
+
+  //     if (parameters.basic.showRuntimeMilliseconds) {
+  //       runtime.finishScore();
+  //       print(
+  //           "Execution Time ${parameters.basic.nameFeature}: ${runtime.calculateRuntime()}ms");
+  //     }
+  //     return result;
+  //   } catch (e) {
+  //     return (
+  //       result: null,
+  //       error: parameters.basic.error
+  //         ..message = "$messageError - Cod. 01-1.1 --- Catch: $e",
+  //     );
+  //   }
+  // }
 }
