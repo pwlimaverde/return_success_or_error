@@ -12,6 +12,7 @@ class ConnectivityDatasource implements Datasource<bool> {
 
   Future<bool> get isOnline async {
     var result = await connectivity.checkConnectivity();
+    print(result);
     return result == ConnectivityResult.wifi ||
         result == ConnectivityResult.mobile ||
         result == ConnectivityResult.ethernet;
@@ -21,9 +22,6 @@ class ConnectivityDatasource implements Datasource<bool> {
   Future<bool> call({required ParametersReturnResult parameters}) async {
     try {
       final result = await isOnline;
-      if (!result) {
-        throw parameters.basic.error..message = "Você está offline";
-      }
       return result;
     } catch (e) {
       throw parameters.basic.error..message = "$e";
@@ -35,14 +33,7 @@ void main() {
   late Connectivity connectivityMock;
   late Datasource<bool> connectivityDatasource;
   late ChecarConeccaoUsecase usecase;
-  final parameters = NoParams(
-    error: ErrorReturnResult(
-      message: "Erro de conexão",
-    ),
-    nameFeature: "Checar Conecção",
-    showRuntimeMilliseconds: true,
-    isIsolate: false,
-  );
+  final parameters = NoParamsGeneral();
 
   setUp(() {
     connectivityMock = ConnectivityMock();
@@ -57,9 +48,7 @@ void main() {
     final result = await usecase(
       parameters: parameters,
     );
-    print("teste status - ${result.status}");
     print("teste result - ${result.result}");
-    expect(result, isA<SuccessReturn<bool>>());
     expect(result.result, equals(true));
   });
 
@@ -69,33 +58,28 @@ void main() {
     final result = await usecase(
       parameters: parameters,
     );
-    print("teste status - ${result.status}");
     print("teste result - ${result.result}");
-    expect(result, isA<SuccessReturn<bool>>());
     expect(result.result, equals(true));
   });
 
-  test(
-      'Deve retornar um ErroRetorno com Você está offline Cod.03-1 Coneção none',
-      () async {
+  test('Deve retornar um ErroRetorno com Você está offline', () async {
     when(() => connectivityMock.checkConnectivity())
         .thenAnswer((_) => Future.value(ConnectivityResult.none));
     final result = await usecase(
       parameters: parameters,
     );
-    print("teste status - ${result.status}");
     print("teste result - ${result.result}");
-    expect(result, isA<ErrorReturn<bool>>());
+    print("teste error - ${result.error}");
+    expect(result.error, isA<ErrorReturnResult>());
   });
 
-  test('Deve retornar um ErroRetorno com Você está offline Cod.03-1 Exeption',
+  test('Deve retornar um ErrorReturnResult - Error check Connectivity',
       () async {
     when(() => connectivityMock.checkConnectivity()).thenThrow(Exception());
     final result = await usecase(
       parameters: parameters,
     );
-    print("teste status - ${result.status}");
-    print("teste result - ${result.result}");
-    expect(result, isA<ErrorReturn<bool>>());
+    print("teste result - ${result.error}");
+    expect(result.error, isA<ErrorReturnResult>());
   });
 }

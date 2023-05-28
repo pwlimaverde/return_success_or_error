@@ -26,3 +26,5 @@ export 'src/core/runtime_milliseconds.dart';
 ///must return the type of the pre-defined data or an AppError which is an
 ///Exeption.
 export 'src/interfaces/datasource.dart';
+
+export 'src/bases/usecase_base.dart';

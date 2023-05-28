@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ReturnSuccessOrError<bool>? _value;
+  late ({AppError? error, bool? result}) _value;
   bool? _result;
   final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
@@ -52,8 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    if (_value!.status == StatusResult.success) {
-      _result = _value!.result;
+    if (_value.result != null) {
+      _result = _value.result;
       setState(() {});
     } else {
       _result = false;
@@ -114,9 +114,6 @@ class ConnectivityDatasource implements Datasource<bool> {
   Future<bool> call({required ParametersReturnResult parameters}) async {
     try {
       final result = await isOnline;
-      if (!result) {
-        throw parameters.basic.error..message = "Você está offline";
-      }
       return result;
     } catch (e) {
       throw parameters.basic.error..message = "$e";
@@ -125,17 +122,29 @@ class ConnectivityDatasource implements Datasource<bool> {
 }
 
 ///Usecases
-class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
-  final Datasource<bool> datasource;
+final class ChecarConeccaoUsecase extends UsecaseBase<bool, bool> {
+  ChecarConeccaoUsecase({required super.datasource});
 
-  ChecarConeccaoUsecase({required this.datasource});
   @override
-  Future<ReturnSuccessOrError<bool>> call(
+  Future<({AppError? error, bool? result})> call(
       {required ParametersReturnResult parameters}) async {
-    final result = await returnUseCase(
-      parameters: parameters,
-      datasource: datasource,
-    );
-    return result;
+    final resultDatacource =
+        await returResult(parameters: parameters, datasource: super.datasource);
+
+    if (resultDatacource.result != null) {
+      if (resultDatacource.result!) {
+        return resultDatacource;
+      } else {
+        return (
+          result: false,
+          error: parameters.basic.error..message = "Você está offline",
+        );
+      }
+    } else {
+      return (
+        result: null,
+        error: ErrorReturnResult(message: "Error check Connectivity"),
+      );
+    }
   }
 }
