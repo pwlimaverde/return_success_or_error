@@ -3,35 +3,38 @@ import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
       ),
-      home: MyHomePage(title: 'Check Connection'),
+      home: const MyHomePage(title: 'Check Connection'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
-  final String? title;
+  final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late ({AppError? error, bool? result}) _value;
-  bool? _result;
+  ({AppError? error, String? result}) _value = (error: null, result: null);
+  String? _result;
+
   final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
       connectivity: Connectivity(),
@@ -43,9 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
       parameters: NoParams(
         basic: ParametersBasic(
           error: ErrorReturnResult(
-            message: "Erro de conexão",
+            message: "Conect error",
           ),
-          nameFeature: "Checar Conecção",
+          nameFeature: "Check Conect",
           showRuntimeMilliseconds: true,
           isIsolate: true,
         ),
@@ -56,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _result = _value.result;
       setState(() {});
     } else {
-      _result = false;
+      _result = _value.error?.message;
       setState(() {});
     }
   }
@@ -65,56 +68,66 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title!),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'Connection query value:',
-            ),
-            Text(
-              '$_value',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            Text(
+            const Text(
               'Connection query result:',
             ),
             Text(
-              '$_result',
-              style: Theme.of(context).textTheme.headline6,
+              _result ?? "Check conect",
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _checkConnection,
-        tooltip: 'check',
-        child: Icon(Icons.cached),
+        tooltip: 'Increment',
+        child: const Icon(Icons.analytics),
       ),
     );
   }
 }
 
 ///Datasources
-class ConnectivityDatasource implements Datasource<bool> {
+class ConnectivityDatasource
+    implements Datasource<({bool conect, String typeConect})> {
   final Connectivity connectivity;
   ConnectivityDatasource({required this.connectivity});
 
   Future<bool> get isOnline async {
     var result = await connectivity.checkConnectivity();
-    print(result);
     return result == ConnectivityResult.wifi ||
         result == ConnectivityResult.mobile ||
         result == ConnectivityResult.ethernet;
   }
 
+  Future<String> get type async {
+    var result = await connectivity.checkConnectivity();
+    switch (result) {
+      case ConnectivityResult.wifi:
+        return "Conect wifi";
+      case ConnectivityResult.mobile:
+        return "Conect mobile";
+      case ConnectivityResult.ethernet:
+        return "Conect ethernet";
+      default:
+        return "Conect none";
+    }
+  }
+
   @override
-  Future<bool> call({required ParametersReturnResult parameters}) async {
+  Future<({bool conect, String typeConect})> call(
+      {required ParametersReturnResult parameters}) async {
     try {
-      final result = await isOnline;
-      return result;
+      final resultConect = await isOnline;
+      final resultType = await type;
+      return (conect: resultConect, typeConect: resultType);
     } catch (e) {
       throw parameters.basic.error..message = "$e";
     }
@@ -122,22 +135,27 @@ class ConnectivityDatasource implements Datasource<bool> {
 }
 
 ///Usecases
-final class ChecarConeccaoUsecase extends UsecaseBase<bool, bool> {
+final class ChecarConeccaoUsecase
+    extends UsecaseBase<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
-  Future<({AppError? error, bool? result})> call(
+  Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
     final resultDatacource =
         await returResult(parameters: parameters, datasource: super.datasource);
 
     if (resultDatacource.result != null) {
-      if (resultDatacource.result!) {
-        return resultDatacource;
+      if (resultDatacource.result!.conect) {
+        return (
+          result:
+              "You are conect - Type: ${resultDatacource.result!.typeConect}",
+          error: null,
+        );
       } else {
         return (
-          result: false,
-          error: parameters.basic.error..message = "Você está offline",
+          result: "You are offline",
+          error: parameters.basic.error..message = "You are offline",
         );
       }
     } else {
