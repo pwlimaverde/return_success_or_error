@@ -270,4 +270,4 @@ packages:
     version: "6.3.0"
 sdks:
   dart: ">=3.0.1 <4.0.0"
-  flutter: ">=3.10.0"
+  flutter: ">=3.10.1"

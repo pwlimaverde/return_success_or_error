@@ -3,6 +3,7 @@ import '../core/parameters.dart';
 import '../interfaces/datasource.dart';
 import '../interfaces/errors.dart';
 
+///mixim responsible for loading the datasource, choosing to run the function in an isolate or not.
 mixin DatasourceMixin<TypeDatasource> {
   Future<({TypeDatasource? result, AppError? error})> returnDatasource({
     required ParametersReturnResult parameters,

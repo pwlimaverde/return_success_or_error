@@ -42,7 +42,7 @@ final class NoParams implements ParametersReturnResult {
 final class NoParamsGeneral implements ParametersReturnResult {
   @override
   ParametersBasic get basic => ParametersBasic(
-        error: ErrorReturnResult(
+        error: ErrorGeneric(
           message: "Error General Feature",
         ),
         nameFeature: "General Feature",

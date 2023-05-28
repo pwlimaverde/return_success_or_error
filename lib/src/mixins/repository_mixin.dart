@@ -4,6 +4,7 @@ import '../interfaces/datasource.dart';
 import '../interfaces/errors.dart';
 import 'datasource_mixin.dart';
 
+///class responsible for executing the datasouce function, returning the desired type or an AppErrror.
 final class ResultRepository<TypeDatasource>
     with DatasourceMixin<TypeDatasource> {
   final Datasource<TypeDatasource> datasource;
@@ -23,6 +24,7 @@ final class ResultRepository<TypeDatasource>
   }
 }
 
+///mixin responsible for calling the ropositore that loads the data from the datasource and measures its execution time
 mixin RepositoryMixin<TypeDatasource> {
   Future<({TypeDatasource? result, AppError? error})> returResult({
     required ParametersReturnResult parameters,

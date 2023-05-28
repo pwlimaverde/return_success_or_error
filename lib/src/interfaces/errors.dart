@@ -8,12 +8,12 @@ abstract interface class AppError implements Exception {
   }
 }
 
-final class ErrorReturnResult implements AppError {
+final class ErrorGeneric implements AppError {
   @override
   String message;
-  ErrorReturnResult({required this.message});
+  ErrorGeneric({required this.message});
   @override
   String toString() {
-    return "ErrorReturnResult - $message";
+    return "ErrorGeneric - $message";
   }
 }

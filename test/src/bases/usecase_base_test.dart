@@ -72,7 +72,7 @@ void main() {
   });
 
   test(
-      'Deve retornar um AppError com ErrorReturnResult - Error General Feature. Cod. 03-1 --- Catch: Exception',
+      'Deve retornar um AppError com ErrorGeneric - Error General Feature. Cod. 03-1 --- Catch: Exception',
       () async {
     when(() => datasource(parameters: parameters)).thenThrow(
       Exception(),
@@ -83,6 +83,6 @@ void main() {
     print(result.result);
     print(result.error);
     expect(result.result, equals(null));
-    expect(result.error, isA<ErrorReturnResult>());
+    expect(result.error, isA<ErrorGeneric>());
   });
 }

@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _value = await checarConeccaoUsecase(
       parameters: NoParams(
         basic: ParametersBasic(
-          error: ErrorReturnResult(
+          error: ErrorGeneric(
             message: "Conect error",
           ),
           nameFeature: "Check Conect",
@@ -161,7 +161,7 @@ final class ChecarConeccaoUsecase
     } else {
       return (
         result: null,
-        error: ErrorReturnResult(message: "Error check Connectivity"),
+        error: ErrorGeneric(message: "Error check Connectivity"),
       );
     }
   }

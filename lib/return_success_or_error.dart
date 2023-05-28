@@ -1,5 +1,12 @@
 library return_success_or_error;
 
+///Responsible for exposing the abstraction of the datasource.
+///
+///The ´´´Datasource´´´ is the class responsible for querying the external call. And
+///must return the type of the pre-defined data or an AppError which is an
+///Exeption.
+export 'src/interfaces/datasource.dart';
+
 ///Responsible for exposing the abstraction of the errors.
 ///
 ///The classes that represented the errors need to implement the AppError class
@@ -20,11 +27,8 @@ export 'src/core/parameters.dart';
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
 
-///Responsible for exposing the abstraction of the datasource.
+//Responsible for the business rule
 ///
-///The ´´´Datasource´´´ is the class responsible for querying the external call. And
-///must return the type of the pre-defined data or an AppError which is an
-///Exeption.
-export 'src/interfaces/datasource.dart';
-
+///Base class responsible for accessing and processing the datasource and
+///building the feature's business rule
 export 'src/bases/usecase_base.dart';

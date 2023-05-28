@@ -19,7 +19,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 
   @override
   ParametersBasic get basic => ParametersBasic(
-        error: ErrorReturnResult(message: "teste parrametros"),
+        error: ErrorGeneric(message: "teste parrametros"),
         showRuntimeMilliseconds: true,
         nameFeature: "Teste parametros",
         isIsolate: true,
