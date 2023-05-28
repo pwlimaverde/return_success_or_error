@@ -1,32 +1,32 @@
 ///Assists in evaluating the performance of the datasource implementation.
 final class RuntimeMilliseconds {
-  int start = 0;
-  int finish = 0;
+  int _start = 0;
+  int _finish = 0;
 
   ///Captures the start time.
   void startScore() {
-    start = _momentInMillisecond();
+    _start = _momentInMillisecond();
   }
 
   ///Captures the final time.
   void finishScore() {
-    finish = _momentInMillisecond();
+    _finish = _momentInMillisecond();
   }
 
   ///Calculates the time elapsed between the beginning and the end.
   int calculateRuntime() {
-    return finish - start;
+    return _finish - _start;
   }
 }
 
 ///Converts the moment to mileseconds.
 int _momentInMillisecond() {
-  int minute = 0;
-  int second = 0;
+  int _minute = 0;
+  int _second = 0;
   int millesecond = 0;
-  minute = DateTime.now().minute;
-  second = DateTime.now().second;
+  _minute = DateTime.now().minute;
+  _second = DateTime.now().second;
   millesecond = DateTime.now().millisecond;
-  final result = ((minute * 60) * 1000) + (second * 1000) + millesecond;
-  return result;
+  final _result = ((_minute * 60) * 1000) + (_second * 1000) + millesecond;
+  return _result;
 }

@@ -93,7 +93,7 @@ final class ChecarConeccaoUsecase
   Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
     final resultDatacource =
-        await returResult(parameters: parameters, datasource: super.datasource);
+        await resultDatasource(parameters: parameters, datasource: super.datasource);
 
     if (resultDatacource.result != null) {
       if (resultDatacource.result!.conect) {
@@ -117,7 +117,7 @@ final class ChecarConeccaoUsecase
   }
 }
 ```
-A função ```returResult(parameters: parameters, datasource: super.datasource)``` rertora os dados do datasouce e após isso os dados são tratados diretamente no usecase para que se transforrmem no tipo final esperdo.
+A função ```resultDatasource(parameters: parameters, datasource: super.datasource)``` rertora os dados do datasouce e após isso os dados são tratados diretamente no usecase para que se transforrmem no tipo final esperdo.
 
 Instanciando a Class Usecase extendida da ```UsecaseBase<TypeUsecase, TypeDatasource>``` e extratindo o resultado:
 ```
@@ -160,7 +160,6 @@ O resultado da função ```UsecaseBase<TypeUsecase, TypeDatasource>``` é um rec
 ```result``` que por sua vez armazena o sucesso da chamada;
 ```error``` que por sua vez armazena o erro da chamada;
 
-```
 
 Exemplo de hierarquia de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
@@ -176,5 +175,6 @@ lib:
                 usecase:
                 checar_coneccao_usecase.dart
     main.dart
+
 ```
 ----

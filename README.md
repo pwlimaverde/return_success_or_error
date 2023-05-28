@@ -94,7 +94,7 @@ final class ChecarConeccaoUsecase
   Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
     final resultDatacource =
-        await returResult(parameters: parameters, datasource: super.datasource);
+        await resultDatasource(parameters: parameters, datasource: super.datasource);
 
     if (resultDatacource.result != null) {
       if (resultDatacource.result!.conect) {
@@ -118,7 +118,7 @@ final class ChecarConeccaoUsecase
   }
 }
 ```
-The ```returResult(parameters: parameters, datasource: super.datasource)``` function returns the data from the datasource and after that the data is treated directly in the usecase so that it transforms into the expected final type.
+The ```resultDatasource(parameters: parameters, datasource: super.datasource)``` function returns the data from the datasource and after that the data is treated directly in the usecase so that it transforms into the expected final type.
 
 Instantiating the extended Usecase Class of ```UsecaseBase<TypeUsecase, TypeDatasource>``` and extracting the result:
 ```
@@ -160,7 +160,7 @@ The result of the ```UsecaseBase<TypeUsecase, TypeDatasource>``` function is a r
 ```result``` which in turn stores the success of the call;
 ```error``` which in turn stores the error of the call;
 
-```
+
 Example of a feature hierarchy:
 Get connection - Checks if the device is connected to the internet and returns a bool:
 ```
