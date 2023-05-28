@@ -14,7 +14,7 @@ final class TesteUsecase extends UsecaseBase<String, bool> {
   @override
   Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
-    final teste = await returResult(
+    final teste = await resultDatasource(
       parameters: parameters,
       datasource: datasource,
     );

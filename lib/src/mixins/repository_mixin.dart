@@ -26,30 +26,30 @@ final class ResultRepository<TypeDatasource>
 
 ///mixin responsible for calling the ropositore that loads the data from the datasource and measures its execution time
 mixin RepositoryMixin<TypeDatasource> {
-  Future<({TypeDatasource? result, AppError? error})> returResult({
+  Future<({TypeDatasource? result, AppError? error})> resultDatasource({
     required ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
-    final String messageError = parameters.basic.error.message;
-    final RuntimeMilliseconds runtime = RuntimeMilliseconds();
+    final String _messageError = parameters.basic.error.message;
+    final RuntimeMilliseconds _runtime = RuntimeMilliseconds();
     try {
       if (parameters.basic.showRuntimeMilliseconds) {
-        runtime.startScore();
+        _runtime.startScore();
       }
-      final result = await ResultRepository(datasource: datasource)(
+      final _result = await ResultRepository(datasource: datasource)(
           parameters: parameters);
 
       if (parameters.basic.showRuntimeMilliseconds) {
-        runtime.finishScore();
+        _runtime.finishScore();
         print(
-            "Execution Time ${parameters.basic.nameFeature}: ${runtime.calculateRuntime()}ms");
+            "Execution Time ${parameters.basic.nameFeature}: ${_runtime.calculateRuntime()}ms");
       }
-      return result;
+      return _result;
     } catch (e) {
       return (
         result: null,
         error: parameters.basic.error
-          ..message = "$messageError - Cod. 01-1.1 --- Catch: $e",
+          ..message = "$_messageError - Cod. 01-1.1 --- Catch: $e",
       );
     }
   }
