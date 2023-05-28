@@ -160,7 +160,7 @@ The result of the ```UsecaseBase<TypeUsecase, TypeDatasource>``` function is a r
 ```result``` which in turn stores the success of the call;
 ```error``` which in turn stores the error of the call;
 
-```
+
 Example of a feature hierarchy:
 Get connection - Checks if the device is connected to the internet and returns a bool:
 ```

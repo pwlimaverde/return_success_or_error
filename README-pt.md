@@ -160,7 +160,6 @@ O resultado da função ```UsecaseBase<TypeUsecase, TypeDatasource>``` é um rec
 ```result``` que por sua vez armazena o sucesso da chamada;
 ```error``` que por sua vez armazena o erro da chamada;
 
-```
 
 Exemplo de hierarquia de uma feature:
 Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
@@ -176,5 +175,6 @@ lib:
                 usecase:
                 checar_coneccao_usecase.dart
     main.dart
+
 ```
 ----
