@@ -142,8 +142,8 @@ final class ChecarConeccaoUsecase
   @override
   Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
-    final resultDatacource =
-        await returResult(parameters: parameters, datasource: super.datasource);
+    final resultDatacource = await resultDatasource(
+        parameters: parameters, datasource: super.datasource);
 
     if (resultDatacource.result != null) {
       if (resultDatacource.result!.conect) {
