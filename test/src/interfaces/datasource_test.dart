@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/src/interfaces/errors.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 
@@ -17,7 +16,7 @@ class ExternalMock<bool> {
   }
 }
 
-class TesteDataSourceMock extends Datasource<bool> {
+class TesteDataSourceMock implements Datasource<bool> {
   final ExternalMock<bool> external;
 
   TesteDataSourceMock({required this.external});
@@ -39,14 +38,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: true),
     )(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto datasource",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
-        isIsolate: true,
-      ),
+      parameters: NoParamsGeneral(),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -56,14 +48,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: false),
     )(
-      parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "teste error direto datasource",
-        ),
-        nameFeature: "Teste Usecase",
-        showRuntimeMilliseconds: true,
-        isIsolate: true,
-      ),
+      parameters: NoParamsGeneral(),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -74,14 +59,7 @@ void main() {
         () async => await TesteDataSourceMock(
               external: ExternalMock(),
             )(
-              parameters: NoParams(
-                error: ErrorReturnResult(
-                  message: "teste error direto datasource",
-                ),
-                nameFeature: "Teste Usecase",
-                showRuntimeMilliseconds: true,
-                isIsolate: true,
-              ),
+              parameters: NoParamsGeneral(),
             ),
         throwsA(isA<Exception>()));
   });

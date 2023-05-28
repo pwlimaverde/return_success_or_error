@@ -1,10 +1,29 @@
 import '../core/parameters.dart';
 import '../core/runtime_milliseconds.dart';
 import '../interfaces/datasource.dart';
-import '../features/return_result/repositories/return_result_repository.dart';
 import '../interfaces/errors.dart';
+import 'datasource_mixin.dart';
 
-mixin ReturnUsecaseMixin<TypeDatasource> {
+final class ResultRepository<TypeDatasource>
+    with DatasourceMixin<TypeDatasource> {
+  final Datasource<TypeDatasource> datasource;
+
+  ResultRepository({
+    required this.datasource,
+  });
+
+  Future<({TypeDatasource? result, AppError? error})> call({
+    required ParametersReturnResult parameters,
+  }) async {
+    final _result = await returnDatasource(
+      parameters: parameters,
+      datasource: datasource,
+    );
+    return _result;
+  }
+}
+
+mixin RepositoryMixin<TypeDatasource> {
   Future<({TypeDatasource? result, AppError? error})> returResult({
     required ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
@@ -15,7 +34,7 @@ mixin ReturnUsecaseMixin<TypeDatasource> {
       if (parameters.basic.showRuntimeMilliseconds) {
         runtime.startScore();
       }
-      final result = await ReturnResultRepository(datasource: datasource)(
+      final result = await ResultRepository(datasource: datasource)(
           parameters: parameters);
 
       if (parameters.basic.showRuntimeMilliseconds) {
@@ -31,23 +50,5 @@ mixin ReturnUsecaseMixin<TypeDatasource> {
           ..message = "$messageError - Cod. 01-1.1 --- Catch: $e",
       );
     }
-    // final String messageError = parameters.basic.error.message;
-    // try {
-    //   ///Access usecase, and call the repository to call the datasource, handling
-    //   ///the result to return the ReturnSuccessOrError.
-    //   final result = await ReturnResultUsecase<R>(
-    //     repository: ReturnResultRepository<R>(
-    //       datasource: datasource,
-    //     ),
-    //   )(
-    //     parameters: parameters,
-    //   );
-    //   return result;
-    // } catch (e) {
-    //   return ErrorReturn(
-    //     error: parameters.basic.error
-    //       ..message = "$messageError. \n Cod. 01-1 --- Catch: $e",
-    //   );
-    // }
   }
 }

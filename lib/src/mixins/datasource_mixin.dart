@@ -3,7 +3,7 @@ import '../core/parameters.dart';
 import '../interfaces/datasource.dart';
 import '../interfaces/errors.dart';
 
-mixin ReturnDatasourcetMixin<TypeDatasource> {
+mixin DatasourceMixin<TypeDatasource> {
   Future<({TypeDatasource? result, AppError? error})> returnDatasource({
     required ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,

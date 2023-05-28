@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
-import 'package:return_success_or_error/src/features/return_result/usecases/return_result_usecase.dart';
+import 'package:return_success_or_error/src/bases/usecase_base.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
 
 final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
 
-final class TesteUsecase extends ReturnResultUsecase<String, bool> {
+final class TesteUsecase extends UsecaseBase<String, bool> {
   TesteUsecase({required super.datasource});
 
   @override
@@ -35,7 +35,7 @@ final class TesteUsecase extends ReturnResultUsecase<String, bool> {
 
 void main() {
   late Datasource<bool> datasource;
-  late ReturnResultUsecase<String, bool> returnResultUsecase;
+  late UsecaseBase<String, bool> returnResultUsecase;
   final parameters = NoParamsGeneral();
 
   setUp(() {

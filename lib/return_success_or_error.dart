@@ -14,26 +14,11 @@ export 'src/interfaces/errors.dart';
 ///will be returned in case of failure.
 export 'src/core/parameters.dart';
 
-///Responsible for exposing the abstraction of the return_success_or_error.
-///
-///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
-///ErrorReturn which in turn stores the result in case of success or an
-///AppError in case of failure.
-export 'src/core/return_success_or_error.dart';
-
 ///Responsible for exposing the abstraction of the runtime_milliseconds.
 ///
 ///Auxiliary class that allows the observation of the time it took for the
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
-
-///Responsible for exposing the abstraction of the usecase implement.
-///
-///The ´´´ReturnResultUsecaseImplement´´´ is the class responsible for processing the
-///data returned by the datasource. The presenter passes the datasource and
-///parameters to the use case, which checks whether the return was a success or
-///error and returns the result within the class ´´´ReturnSuccessOrError´´´.
-export 'src/interfaces/usecase_implement.dart';
 
 ///Responsible for exposing the abstraction of the datasource.
 ///
@@ -41,6 +26,3 @@ export 'src/interfaces/usecase_implement.dart';
 ///must return the type of the pre-defined data or an AppError which is an
 ///Exeption.
 export 'src/interfaces/datasource.dart';
-
-///Responsible for exposing the Presenter abstraction, which forces the return of ReturnSuccessOrError.
-export 'src/interfaces/presenter.dart';
