@@ -1,5 +1,5 @@
 ///Assists in evaluating the performance of the datasource implementation.
-class RuntimeMilliseconds {
+final class RuntimeMilliseconds {
   int start = 0;
   int finish = 0;
 

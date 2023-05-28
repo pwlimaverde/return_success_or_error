@@ -22,8 +22,6 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   final int prioridade;
   final Map corHeader;
   final String user;
-  final String nameFeature;
-  final bool showRuntimeMilliseconds;
 
   ParametersSalvarHeader({
     required this.doc,
@@ -31,67 +29,100 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.prioridade,
     required this.corHeader,
     required this.user,
-    required this.nameFeature,
-    required this.showRuntimeMilliseconds,
   });
 
-  @override
-  AppError get error =>
-      ErrorReturnResult(message: "Erro ao salvar os dados do Header");
+   @override
+  ParametersBasic get basic => ParametersBasic(
+        error: ErrorGeneric(message: "teste parrametros"),
+        showRuntimeMilliseconds: true,
+        nameFeature: "Teste parametros",
+        isIsolate: true,
+      );
 }
 ```
-When implementing the ```ParametersReturnResult``` class, you need to override the ```AppError error```, which is responsible for identifying the error that will be presented in case of an error. This class stores the data that will be consulted.
+When implementing the ```ParametersReturnResult``` class, you need to override the ```ParametersBasic```, which is responsible for the necessary basic parameters. This class stores the data to be queried.
 
 The external call ```Datasource<Type>``` is implemented by typing with the desired data eg ```Datasource<Stream<UserModel>>```, ex:
 ```
-class ConnectivityDatasource implements Datasource<bool> {
+class ConnectivityDatasource
+    implements Datasource<({bool conect, String typeConect})> {
   final Connectivity connectivity;
   ConnectivityDatasource({required this.connectivity});
 
   Future<bool> get isOnline async {
     var result = await connectivity.checkConnectivity();
     return result == ConnectivityResult.wifi ||
-        result == ConnectivityResult.mobile;
+        result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.ethernet;
+  }
+
+  Future<String> get type async {
+    var result = await connectivity.checkConnectivity();
+    switch (result) {
+      case ConnectivityResult.wifi:
+        return "Conect wifi";
+      case ConnectivityResult.mobile:
+        return "Conect mobile";
+      case ConnectivityResult.ethernet:
+        return "Conect ethernet";
+      default:
+        return "Conect none";
+    }
   }
 
   @override
-  Future<bool> call({required ParametersReturnResult parameters}) async {
-    final String messageError = parameters.error.message;
+  Future<({bool conect, String typeConect})> call(
+      {required ParametersReturnResult parameters}) async {
     try {
-      final result = await isOnline;
-      if (!result) {
-        throw parameters.error..message = "Você está offline";
-      }
-      return result;
+      final resultConect = await isOnline;
+      final resultType = await type;
+      return (conect: resultConect, typeConect: resultType);
     } catch (e) {
-      throw parameters.error
-        ..message = "$messageError - Cod. 03-1 --- Catch: $e";
+      throw parameters.basic.error..message = "$e";
     }
   }
 }
 ```
-Extend the ```Usecase``` business rule with ```UseCaseImplement<Type>``` by typing the ```UseCaseImplement<Type>``` with the desired data eg ```UseCaseImplement<Stream<UserModel>>`` `
+Usecase:
+Extend the ```Usecase``` business rule with ```UsecaseBase<TypeUsecase, TypeDatasource>``` by typing the ```UsecaseBase<TypeUsecase, TypeDatasource>``` with the desired data ex: ```UsecaseBase<String, ({bool conect, String typeConect})>```. Where the first type is the return that will be made by usecase, and the second is the type of data that will be returned from the datasource.
 ```
-class ChecarConeccaoUsecase extends UseCaseImplement<bool> {
-  final Datasource<bool> datasource;
+final class ChecarConeccaoUsecase
+    extends UsecaseBase<String, ({bool conect, String typeConect})> {
+  ChecarConeccaoUsecase({required super.datasource});
 
-  ChecarConeccaoUsecase({required this.datasource});
   @override
-  Future<ReturnSuccessOrError<bool>> call(
+  Future<({AppError? error, String? result})> call(
       {required ParametersReturnResult parameters}) async {
-    final result = await returnUseCase(
-      parameters: parameters,
-      datasource: datasource,
-    );
-    return result;
+    final resultDatacource =
+        await returResult(parameters: parameters, datasource: super.datasource);
+
+    if (resultDatacource.result != null) {
+      if (resultDatacource.result!.conect) {
+        return (
+          result:
+              "You are conect - Type: ${resultDatacource.result!.typeConect}",
+          error: null,
+        );
+      } else {
+        return (
+          result: "You are offline",
+          error: parameters.basic.error..message = "You are offline",
+        );
+      }
+    } else {
+      return (
+        result: null,
+        error: ErrorGeneric(message: "Error check Connectivity"),
+      );
+    }
   }
 }
 ```
-Instantiating the UseCaseImplement<Type> Class and extracting the result:
+The ```returResult(parameters: parameters, datasource: super.datasource)``` function returns the data from the datasource and after that the data is treated directly in the usecase so that it transforms into the expected final type.
+
+Instantiating the extended Usecase Class of ```UsecaseBase<TypeUsecase, TypeDatasource>``` and extracting the result:
 ```
-ReturnSuccessOrError<bool>? _value;
-  bool? _result;
-  final checarConeccaoUsecase = ChecarConeccaoUsecase(
+final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
       connectivity: Connectivity(),
     ),
@@ -100,43 +131,35 @@ ReturnSuccessOrError<bool>? _value;
   void _checkConnection() async {
     _value = await checarConeccaoUsecase(
       parameters: NoParams(
-        error: ErrorReturnResult(
-          message: "Erro de conexão",
+        basic: ParametersBasic(
+          error: ErrorGeneric(
+            message: "Conect error",
+          ),
+          nameFeature: "Check Conect",
+          showRuntimeMilliseconds: true,
+          isIsolate: true,
         ),
-        nameFeature: "Checar Conecção",
-        showRuntimeMilliseconds: true,
       ),
     );
 
-    _result = _value!.result;
+    if (_value.result != null) {
+      _result = _value.result;
+      setState(() {});
+    } else {
+      _result = _value.error?.message;
+      setState(() {});
+    }
+  }
 ```
-The "ParametersReturnResult" class. Expects to receive the general parameters necessary for the Usecase call, along with the mandatory parameters:
+The "ParametersReturnResult" class. Expects to receive the general parameters necessary for the Usecase call, along with the mandatory parameters ParametersBasic:
 ```showRuntimeMilliseconds``` responsible for showing the time it took to execute the call in milliseconds;
 ```nameFeature``` responsible for identifying the feature;
 ```AppError``` responsible for handling the Error;
 
-The result of the ```UseCaseImplement<Type>``` function is a: ```ReturnSuccessOrError<Type>``` which stores the 2 possible results:
-```SuccessReturn<Type>``` which in turn stores the success of the call;
-```ErrorReturn<Type>``` which in turn stores the error of the call;
+The result of the ```UsecaseBase<TypeUsecase, TypeDatasource>``` function is a record that stores the 2 possible results:
+```result``` which in turn stores the success of the call;
+```error``` which in turn stores the error of the call;
 
-Example of retrieving information contained in ```ReturnSuccessOrError<Type>```:
-```
-final result = await _value!.result
-```
-from ```ReturnSuccessOrError<Type>``` can be checked if the return was success or error, just by checking:
-```is SuccessReturn<Type>```;
-```is ErrorReturn<Type>```;
-
-Verification example:
-```
-if(value.status == StatusResult.success){
-  ...
-}
-```
-```
-if(value.status == StatusResult.error){
-  ...
-}
 ```
 Example of a feature hierarchy:
 Get connection - Checks if the device is connected to the internet and returns a bool:

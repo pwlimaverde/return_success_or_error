@@ -1,3 +1,10 @@
+## [0.7.0] - 28/05/2023.
+
+1 - Refator parar compatibilidade do dart 3.
+2 - Restruturação do cógigo onde agorar será retornado um record contendo o resultado e o erro.
+3 - Use case agora processa os dados do datasource e retorna os dados separadamente. Onde é definido na estensão a tipagem do usecase e a ttipagem do datasouce separardamente.
+4 - Reestruturação da class base ParametersReturnResult. Onde os dados em comum serão agora ParametersBasic.
+
 ## [0.5.0] - 18/09/2022.
 
 1 - Inclusão de isIsolate em ParametersReturnResult.
@@ -54,7 +61,7 @@ Correction of environment flutter >= 2.0.0.
 
 ## [0.1.2] - 14/03/2021.
 
-**BREAKING** Correction of the class name ´´´ErroReturnResult´´´ for ´´´ErrorReturnResult´´´.
+**BREAKING** Correction of the class name ´´´ErroReturnResult´´´ for ´´´ErrorGeneric´´´.
 
 ## [0.1.1] - 14/03/2021.
 

@@ -2,7 +2,8 @@ import '../../return_success_or_error.dart';
 
 ///Responsible for storing and processing the data necessary to execute the
 ///datasource call.
-abstract class ParametersReturnResult {
+
+final class ParametersBasic {
   ///Error returned in case of failure to call the datasource.
   final AppError error;
 
@@ -13,9 +14,10 @@ abstract class ParametersReturnResult {
   ///String responsible for identifying the feature.
   final String nameFeature;
 
+  ///Bool responsible for controller activ isolate.
   final bool isIsolate;
 
-  const ParametersReturnResult({
+  ParametersBasic({
     required this.error,
     required this.showRuntimeMilliseconds,
     required this.nameFeature,
@@ -23,18 +25,28 @@ abstract class ParametersReturnResult {
   });
 }
 
+abstract interface class ParametersReturnResult {
+  final ParametersBasic basic;
+
+  ParametersReturnResult({required this.basic});
+}
+
 ///Implementation used when the datasource does not require extra parameters.
 ///It receives the Error directly.
-class NoParams implements ParametersReturnResult {
-  final AppError error;
-  final bool showRuntimeMilliseconds;
-  final String nameFeature;
-  final bool isIsolate;
+final class NoParams implements ParametersReturnResult {
+  final ParametersBasic basic;
 
-  const NoParams({
-    required this.error,
-    required this.showRuntimeMilliseconds,
-    required this.nameFeature,
-    required this.isIsolate,
-  });
+  NoParams({required this.basic});
+}
+
+final class NoParamsGeneral implements ParametersReturnResult {
+  @override
+  ParametersBasic get basic => ParametersBasic(
+        error: ErrorGeneric(
+          message: "Error General Feature",
+        ),
+        nameFeature: "General Feature",
+        showRuntimeMilliseconds: true,
+        isIsolate: true,
+      );
 }
