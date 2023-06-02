@@ -1,7 +1,9 @@
 ## [0.8.0] - 28/05/2023.
 
 1 - Alteração do nome da função ´´´returResult´´´ para ´´´resultDatasource´´´.
-2 - Correção da documentação.
+2 - Usecase dividido em duas classes ´´´UsecaseBaseCallData´´´ que precisa receber um Datasource para chamada externa, e ´´´UsecaseBase´´´ que é usado para execultar a regra de negocio diretamente, sem a necessidade de Datasource.
+3 - Correção da documentação.
+
 ## [0.7.0] - 28/05/2023.
 
 1 - Refator parar compatibilidade do dart 3.

@@ -83,10 +83,10 @@ class ConnectivityDatasource
 }
 ```
 Usecase:
-Extende a regra de negócio ```Usecase``` com ```UsecaseBase<TypeUsecase, TypeDatasource>``` tipando o ```UsecaseBase<TypeUsecase, TypeDatasource>``` com o dado desejado ex: ```UsecaseBase<String, ({bool conect, String typeConect})>```. Onde o primeiro tipo é o retorno que será feito pelo usecase, e o segundo é o tipo do dado que será retornado do datasource.
+Extende a regra de negócio ```Usecase``` com ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` tipando o ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` com o dado desejado ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Onde o primeiro tipo é o retorno que será feito pelo usecase, e o segundo é o tipo do dado que será retornado do datasource.
 ```
 final class ChecarConeccaoUsecase
-    extends UsecaseBase<String, ({bool conect, String typeConect})> {
+    extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
@@ -119,7 +119,7 @@ final class ChecarConeccaoUsecase
 ```
 A função ```resultDatasource(parameters: parameters, datasource: super.datasource)``` rertora os dados do datasouce e após isso os dados são tratados diretamente no usecase para que se transforrmem no tipo final esperdo.
 
-Instanciando a Class Usecase extendida da ```UsecaseBase<TypeUsecase, TypeDatasource>``` e extratindo o resultado:
+Instanciando a Class Usecase extendida da ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` e extratindo o resultado:
 ```
 final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
@@ -156,7 +156,7 @@ A classe "ParametersReturnResult". Espera receber os parametros gerais necessár
 ```nameFeature``` responsável pela identificação da feature;
 ```AppError``` responsável pelo tratamento do Erro;
 
-O resultado da função ```UsecaseBase<TypeUsecase, TypeDatasource>``` é um record que armazena os 2 resultados possíveis:
+O resultado da função ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` é um record que armazena os 2 resultados possíveis:
 ```result``` que por sua vez armazena o sucesso da chamada;
 ```error``` que por sua vez armazena o erro da chamada;
 
