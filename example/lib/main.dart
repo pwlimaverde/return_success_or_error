@@ -136,7 +136,7 @@ class ConnectivityDatasource
 
 ///Usecases
 final class ChecarConeccaoUsecase
-    extends UsecaseBase<String, ({bool conect, String typeConect})> {
+    extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
