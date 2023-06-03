@@ -1,3 +1,7 @@
+## [0.9.1] - 02/06/2023.
+
+Correção da documentação.
+
 ## [0.9.0] - 02/06/2023.
 
 1 - Usecase dividido em duas classes ´´´UsecaseBaseCallData´´´ que precisa receber um Datasource para chamada externa, e ´´´UsecaseBase´´´ que é usado para execultar a regra de negocio diretamente, sem a necessidade de Datasource.
