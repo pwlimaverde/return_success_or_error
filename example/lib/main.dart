@@ -32,8 +32,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ({AppError? error, String? result}) _value = (error: null, result: null);
-  String? _result;
+  ({AppError? error, String? result}) _valueChecarConeccao =
+      (error: null, result: null);
+  String? _resultChecarConeccao;
+
+  ({AppError? error, String? result}) _valueChecarTypeConeccao =
+      (error: null, result: null);
+  String? _resultChecarTypeConeccao;
 
   final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
@@ -42,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   void _checkConnection() async {
-    _value = await checarConeccaoUsecase(
+    _valueChecarConeccao = await checarConeccaoUsecase(
       parameters: NoParams(
         basic: ParametersBasic(
           error: ErrorGeneric(
@@ -55,11 +60,38 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    if (_value.result != null) {
-      _result = _value.result;
+    if (_valueChecarConeccao.result != null) {
+      _resultChecarConeccao = _valueChecarConeccao.result;
       setState(() {});
     } else {
-      _result = _value.error?.message;
+      _resultChecarConeccao = _valueChecarConeccao.error?.message;
+      setState(() {});
+    }
+  }
+
+  final checarTypeConeccaoUsecase = ChecarTypeConeccaoUsecase(
+    connectivity: Connectivity(),
+  );
+
+  void _checkTypeConnection() async {
+    _valueChecarTypeConeccao = await checarTypeConeccaoUsecase(
+      parameters: NoParams(
+        basic: ParametersBasic(
+          error: ErrorGeneric(
+            message: "Conect error",
+          ),
+          nameFeature: "Check Type Conect",
+          showRuntimeMilliseconds: true,
+          isIsolate: true,
+        ),
+      ),
+    );
+
+    if (_valueChecarTypeConeccao.result != null) {
+      _resultChecarTypeConeccao = _valueChecarTypeConeccao.result;
+      setState(() {});
+    } else {
+      _resultChecarTypeConeccao = _valueChecarTypeConeccao.error?.message;
       setState(() {});
     }
   }
@@ -79,14 +111,24 @@ class _MyHomePageState extends State<MyHomePage> {
               'Connection query result:',
             ),
             Text(
-              _result ?? "Check conect",
+              _resultChecarConeccao ?? "Check conect",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const Text(
+              'Connection type result:',
+            ),
+            Text(
+              _resultChecarTypeConeccao ?? "Check conect",
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _checkConnection,
+        onPressed: () {
+          _checkConnection();
+          _checkTypeConnection();
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.analytics),
       ),
@@ -134,7 +176,7 @@ class ConnectivityDatasource
   }
 }
 
-///Usecases
+///Usecase with external Datasource call
 final class ChecarConeccaoUsecase
     extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
@@ -162,6 +204,43 @@ final class ChecarConeccaoUsecase
       return (
         result: null,
         error: ErrorGeneric(message: "Error check Connectivity"),
+      );
+    }
+  }
+}
+
+///Usecase only with the business rule
+final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
+  final Connectivity connectivity;
+
+  ChecarTypeConeccaoUsecase({required this.connectivity});
+
+  Future<String> get type async {
+    var result = await connectivity.checkConnectivity();
+    switch (result) {
+      case ConnectivityResult.wifi:
+        return "Conect wifi";
+      case ConnectivityResult.mobile:
+        return "Conect mobile";
+      case ConnectivityResult.ethernet:
+        return "Conect ethernet";
+      default:
+        return "Conect none";
+    }
+  }
+
+  @override
+  Future<({AppError? error, String? result})> call(
+      {required ParametersReturnResult parameters}) async {
+    if (await type == "Conect none") {
+      return (
+        result: null,
+        error: ErrorGeneric(message: "You are Offline!"),
+      );
+    } else {
+      return (
+        result: await type,
+        error: null,
       );
     }
   }

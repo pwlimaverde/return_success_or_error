@@ -82,7 +82,7 @@ class ConnectivityDatasource
   }
 }
 ```
-Usecase:
+Usecase com chamada externa de Datasource:
 Extende a regra de negócio ```Usecase``` com ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` tipando o ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` com o dado desejado ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Onde o primeiro tipo é o retorno que será feito pelo usecase, e o segundo é o tipo do dado que será retornado do datasource.
 ```
 final class ChecarConeccaoUsecase
@@ -149,6 +149,46 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
       setState(() {});
     }
   }
+```
+
+Usecase apenas com a regra de negócio:
+Extende a regra de negócio ```Usecase``` com ```UsecaseBase<TypeUsecase>``` tipando o ```UsecaseBase<TypeUsecase>``` com o dado desejado ex: ```UsecaseBase<String>```. Onde é tipado com o retorno que será feito pelo usecase.
+```
+final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
+  final Connectivity connectivity;
+
+  ChecarTypeConeccaoUsecase({required this.connectivity});
+
+  Future<String> get type async {
+    var result = await connectivity.checkConnectivity();
+    switch (result) {
+      case ConnectivityResult.wifi:
+        return "Conect wifi";
+      case ConnectivityResult.mobile:
+        return "Conect mobile";
+      case ConnectivityResult.ethernet:
+        return "Conect ethernet";
+      default:
+        return "Conect none";
+    }
+  }
+
+  @override
+  Future<({AppError? error, String? result})> call(
+      {required ParametersReturnResult parameters}) async {
+    if (await type == "Conect none") {
+      return (
+        result: null,
+        error: ErrorGeneric(message: "You are Offline!"),
+      );
+    } else {
+      return (
+        result: await type,
+        error: null,
+      );
+    }
+  }
+}
 ```
 
 A classe "ParametersReturnResult". Espera receber os parametros gerais necessários para a chamada do Usecase, juntamente com os parametros obrigatórios ParametersBasic:
