@@ -154,6 +154,7 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
 Usecase only with the business rule:
 Extends the ```Usecase``` business rule with ```UsecaseBase<TypeUsecase>``` by typing ```UsecaseBase<TypeUsecase>``` with the desired data ex: ```UsecaseBase<String>```. Where it is typed with the return that will be made by usecase.
 
+```
 final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
   final Connectivity connectivity;
 
