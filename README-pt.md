@@ -153,6 +153,7 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
 
 Usecase apenas com a regra de negócio:
 Extende a regra de negócio ```Usecase``` com ```UsecaseBase<TypeUsecase>``` tipando o ```UsecaseBase<TypeUsecase>``` com o dado desejado ex: ```UsecaseBase<String>```. Onde é tipado com o retorno que será feito pelo usecase.
+
 ```
 final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
   final Connectivity connectivity;
