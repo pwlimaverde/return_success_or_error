@@ -83,11 +83,11 @@ class ConnectivityDatasource
   }
 }
 ```
-Usecase:
-Extend the ```Usecase``` business rule with ```UsecaseBase<TypeUsecase, TypeDatasource>``` by typing the ```UsecaseBase<TypeUsecase, TypeDatasource>``` with the desired data ex: ```UsecaseBase<String, ({bool conect, String typeConect})>```. Where the first type is the return that will be made by usecase, and the second is the type of data that will be returned from the datasource.
+Usecase with external Datasource call:
+Extend the ```Usecase``` business rule with ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` by typing the ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` with the desired data ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Where the first type is the return that will be made by usecase, and the second is the type of data that will be returned from the datasource.
 ```
 final class ChecarConeccaoUsecase
-    extends UsecaseBase<String, ({bool conect, String typeConect})> {
+    extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
@@ -120,7 +120,7 @@ final class ChecarConeccaoUsecase
 ```
 The ```resultDatasource(parameters: parameters, datasource: super.datasource)``` function returns the data from the datasource and after that the data is treated directly in the usecase so that it transforms into the expected final type.
 
-Instantiating the extended Usecase Class of ```UsecaseBase<TypeUsecase, TypeDatasource>``` and extracting the result:
+Instantiating the extended Usecase Class of ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` and extracting the result:
 ```
 final checarConeccaoUsecase = ChecarConeccaoUsecase(
     datasource: ConnectivityDatasource(
@@ -151,12 +151,53 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
     }
   }
 ```
+Usecase only with the business rule:
+Extends the ```Usecase``` business rule with ```UsecaseBase<TypeUsecase>``` by typing ```UsecaseBase<TypeUsecase>``` with the desired data ex: ```UsecaseBase<String>```. Where it is typed with the return that will be made by usecase.
+
+final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
+  final Connectivity connectivity;
+
+  ChecarTypeConeccaoUsecase({required this.connectivity});
+
+  Future<String> get type async {
+    var result = await connectivity.checkConnectivity();
+    switch (result) {
+      case ConnectivityResult.wifi:
+        return "Conect wifi";
+      case ConnectivityResult.mobile:
+        return "Conect mobile";
+      case ConnectivityResult.ethernet:
+        return "Conect ethernet";
+      default:
+        return "Conect none";
+    }
+  }
+
+  @override
+  Future<({AppError? error, String? result})> call(
+      {required ParametersReturnResult parameters}) async {
+    if (await type == "Conect none") {
+      return (
+        result: null,
+        error: ErrorGeneric(message: "You are Offline!"),
+      );
+    } else {
+      return (
+        result: await type,
+        error: null,
+      );
+    }
+  }
+}
+```
+
+
 The "ParametersReturnResult" class. Expects to receive the general parameters necessary for the Usecase call, along with the mandatory parameters ParametersBasic:
 ```showRuntimeMilliseconds``` responsible for showing the time it took to execute the call in milliseconds;
 ```nameFeature``` responsible for identifying the feature;
 ```AppError``` responsible for handling the Error;
 
-The result of the ```UsecaseBase<TypeUsecase, TypeDatasource>``` function is a record that stores the 2 possible results:
+The result of the ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` function is a record that stores the 2 possible results:
 ```result``` which in turn stores the success of the call;
 ```error``` which in turn stores the error of the call;
 
