@@ -6,13 +6,13 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
   final Datasource<TypeDatasource> datasource;
 
   UsecaseBaseCallData({required this.datasource});
-  Future<({TypeUsecase? result, AppError? error})> call({
+  Future<ReturnSuccessOrError<TypeUsecase>> call({
     required ParametersReturnResult parameters,
   });
 }
 
 abstract base class UsecaseBase<TypeUsecase> {
-  Future<({TypeUsecase? result, AppError? error})> call({
+  Future<ReturnSuccessOrError<TypeUsecase>> call({
     required ParametersReturnResult parameters,
   });
 }

@@ -1,11 +1,11 @@
 import 'dart:isolate';
 import '../core/parameters.dart';
+import '../core/return_success_or_error.dart';
 import '../interfaces/datasource.dart';
-import '../interfaces/errors.dart';
 
 ///mixim responsible for loading the datasource, choosing to run the function in an isolate or not.
 mixin DatasourceMixin<TypeDatasource> {
-  Future<({TypeDatasource? result, AppError? error})> returnDatasource({
+  Future<ReturnSuccessOrError<TypeDatasource>> returnDatasource({
     required ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
@@ -19,10 +19,9 @@ mixin DatasourceMixin<TypeDatasource> {
           : await datasource.call(
               parameters: parameters,
             );
-      return (result: _result, error: null);
+      return SuccessReturn(success: _result);
     } catch (e) {
-      return (
-        result: null,
+      return ErrorReturn(
         error: parameters.basic.error
           ..message = "$_messageError. \n Cod. 03-1 --- Catch: $e",
       );
