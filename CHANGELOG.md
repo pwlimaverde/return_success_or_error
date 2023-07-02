@@ -1,3 +1,10 @@
+## [0.10.0] - 02/07/2023.
+
+1 - Retorno do Usecase alterado para ```ReturnSuccessOrError<TypeUsecase>```.
+2 - Retorno do DatasourceMixin para ```ReturnSuccessOrError<TypeDatasource>```.
+3 - Inclusão da inteface ```Presenter<TypeUsecase>```.
+4 - Correção da documentação.
+
 ## [0.9.1] - 02/06/2023.
 
 Correção da documentação.

@@ -83,37 +83,55 @@ class ConnectivityDatasource
   }
 }
 ```
+
+The result of function ```UsecaseBase<TypeUsecase>``` or ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` is a: ```ReturnSuccessOrError<TypeUsecase>``` which stores the 2 possible results: ``` SuccessReturn<TypeUsecase>``` which in turn stores the success of the call; ```ErrorReturn<TypeUsecase>``` which in turn stores the error of the call:
+
+Example of recovering the information contained in ```ReturnSuccessOrError<TypeUsecase>```:
+
+```final result = await value.result```
+From the ```ReturnSuccessOrError<TypeUsecase>``` it can be verified if the return was success or error, just checking the swith case.
+
+Verification example:
+
+```
+switch(result) {
+      case SuccessReturn<TypeUsecase>():
+        ...
+      case ErrorReturn<TypeUsecase>():
+        ...
+    }
+```
+
+
 Usecase with external Datasource call:
 Extend the ```Usecase``` business rule with ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` by typing the ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` with the desired data ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Where the first type is the return that will be made by usecase, and the second is the type of data that will be returned from the datasource.
 ```
-final class ChecarConeccaoUsecase
+inal class ChecarConeccaoUsecase
     extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
-  Future<({AppError? error, String? result})> call(
+  Future<ReturnSuccessOrError<String>> call(
       {required ParametersReturnResult parameters}) async {
-    final resultDatacource =
-        await resultDatasource(parameters: parameters, datasource: super.datasource);
+    final resultDatacource = await resultDatasource(
+      parameters: parameters,
+      datasource: super.datasource,
+    );
 
-    if (resultDatacource.result != null) {
-      if (resultDatacource.result!.conect) {
-        return (
-          result:
-              "You are conect - Type: ${resultDatacource.result!.typeConect}",
-          error: null,
-        );
-      } else {
-        return (
-          result: "You are offline",
-          error: parameters.basic.error..message = "You are offline",
-        );
-      }
-    } else {
-      return (
-        result: null,
-        error: ErrorGeneric(message: "Error check Connectivity"),
-      );
+    switch (resultDatacource) {
+      case SuccessReturn<({bool conect, String typeConect})>():
+        if (resultDatacource.result.conect) {
+          return SuccessReturn(
+            success:
+                "You are conect - Type: ${resultDatacource.result.typeConect}",
+          );
+        } else {
+          return ErrorReturn(
+              error: parameters.basic.error..message = "You are offline");
+        }
+      case ErrorReturn<({bool conect, String typeConect})>():
+        return ErrorReturn(
+            error: ErrorGeneric(message: "Error check Connectivity"));
     }
   }
 }
@@ -129,7 +147,7 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
   );
 
   void _checkConnection() async {
-    _value = await checarConeccaoUsecase(
+    final data = await checarConeccaoUsecase(
       parameters: NoParams(
         basic: ParametersBasic(
           error: ErrorGeneric(
@@ -142,17 +160,19 @@ final checarConeccaoUsecase = ChecarConeccaoUsecase(
       ),
     );
 
-    if (_value.result != null) {
-      _result = _value.result;
-      setState(() {});
-    } else {
-      _result = _value.error?.message;
-      setState(() {});
+    switch (data) {
+      case SuccessReturn<String>():
+        _resultChecarConeccao = data.result;
+        setState(() {});
+
+      case ErrorReturn<String>():
+        _resultChecarConeccao = data.result.message;
+        setState(() {});
     }
   }
 ```
 Usecase only with the business rule:
-Extends the ```Usecase``` business rule with ```UsecaseBase<TypeUsecase>``` by typing ```UsecaseBase<TypeUsecase>``` with the desired data ex: ```UsecaseBase<String>```. Where it is typed with the return that will be made by usecase.
+Extends the business rule without external datasource calls ```Usecase``` business rule with ```UsecaseBase<TypeUsecase>``` by typing ```UsecaseBase<TypeUsecase>``` with the desired data ex: ```UsecaseBase<String>```. Where it is typed with the return that will be made by usecase.
 
 ```
 final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
@@ -175,32 +195,25 @@ final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
   }
 
   @override
-  Future<({AppError? error, String? result})> call(
+  Future<ReturnSuccessOrError<String>> call(
       {required ParametersReturnResult parameters}) async {
     if (await type == "Conect none") {
-      return (
-        result: null,
+      return ErrorReturn(
         error: ErrorGeneric(message: "You are Offline!"),
       );
     } else {
-      return (
-        result: await type,
-        error: null,
+      return SuccessReturn(
+        success: await type,
       );
     }
   }
 }
 ```
 
-
 The "ParametersReturnResult" class. Expects to receive the general parameters necessary for the Usecase call, along with the mandatory parameters ParametersBasic:
 ```showRuntimeMilliseconds``` responsible for showing the time it took to execute the call in milliseconds;
 ```nameFeature``` responsible for identifying the feature;
 ```AppError``` responsible for handling the Error;
-
-The result of the ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` function is a record that stores the 2 possible results:
-```result``` which in turn stores the success of the call;
-```error``` which in turn stores the error of the call;
 
 
 Example of a feature hierarchy:
@@ -214,7 +227,7 @@ lib:
                 connectivity_datasource.dart
             domain:
                 usecase:
-                checar_coneccao_usecase.dart
+                  checar_coneccao_usecase.dart
     main.dart
 ```
 ----

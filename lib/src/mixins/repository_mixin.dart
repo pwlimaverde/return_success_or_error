@@ -1,7 +1,7 @@
 import '../core/parameters.dart';
+import '../core/return_success_or_error.dart';
 import '../core/runtime_milliseconds.dart';
 import '../interfaces/datasource.dart';
-import '../interfaces/errors.dart';
 import 'datasource_mixin.dart';
 
 ///class responsible for executing the datasouce function, returning the desired type or an AppErrror.
@@ -13,7 +13,7 @@ final class ResultRepository<TypeDatasource>
     required this.datasource,
   });
 
-  Future<({TypeDatasource? result, AppError? error})> call({
+  Future<ReturnSuccessOrError<TypeDatasource>> call({
     required ParametersReturnResult parameters,
   }) async {
     final _result = await returnDatasource(
@@ -26,7 +26,7 @@ final class ResultRepository<TypeDatasource>
 
 ///mixin responsible for calling the ropositore that loads the data from the datasource and measures its execution time
 mixin RepositoryMixin<TypeDatasource> {
-  Future<({TypeDatasource? result, AppError? error})> resultDatasource({
+  Future<ReturnSuccessOrError<TypeDatasource>> resultDatasource({
     required ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
@@ -46,10 +46,9 @@ mixin RepositoryMixin<TypeDatasource> {
       }
       return _result;
     } catch (e) {
-      return (
-        result: null,
+      return ErrorReturn(
         error: parameters.basic.error
-          ..message = "$_messageError - Cod. 01-1.1 --- Catch: $e",
+          ..message = "$_messageError - Cod. 02-1 --- Catch: $e",
       );
     }
   }

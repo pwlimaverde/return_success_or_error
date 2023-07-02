@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/bases/usecase_base.dart';
+import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
 
@@ -12,23 +13,23 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   TesteUsecaseCallData({required super.datasource});
 
   @override
-  Future<({AppError? error, String? result})> call(
+  Future<ReturnSuccessOrError<String>> call(
       {required ParametersReturnResult parameters}) async {
     final teste = await resultDatasource(
       parameters: parameters,
       datasource: datasource,
     );
     print("Teste retorno Datasource - $teste");
-    if (teste.error == null) {
-      return (
-        result: "Regra de negocio OK",
-        error: null,
-      );
-    } else {
-      return (
-        result: null,
-        error: parameters.basic.error,
-      );
+    switch (teste) {
+      case SuccessReturn<bool>():
+        if (teste.result) {
+          return SuccessReturn<String>(success: "Regra de negocio true");
+        } else {
+          return SuccessReturn<String>(success: "Regra de negocio false");
+        }
+
+      case ErrorReturn<bool>():
+        return ErrorReturn<String>(error: parameters.basic.error);
     }
   }
 }
@@ -37,14 +38,20 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
   final bool testeDependencia;
 
   TesteUsecaseDirect({required this.testeDependencia});
+
   @override
-  Future<({AppError? error, String? result})> call(
-      {required ParametersReturnResult parameters}) async {
+  Future<ReturnSuccessOrError<String>> call({
+    required ParametersReturnResult parameters,
+  }) async {
     if (testeDependencia) {
       final teste = "Teste UsecaseBase";
-      return (result: teste, error: null);
+      return SuccessReturn<String>(
+        success: teste,
+      );
     } else {
-      return (result: null, error: parameters.basic.error);
+      return ErrorReturn(
+        error: parameters.basic.error,
+      );
     }
   }
 }
@@ -62,25 +69,33 @@ void main() {
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final result = await returnResultUsecaseBase(
+    final data = await returnResultUsecaseBase(
       parameters: parameters,
     );
-    print(result.result);
-    print(result.error);
-    expect(result.result, equals("Teste UsecaseBase"));
-    expect(result.error, equals(null));
+    switch (data) {
+      case SuccessReturn<String>():
+        print(data.result);
+        expect(data.result, equals("Teste UsecaseBase"));
+      case ErrorReturn<String>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
   });
 
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final result = await returnResultUsecaseBase(
+    final data = await returnResultUsecaseBase(
       parameters: parameters,
     );
-    print(result.result);
-    print(result.error);
-    expect(result.result, equals(null));
-    expect(result.error, isA<ErrorGeneric>());
+    switch (data) {
+      case SuccessReturn<String>():
+        print(data.result);
+        expect(data.result, equals("Teste UsecaseBase"));
+      case ErrorReturn<String>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
   });
 
   test('Deve retornar um success com "Regra de negocio OK" data "true"',
@@ -88,13 +103,17 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(true),
     );
-    final result = await returnResultUsecaseCallData(
+    final data = await returnResultUsecaseCallData(
       parameters: parameters,
     );
-    print(result.result);
-    print(result.error);
-    expect(result.result, equals("Regra de negocio OK"));
-    expect(result.error, equals(null));
+    switch (data) {
+      case SuccessReturn<String>():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio true"));
+      case ErrorReturn<String>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
   });
 
   test('Deve retornar um success com "Regra de negocio OK" data "false"',
@@ -102,13 +121,17 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(false),
     );
-    final result = await returnResultUsecaseCallData(
+    final data = await returnResultUsecaseCallData(
       parameters: parameters,
     );
-    print(result.result);
-    print(result.error);
-    expect(result.result, equals("Regra de negocio OK"));
-    expect(result.error, equals(null));
+    switch (data) {
+      case SuccessReturn<String>():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio false"));
+      case ErrorReturn<String>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
   });
 
   test(
@@ -117,12 +140,16 @@ void main() {
     when(() => datasource(parameters: parameters)).thenThrow(
       Exception(),
     );
-    final result = await returnResultUsecaseCallData(
+    final data = await returnResultUsecaseCallData(
       parameters: parameters,
     );
-    print(result.result);
-    print(result.error);
-    expect(result.result, equals(null));
-    expect(result.error, isA<ErrorGeneric>());
+    switch (data) {
+      case SuccessReturn<String>():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio OK"));
+      case ErrorReturn<String>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
   });
 }

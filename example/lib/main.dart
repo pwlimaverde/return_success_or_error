@@ -32,12 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ({AppError? error, String? result}) _valueChecarConeccao =
-      (error: null, result: null);
   String? _resultChecarConeccao;
-
-  ({AppError? error, String? result}) _valueChecarTypeConeccao =
-      (error: null, result: null);
   String? _resultChecarTypeConeccao;
 
   final checarConeccaoUsecase = ChecarConeccaoUsecase(
@@ -47,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   void _checkConnection() async {
-    _valueChecarConeccao = await checarConeccaoUsecase(
+    final data = await checarConeccaoUsecase(
       parameters: NoParams(
         basic: ParametersBasic(
           error: ErrorGeneric(
@@ -60,12 +55,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    if (_valueChecarConeccao.result != null) {
-      _resultChecarConeccao = _valueChecarConeccao.result;
-      setState(() {});
-    } else {
-      _resultChecarConeccao = _valueChecarConeccao.error?.message;
-      setState(() {});
+    switch (data) {
+      case SuccessReturn<String>():
+        _resultChecarConeccao = data.result;
+        setState(() {});
+
+      case ErrorReturn<String>():
+        _resultChecarConeccao = data.result.message;
+        setState(() {});
     }
   }
 
@@ -74,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   void _checkTypeConnection() async {
-    _valueChecarTypeConeccao = await checarTypeConeccaoUsecase(
+    final data = await checarTypeConeccaoUsecase(
       parameters: NoParams(
         basic: ParametersBasic(
           error: ErrorGeneric(
@@ -87,12 +84,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    if (_valueChecarTypeConeccao.result != null) {
-      _resultChecarTypeConeccao = _valueChecarTypeConeccao.result;
-      setState(() {});
-    } else {
-      _resultChecarTypeConeccao = _valueChecarTypeConeccao.error?.message;
-      setState(() {});
+    switch (data) {
+      case SuccessReturn<String>():
+        _resultChecarTypeConeccao = data.result;
+        setState(() {});
+
+      case ErrorReturn<String>():
+        _resultChecarTypeConeccao = data.result.message;
+        setState(() {});
     }
   }
 
@@ -182,29 +181,27 @@ final class ChecarConeccaoUsecase
   ChecarConeccaoUsecase({required super.datasource});
 
   @override
-  Future<({AppError? error, String? result})> call(
+  Future<ReturnSuccessOrError<String>> call(
       {required ParametersReturnResult parameters}) async {
     final resultDatacource = await resultDatasource(
-        parameters: parameters, datasource: super.datasource);
+      parameters: parameters,
+      datasource: super.datasource,
+    );
 
-    if (resultDatacource.result != null) {
-      if (resultDatacource.result!.conect) {
-        return (
-          result:
-              "You are conect - Type: ${resultDatacource.result!.typeConect}",
-          error: null,
-        );
-      } else {
-        return (
-          result: "You are offline",
-          error: parameters.basic.error..message = "You are offline",
-        );
-      }
-    } else {
-      return (
-        result: null,
-        error: ErrorGeneric(message: "Error check Connectivity"),
-      );
+    switch (resultDatacource) {
+      case SuccessReturn<({bool conect, String typeConect})>():
+        if (resultDatacource.result.conect) {
+          return SuccessReturn(
+            success:
+                "You are conect - Type: ${resultDatacource.result.typeConect}",
+          );
+        } else {
+          return ErrorReturn(
+              error: parameters.basic.error..message = "You are offline");
+        }
+      case ErrorReturn<({bool conect, String typeConect})>():
+        return ErrorReturn(
+            error: ErrorGeneric(message: "Error check Connectivity"));
     }
   }
 }
@@ -230,17 +227,15 @@ final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
   }
 
   @override
-  Future<({AppError? error, String? result})> call(
+  Future<ReturnSuccessOrError<String>> call(
       {required ParametersReturnResult parameters}) async {
     if (await type == "Conect none") {
-      return (
-        result: null,
+      return ErrorReturn(
         error: ErrorGeneric(message: "You are Offline!"),
       );
     } else {
-      return (
-        result: await type,
-        error: null,
+      return SuccessReturn(
+        success: await type,
       );
     }
   }
