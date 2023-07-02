@@ -13,6 +13,9 @@ export 'src/interfaces/datasource.dart';
 ///and override the ´´´message´´´ parameter
 export 'src/interfaces/errors.dart';
 
+///Class responsible for abstracting the presenter layer
+export 'src/interfaces/presenter.dart';
+
 ///Responsible for exposing the abstraction of the parameters.
 ///
 ///The parameter class is responsible for storing and handling the parameters
@@ -27,15 +30,15 @@ export 'src/core/parameters.dart';
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
 
-//Responsible for the business rule
-///
-///Base class responsible for accessing and processing the datasource and
-///building the feature's business rule
-export 'src/bases/usecase_base.dart';
-
 ///Responsible for exposing the abstraction of the return_success_or_error.
 ///
 ///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
 ///ErrorReturn which in turn stores the result in case of success or an
 ///AppError in case of failure.
 export 'src/core/return_success_or_error.dart';
+
+//Responsible for the business rule
+///
+///Base class responsible for accessing and processing the datasource and
+///building the feature's business rule
+export 'src/bases/usecase_base.dart';
