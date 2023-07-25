@@ -1,6 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
+import 'package:return_success_or_error/src/interfaces/errors.dart';
+
+class ParametersSalvarHeader implements ParametersReturnResult {
+  final String nome;
+
+  ParametersSalvarHeader({
+    required this.nome,
+  });
+
+  @override
+  ParametersBasic get basic => ParametersBasic(
+        error: ErrorGeneric(message: "teste parrametros"),
+        showRuntimeMilliseconds: true,
+        nameFeature: "Teste parametros",
+        isIsolate: true,
+      );
+}
 
 class ExternalMock<bool> {
   final bool? teste;
@@ -23,7 +40,7 @@ class TesteDataSourceMock implements Datasource<bool> {
 
   @override
   Future<bool> call({
-    required ParametersReturnResult parameters,
+    required ParametersSalvarHeader parameters,
   }) async {
     try {
       return external.returnBool();
@@ -38,7 +55,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: true),
     )(
-      parameters: NoParamsGeneral(),
+      parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -48,7 +65,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: false),
     )(
-      parameters: NoParamsGeneral(),
+      parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -59,7 +76,7 @@ void main() {
         () async => await TesteDataSourceMock(
               external: ExternalMock(),
             )(
-              parameters: NoParamsGeneral(),
+              parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
             ),
         throwsA(isA<Exception>()));
   });
