@@ -14,7 +14,7 @@ final class ResultRepository<TypeDatasource>
   });
 
   Future<ReturnSuccessOrError<TypeDatasource>> call({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
   }) async {
     final _result = await returnDatasource(
       parameters: parameters,
@@ -27,7 +27,7 @@ final class ResultRepository<TypeDatasource>
 ///mixin responsible for calling the ropositore that loads the data from the datasource and measures its execution time
 mixin RepositoryMixin<TypeDatasource> {
   Future<ReturnSuccessOrError<TypeDatasource>> resultDatasource({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
     final String _messageError = parameters.basic.error.message;

@@ -6,7 +6,7 @@ import '../interfaces/datasource.dart';
 ///mixim responsible for loading the datasource, choosing to run the function in an isolate or not.
 mixin DatasourceMixin<TypeDatasource> {
   Future<ReturnSuccessOrError<TypeDatasource>> returnDatasource({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
     final String _messageError = parameters.basic.error.message;

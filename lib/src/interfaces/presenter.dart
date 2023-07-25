@@ -5,6 +5,6 @@ import '../../return_success_or_error.dart';
 ///juntamente com o datasource caso exista, e o resultado pode ser exportado diretamente.
 abstract interface class Presenter<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> call({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
   });
 }
