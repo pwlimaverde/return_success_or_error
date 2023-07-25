@@ -6,6 +6,22 @@ import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
 
+class ParametersSalvarHeader implements ParametersReturnResult {
+  final String nome;
+
+  ParametersSalvarHeader({
+    required this.nome,
+  });
+
+  @override
+  ParametersBasic get basic => ParametersBasic(
+        error: ErrorGeneric(message: "teste parrametros"),
+        showRuntimeMilliseconds: true,
+        nameFeature: "Teste parametros",
+        isIsolate: true,
+      );
+}
+
 final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
 
@@ -14,7 +30,7 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-      {required ParametersReturnResult parameters}) async {
+      {required ParametersSalvarHeader parameters}) async {
     final teste = await resultDatasource(
       parameters: parameters,
       datasource: datasource,
@@ -41,10 +57,10 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
 
   @override
   Future<ReturnSuccessOrError<String>> call({
-    required ParametersReturnResult parameters,
+    required ParametersSalvarHeader parameters,
   }) async {
     if (testeDependencia) {
-      final teste = "Teste UsecaseBase";
+      final teste = parameters.nome;
       return SuccessReturn<String>(
         success: teste,
       );
@@ -58,20 +74,16 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
 
 void main() {
   late Datasource<bool> datasource;
-  late UsecaseBaseCallData<String, bool> returnResultUsecaseCallData;
-  late UsecaseBase<String> returnResultUsecaseBase;
   final parameters = NoParamsGeneral();
+  final parameters2 = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
-    returnResultUsecaseCallData = TesteUsecaseCallData(datasource: datasource);
   });
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data = await returnResultUsecaseBase(
-      parameters: parameters,
-    );
+    final returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
+    final data = await returnResultUsecaseBase(parameters: parameters2);
     switch (data) {
       case SuccessReturn<String>():
         print(data.result);
@@ -84,10 +96,8 @@ void main() {
 
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final data = await returnResultUsecaseBase(
-      parameters: parameters,
-    );
+    final returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
+    final data = await returnResultUsecaseBase(parameters: parameters2);
     switch (data) {
       case SuccessReturn<String>():
         print(data.result);
@@ -103,8 +113,10 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(true),
     );
+    final returnResultUsecaseCallData =
+        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters: parameters2,
     );
     switch (data) {
       case SuccessReturn<String>():
@@ -121,8 +133,10 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(false),
     );
+    final returnResultUsecaseCallData =
+        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters: parameters2,
     );
     switch (data) {
       case SuccessReturn<String>():
@@ -140,8 +154,10 @@ void main() {
     when(() => datasource(parameters: parameters)).thenThrow(
       Exception(),
     );
+    final returnResultUsecaseCallData =
+        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters: parameters2,
     );
     switch (data) {
       case SuccessReturn<String>():

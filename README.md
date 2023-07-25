@@ -42,7 +42,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 ```
 When implementing the ```ParametersReturnResult``` class, you need to override the ```ParametersBasic```, which is responsible for the necessary basic parameters. This class stores the data to be queried.
 
-The external call ```Datasource<Type>``` is implemented by typing with the desired data eg ```Datasource<Stream<UserModel>>```, ex:
+The external call ```Datasource<Type>``` is implemented by typing with the desired data ex: ```Datasource<Stream<UserModel>>```, ex:
 ```
 class ConnectivityDatasource
     implements Datasource<({bool conect, String typeConect})> {
@@ -106,7 +106,7 @@ switch(result) {
 Usecase with external Datasource call:
 Extend the ```Usecase``` business rule with ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` by typing the ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` with the desired data ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Where the first type is the return that will be made by usecase, and the second is the type of data that will be returned from the datasource.
 ```
-inal class ChecarConeccaoUsecase
+final class ChecarConeccaoUsecase
     extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
   ChecarConeccaoUsecase({required super.datasource});
 
