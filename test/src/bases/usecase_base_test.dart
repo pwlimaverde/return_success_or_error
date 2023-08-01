@@ -76,13 +76,16 @@ void main() {
   late Datasource<bool> datasource;
   final parameters = NoParamsGeneral();
   final parameters2 = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
+  late TesteUsecaseCallData returnResultUsecaseCallData;
+  late TesteUsecaseDirect returnResultUsecaseBase;
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
+    returnResultUsecaseCallData = TesteUsecaseCallData(datasource: datasource);
   });
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
-    final returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
+    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
     final data = await returnResultUsecaseBase(parameters: parameters2);
     switch (data) {
       case SuccessReturn<String>():
@@ -96,7 +99,7 @@ void main() {
 
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
-    final returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
+    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
     final data = await returnResultUsecaseBase(parameters: parameters2);
     switch (data) {
       case SuccessReturn<String>():
@@ -113,8 +116,6 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(true),
     );
-    final returnResultUsecaseCallData =
-        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
       parameters: parameters2,
     );
@@ -133,8 +134,6 @@ void main() {
     when(() => datasource(parameters: parameters)).thenAnswer(
       (_) => Future.value(false),
     );
-    final returnResultUsecaseCallData =
-        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
       parameters: parameters2,
     );
@@ -154,8 +153,6 @@ void main() {
     when(() => datasource(parameters: parameters)).thenThrow(
       Exception(),
     );
-    final returnResultUsecaseCallData =
-        TesteUsecaseCallData(datasource: datasource);
     final data = await returnResultUsecaseCallData(
       parameters: parameters2,
     );
