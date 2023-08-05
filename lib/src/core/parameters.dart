@@ -18,11 +18,17 @@ final class ParametersBasic {
   final bool isIsolate;
 
   ParametersBasic({
-    required this.error,
-    required this.showRuntimeMilliseconds,
-    required this.nameFeature,
-    required this.isIsolate,
-  });
+    AppError? error,
+    bool? showRuntimeMilliseconds,
+    String? nameFeature,
+    bool? isIsolate,
+  })  : error = error ??
+            ErrorGeneric(
+              message: "Error General Feature",
+            ),
+        nameFeature = nameFeature ?? "General Feature",
+        showRuntimeMilliseconds = showRuntimeMilliseconds ?? false,
+        isIsolate = isIsolate ?? false;
 }
 
 abstract interface class ParametersReturnResult {
@@ -41,12 +47,5 @@ final class NoParams implements ParametersReturnResult {
 
 final class NoParamsGeneral implements ParametersReturnResult {
   @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(
-          message: "Error General Feature",
-        ),
-        nameFeature: "General Feature",
-        showRuntimeMilliseconds: true,
-        isIsolate: true,
-      );
+  ParametersBasic get basic => ParametersBasic();
 }

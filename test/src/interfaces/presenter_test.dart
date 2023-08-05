@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/bases/usecase_base.dart';
+import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/core/return_success_or_error.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
+import 'package:return_success_or_error/src/interfaces/presenter.dart';
 
 class ParametersSalvarHeader implements ParametersReturnResult {
   final String nome;
@@ -22,8 +23,42 @@ class ParametersSalvarHeader implements ParametersReturnResult {
       );
 }
 
+final class TesteUsecaseDirect extends UsecaseBase<String> {
+  final bool testeDependencia;
+
+  TesteUsecaseDirect({required this.testeDependencia});
+
+  @override
+  Future<ReturnSuccessOrError<String>> call({
+    required ParametersReturnResult parameters,
+  }) async {
+    if (testeDependencia) {
+      return SuccessReturn<String>(
+        success: "teste",
+      );
+    } else {
+      return ErrorReturn(
+        error: parameters.basic.error,
+      );
+    }
+  }
+}
+
+final class TestePresenterDirect implements Presenter<String> {
+  @override
+  Future<ReturnSuccessOrError<String>> call({
+    required NoParamsGeneral parameters,
+  }) {
+    final instance = TesteUsecaseDirect(testeDependencia: true);
+    final data = instance(parameters: parameters);
+    return data;
+  }
+}
+
 final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
+
+final datasourceMock = ReturnResultDatasourceMock();
 
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   TesteUsecaseCallData({required super.datasource});
@@ -50,60 +85,39 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   }
 }
 
-final class TesteUsecaseDirect extends UsecaseBase<String> {
-  final bool testeDependencia;
-
-  TesteUsecaseDirect({required this.testeDependencia});
-
+final class TestePresenterCallData implements Presenter<String> {
   @override
   Future<ReturnSuccessOrError<String>> call({
     required ParametersSalvarHeader parameters,
-  }) async {
-    if (testeDependencia) {
-      final teste = parameters.nome;
-      return SuccessReturn<String>(
-        success: teste,
-      );
-    } else {
-      return ErrorReturn(
-        error: parameters.basic.error,
-      );
-    }
+  }) {
+    final instance = TesteUsecaseCallData(
+      datasource: datasourceMock,
+    );
+    final data = instance(
+      parameters: parameters,
+    );
+    return data;
   }
 }
 
 void main() {
-  late Datasource<bool> datasource;
   final parameters = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
-  late TesteUsecaseCallData returnResultUsecaseCallData;
-  late TesteUsecaseDirect returnResultUsecaseBase;
+  late TestePresenterDirect returnResultPresenterBase;
+  late TestePresenterCallData returnResultPresenterCallData;
 
   setUp(() {
-    datasource = ReturnResultDatasourceMock();
-    returnResultUsecaseCallData = TesteUsecaseCallData(datasource: datasource);
+    returnResultPresenterBase = TestePresenterDirect();
+    returnResultPresenterCallData = TestePresenterCallData();
   });
 
-  test('Deve retornar um success com "Teste UsecaseBase"', () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data = await returnResultUsecaseBase(parameters: parameters);
+  test('Deve retornar um success com "teste"', () async {
+    final data = await returnResultPresenterBase(
+      parameters: NoParamsGeneral(),
+    );
     switch (data) {
       case SuccessReturn<String>():
         print(data.result);
-        expect(data.result, equals("Teste UsecaseBase"));
-      case ErrorReturn<String>():
-        print(data.result);
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
-      () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final data = await returnResultUsecaseBase(parameters: parameters);
-    switch (data) {
-      case SuccessReturn<String>():
-        print(data.result);
-        expect(data.result, equals("Teste UsecaseBase"));
+        expect(data.result, equals("teste"));
       case ErrorReturn<String>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
@@ -112,10 +126,10 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "true"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasourceMock(parameters: parameters)).thenAnswer(
       (_) => Future.value(true),
     );
-    final data = await returnResultUsecaseCallData(
+    final data = await returnResultPresenterCallData(
       parameters: parameters,
     );
     switch (data) {
@@ -130,10 +144,10 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "false"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasourceMock(parameters: parameters)).thenAnswer(
       (_) => Future.value(false),
     );
-    final data = await returnResultUsecaseCallData(
+    final data = await returnResultPresenterCallData(
       parameters: parameters,
     );
     switch (data) {
@@ -149,10 +163,10 @@ void main() {
   test(
       'Deve retornar um AppError com ErrorGeneric - Error General Feature. Cod. 03-1 --- Catch: Exception',
       () async {
-    when(() => datasource(parameters: parameters)).thenThrow(
+    when(() => datasourceMock(parameters: parameters)).thenThrow(
       Exception(),
     );
-    final data = await returnResultUsecaseCallData(
+    final data = await returnResultPresenterCallData(
       parameters: parameters,
     );
     switch (data) {

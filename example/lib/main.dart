@@ -182,7 +182,7 @@ final class ChecarConeccaoUsecase
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-      {required ParametersReturnResult parameters}) async {
+      {required NoParams parameters}) async {
     final resultDatacource = await resultDatasource(
       parameters: parameters,
       datasource: super.datasource,
@@ -228,7 +228,7 @@ final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-      {required ParametersReturnResult parameters}) async {
+      {required NoParams parameters}) async {
     if (await type == "Conect none") {
       return ErrorReturn(
         error: ErrorGeneric(message: "You are Offline!"),
