@@ -7,12 +7,12 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
 
   UsecaseBaseCallData({required this.datasource});
   Future<ReturnSuccessOrError<TypeUsecase>> call({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
   });
 }
 
 abstract base class UsecaseBase<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> call({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
   });
 }
