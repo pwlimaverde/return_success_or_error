@@ -1,3 +1,7 @@
+## [0.11.0] - 04/08/2023.
+
+1 - Ajuste para que seja aceito como parametos covariantes de ```ParametersReturnResult```.
+
 ## [0.10.0] - 02/07/2023.
 
 1 - Retorno do Usecase alterado para ```ReturnSuccessOrError<TypeUsecase>```.
@@ -23,7 +27,7 @@ Correção da documentação.
 
 1 - Refator parar compatibilidade do dart 3.
 2 - Restruturação do cógigo onde agorar será retornado um record contendo o resultado e o erro.
-3 - Use case agora processa os dados do datasource e retorna os dados separadamente. Onde é definido na estensão a tipagem do usecase e a ttipagem do datasouce separardamente.
+3 - Usecase agora processa os dados do datasource e retorna os dados separadamente. Onde é definido na extensão a tipagem do usecase e a tipagem do datasouce separadamente.
 4 - Reestruturação da class base ParametersReturnResult. Onde os dados em comum serão agora ParametersBasic.
 
 ## [0.5.0] - 18/09/2022.
