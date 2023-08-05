@@ -1,14 +1,13 @@
 import '../../return_success_or_error.dart';
 
 sealed class ReturnSuccessOrError<R> {
+  final AppError? _error;
+  final R? _success;
   const ReturnSuccessOrError({
     R? success,
     AppError? error,
   })  : _success = success,
         _error = error;
-
-  final AppError? _error;
-  final R? _success;
 }
 
 ///Responsible for storing the returned data when successful.

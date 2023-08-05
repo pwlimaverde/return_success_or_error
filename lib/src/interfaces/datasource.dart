@@ -6,6 +6,6 @@ import '../core/parameters.dart';
 ///ParametersReturnResult.
 abstract interface class Datasource<TypeDatasource> {
   Future<TypeDatasource> call({
-    required ParametersReturnResult parameters,
+    required covariant ParametersReturnResult parameters,
   });
 }
