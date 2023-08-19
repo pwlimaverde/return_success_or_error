@@ -12,15 +12,17 @@ sealed class ReturnSuccessOrError<R> {
 
 ///Responsible for storing the returned data when successful.
 final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
-  const SuccessReturn({
+  SuccessReturn({
     required R super.success,
   });
 
-  R get result => _success!;
+  R get result => _success as R;
+
+  SuccessReturn.voidResult();
 
   @override
   String toString() {
-    return "Success: ${this.result}";
+    return "Success: ${_success != null ? this.result : "Void Result"}";
   }
 }
 

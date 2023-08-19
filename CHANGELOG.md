@@ -1,3 +1,7 @@
+## [0.12.0] - 18/08/2023.
+
+1 - Ajuste para que seja aceito SuccessReturn<void>, passando um SuccessReturn<void>.voidResult() como retorno do Usecase.
+
 ## [0.11.0] - 04/08/2023.
 
 1 - Ajuste para que seja aceito como parametos covariantes de ```ParametersReturnResult```.
