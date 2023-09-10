@@ -14,7 +14,6 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   ParametersBasic get basic => ParametersBasic(
         error: ErrorGeneric(message: "teste parrametros"),
         showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
         isIsolate: true,
       );
 }

@@ -48,7 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
           error: ErrorGeneric(
             message: "Conect error",
           ),
-          nameFeature: "Check Conect",
           showRuntimeMilliseconds: true,
           isIsolate: true,
         ),
@@ -77,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
           error: ErrorGeneric(
             message: "Conect error",
           ),
-          nameFeature: "Check Type Conect",
           showRuntimeMilliseconds: true,
           isIsolate: true,
         ),

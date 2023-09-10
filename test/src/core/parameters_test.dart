@@ -21,7 +21,6 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   ParametersBasic get basic => ParametersBasic(
         error: ErrorGeneric(message: "teste parrametros"),
         showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
         isIsolate: true,
       );
 }
@@ -46,6 +45,5 @@ void main() {
     expect(parameters.prioridade, isA<int>());
     expect(parameters.prioridade, equals(1));
     expect(parameters.basic.isIsolate, equals(true));
-    expect(parameters.basic.nameFeature, equals("Teste parametros"));
   });
 }

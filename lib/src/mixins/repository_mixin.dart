@@ -36,13 +36,14 @@ mixin RepositoryMixin<TypeDatasource> {
       if (parameters.basic.showRuntimeMilliseconds) {
         _runtime.startScore();
       }
+
       final _result = await ResultRepository(datasource: datasource)(
           parameters: parameters);
 
       if (parameters.basic.showRuntimeMilliseconds) {
         _runtime.finishScore();
         print(
-            "Execution Time ${parameters.basic.nameFeature}: ${_runtime.calculateRuntime()}ms");
+            "Execution Time ${this.toString().split("Instance of ")[1].replaceAll("'", "")}: ${_runtime.calculateRuntime()}ms");
       }
       return _result;
     } catch (e) {

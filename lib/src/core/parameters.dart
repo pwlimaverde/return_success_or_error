@@ -11,22 +11,17 @@ final class ParametersBasic {
   ///execution of the function.
   final bool showRuntimeMilliseconds;
 
-  ///String responsible for identifying the feature.
-  final String nameFeature;
-
   ///Bool responsible for controller activ isolate.
   final bool isIsolate;
 
   ParametersBasic({
     AppError? error,
     bool? showRuntimeMilliseconds,
-    String? nameFeature,
     bool? isIsolate,
   })  : error = error ??
             ErrorGeneric(
               message: "Error General Feature",
             ),
-        nameFeature = nameFeature ?? "General Feature",
         showRuntimeMilliseconds = showRuntimeMilliseconds ?? false,
         isIsolate = isIsolate ?? false;
 }

@@ -1,4 +1,6 @@
 import '../../return_success_or_error.dart';
+
+import '../mixins/isolate_mixin.dart';
 import '../mixins/repository_mixin.dart';
 
 abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
@@ -11,8 +13,31 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
   });
 }
 
-abstract base class UsecaseBase<TypeUsecase> {
+abstract base class UsecaseBase<TypeUsecase> with IsolateMixin<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> call({
     required covariant ParametersReturnResult parameters,
   });
+
+  Future<ReturnSuccessOrError<TypeUsecase>> callIsolate({
+    required covariant ParametersReturnResult parameters,
+  }) async {
+    final RuntimeMilliseconds _runtime = RuntimeMilliseconds();
+
+    if (parameters.basic.showRuntimeMilliseconds) {
+      _runtime.startScore();
+    }
+
+    final data = returnIsolate(
+        parameters: parameters,
+        callUsecase: call(
+          parameters: parameters,
+        ));
+
+    if (parameters.basic.showRuntimeMilliseconds) {
+      _runtime.finishScore();
+      print(
+          "Execution Time ${this.toString().split("Instance of ")[1].replaceAll("'", "")}: ${_runtime.calculateRuntime()}ms");
+    }
+    return data;
+  }
 }

@@ -13,9 +13,6 @@ export 'src/interfaces/datasource.dart';
 ///and override the ´´´message´´´ parameter
 export 'src/interfaces/errors.dart';
 
-///Class responsible for abstracting the presenter layer
-export 'src/interfaces/presenter.dart';
-
 ///Responsible for exposing the abstraction of the parameters.
 ///
 ///The parameter class is responsible for storing and handling the parameters

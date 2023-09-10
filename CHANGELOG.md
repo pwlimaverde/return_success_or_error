@@ -1,6 +1,12 @@
+## [0.13.0] - 10/09/2023.
+
+1 - Removido abstração do presenter(pode ser substituido por aero func conforme exemplo).
+2 - Removido necessidade do nameFeature dos ```ParametersReturnResult```, agora o nome da class é usada por padrão.
+3 - Implementado ```callIsolate``` para ```UsecaseBase```.
+
 ## [0.12.0] - 18/08/2023.
 
-1 - Ajuste para que seja aceito SuccessReturn<void>, passando um SuccessReturn<void>.voidResult() como retorno do Usecase.
+1 - Ajuste para que seja aceito ```SuccessReturn<void>```, passando um ```SuccessReturn<void>.voidResult()``` como retorno do Usecase.
 
 ## [0.11.0] - 04/08/2023.
 
@@ -19,12 +25,12 @@ Correção da documentação.
 
 ## [0.9.0] - 02/06/2023.
 
-1 - Usecase dividido em duas classes ´´´UsecaseBaseCallData´´´ que precisa receber um Datasource para chamada externa, e ´´´UsecaseBase´´´ que é usado para execultar a regra de negocio diretamente, sem a necessidade de Datasource.
+1 - Usecase dividido em duas classes ```UsecaseBaseCallData``` que precisa receber um Datasource para chamada externa, e ```UsecaseBase``` que é usado para execultar a regra de negocio diretamente, sem a necessidade de Datasource.
 2 - Correção da documentação.
 
 ## [0.8.0] - 28/05/2023.
 
-1 - Alteração do nome da função ´´´returResult´´´ para ´´´resultDatasource´´´.
+1 - Alteração do nome da função ```returResult``` para ```resultDatasource```.
 2 - Correção da documentação.
 
 ## [0.7.0] - 28/05/2023.
@@ -54,11 +60,11 @@ Refator ReturnSuccessOrError com implantação do enum StatusResult. Agora o ace
 
 ## [0.3.1] - 07/10/2021.
 
-Refator interfaces e mudança dos metodos ´´´returnUseCase´´´, ´´´returnDatasource´´´, ´´´returnRepository´´´ para mixin.
+Refator interfaces e mudança dos metodos ```returnUseCase```, ```returnDatasource```, ```returnRepository``` para mixin.
 
 ## [0.3.0] - 07/10/2021.
 
-Correção de bug. Antes ´´´UseCase<Tipo> extends UseCaseImplement<tipo>´´´; Depois ´´´UseCase extends UseCaseImplement<Tipo>´´´. Documentação Corrigida.
+Correção de bug. Antes ```UseCase<Tipo> extends UseCaseImplement<tipo>```; Depois ```UseCase extends UseCaseImplement<Tipo>```. Documentação Corrigida.
 
 ## [0.2.0] - 25/03/2021.
 
@@ -78,7 +84,7 @@ Documentation update.
 
 ## [0.1.5] - 14/03/2021.
 
-**BREAKING** Removido a necessidade de tipar os parametros direto na classe: Antes ´´´UseCase<bool, Parameters>´´´; Depois ´´´UseCase<bool>´´´. Agora todos os ´´´Parameters´´´ precisam ser implementados de ´´´ParametersReturnResult´´´. A classe abstrata ´´´ParametersReturnResult´´´ recebe agora na implementação o ´´´AppError´´´ direto em vez da ´´´String messageError´´´. O método ´´´returnResult´´´ da classe ´´´ReturnResultUsecaseImplement´´´ foi renomeado para ´´´call´´´ e não precisa mais ser informado. 
+**BREAKING** Removido a necessidade de tipar os parametros direto na classe: Antes ```UseCase<bool, Parameters>```; Depois ```UseCase<bool>```. Agora todos os ```Parameters``` precisam ser implementados de ```ParametersReturnResult```. A classe abstrata ```ParametersReturnResult``` recebe agora na implementação o ```AppError``` direto em vez da ```String messageError```. O método ```returnResult``` da classe ```ReturnResultUsecaseImplement``` foi renomeado para ```call``` e não precisa mais ser informado. 
 
 ## [0.1.4] - 14/03/2021.
 
@@ -90,7 +96,7 @@ Correction of environment flutter >= 2.0.0.
 
 ## [0.1.2] - 14/03/2021.
 
-**BREAKING** Correction of the class name ´´´ErroReturnResult´´´ for ´´´ErrorGeneric´´´.
+**BREAKING** Correction of the class name ```ErroReturnResult``` for ```ErrorGeneric```.
 
 ## [0.1.1] - 14/03/2021.
 

@@ -17,7 +17,6 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   ParametersBasic get basic => ParametersBasic(
         error: ErrorGeneric(message: "teste parrametros"),
         showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
         isIsolate: true,
       );
 }
@@ -110,7 +109,9 @@ final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
 
 void main() {
   late Datasource<bool> datasource;
-  final parameters = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
+  final parameters = ParametersSalvarHeader(
+    nome: 'Teste UsecaseBase',
+  );
   late TesteUsecaseCallData returnResultUsecaseCallData;
   late TesteUsecaseDirect returnResultUsecaseBase;
   late TesteUsecaseCallDataVoid returnResultUsecaseCallDataVoid;
@@ -125,8 +126,8 @@ void main() {
 
   test('Deve retornar um success com "Teste Void"', () async {
     returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
-    final data =
-        await returnResultUsecaseBaseVoid(parameters: NoParamsGeneral());
+    final data = await returnResultUsecaseBaseVoid.callIsolate(
+        parameters: NoParamsGeneral());
     switch (data) {
       case SuccessReturn():
         print(data);
@@ -139,7 +140,8 @@ void main() {
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data = await returnResultUsecaseBase(parameters: parameters);
+    final data =
+        await returnResultUsecaseBase.callIsolate(parameters: parameters);
     switch (data) {
       case SuccessReturn():
         print(data.result);
@@ -153,7 +155,8 @@ void main() {
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final data = await returnResultUsecaseBase(parameters: parameters);
+    final data =
+        await returnResultUsecaseBase.callIsolate(parameters: parameters);
     switch (data) {
       case SuccessReturn():
         print(data.result);
