@@ -187,6 +187,7 @@ class _StaggerDemoState extends State<StaggerDemo>
                   // print('Finish COM isolate: ${DateTime.now()}');
                   // print('####################################################');
                   Calc().fibonacciPresenter();
+                  Calc().fibonacciCallDataPresenter();
                 },
                 child: Text('Calc Fibonacci Isolate'),
                 style: ElevatedButton.styleFrom(

@@ -34,7 +34,7 @@ class Calc {
   }
 
   Future<int> fibonacciPresenter() async {
-    final usecase = FibonacciUsecase();
+    final usecase = FibonacciUsecaseBase();
     final data = await usecase.callIsolate(
       NoParams(
         basic: ParametersBasic(
@@ -52,16 +52,73 @@ class Calc {
         throw Exception();
     }
   }
+
+  Future<int> fibonacciCallDataPresenter() async {
+    final usecase = FibonacciUsecaseBaseCallData(
+      datasource: FibonacciDatasource(),
+    );
+    final data = await usecase(
+      parameters: NoParams(
+        basic: ParametersBasic(
+          isIsolate: true,
+          showRuntimeMilliseconds: true,
+        ),
+      ),
+    );
+    switch (data) {
+      case SuccessReturn<int>():
+        print("SuccessReturn");
+        print(data.result);
+        return data.result;
+      case ErrorReturn<int>():
+        throw Exception();
+    }
+  }
 }
 
-final class FibonacciUsecase extends UsecaseBase<int> {
+final class FibonacciUsecaseBase extends UsecaseBase<int> {
   @override
   Future<ReturnSuccessOrError<int>> call(
     NoParams parameters,
   ) async {
-    final data = _fibonacci(44);
+    final data = _fibonacci(42);
     print("Teste fibonacci $data");
     return SuccessReturn<int>(success: data);
+  }
+
+  int _fibonacci(int n) {
+    if (n == 0 || n == 1) return n;
+    return _fibonacci(n - 1) + _fibonacci(n - 2);
+  }
+}
+
+final class FibonacciUsecaseBaseCallData extends UsecaseBaseCallData<int, int> {
+  FibonacciUsecaseBaseCallData({required super.datasource});
+
+  @override
+  Future<ReturnSuccessOrError<int>> call({
+    required ParametersReturnResult parameters,
+  }) async {
+    final data =
+        await resultDatasource(parameters: parameters, datasource: datasource);
+
+    switch (data) {
+      case SuccessReturn<int>():
+        print("Teste fibonacci ${data.result}");
+        return data;
+      case ErrorReturn<int>():
+        print("Teste fibonacci error");
+        return data;
+    }
+  }
+}
+
+final class FibonacciDatasource implements Datasource<int> {
+  @override
+  Future<int> call(covariant ParametersReturnResult parameters) async {
+    final data = _fibonacci(42);
+    print("Data source $data");
+    return data;
   }
 
   int _fibonacci(int n) {

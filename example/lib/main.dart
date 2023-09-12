@@ -173,7 +173,8 @@ class ConnectivityDatasource
 
   @override
   Future<({bool conect, String typeConect})> call(
-      {required ParametersReturnResult parameters}) async {
+    ParametersReturnResult parameters,
+  ) async {
     try {
       final resultConect = await isOnline;
       final resultType = await type;
