@@ -38,9 +38,9 @@ class TesteDataSourceMock implements Datasource<bool> {
   TesteDataSourceMock({required this.external});
 
   @override
-  Future<bool> call({
-    required ParametersSalvarHeader parameters,
-  }) async {
+  Future<bool> call(
+    ParametersSalvarHeader parameters,
+  ) async {
     try {
       return external.returnBool();
     } catch (e) {
@@ -54,7 +54,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: true),
     )(
-      parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
+      ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -64,7 +64,7 @@ void main() {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: false),
     )(
-      parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
+      ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
     print("teste result - $result");
     expect(result, isA<bool>());
@@ -75,7 +75,7 @@ void main() {
         () async => await TesteDataSourceMock(
               external: ExternalMock(),
             )(
-              parameters: ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
+              ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
             ),
         throwsA(isA<Exception>()));
   });

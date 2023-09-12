@@ -55,9 +55,9 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
   TesteUsecaseDirect({required this.testeDependencia});
 
   @override
-  Future<ReturnSuccessOrError<String>> call({
-    required ParametersSalvarHeader parameters,
-  }) async {
+  Future<ReturnSuccessOrError<String>> call(
+    ParametersSalvarHeader parameters,
+  ) async {
     if (testeDependencia) {
       final teste = parameters.nome;
       return SuccessReturn<String>(
@@ -101,7 +101,8 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
 final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
   @override
   Future<ReturnSuccessOrError<void>> call(
-      {required NoParamsGeneral parameters}) async {
+    NoParamsGeneral parameters,
+  ) async {
     print("teste void usecase");
     return SuccessReturn<void>.voidResult();
   }
@@ -127,7 +128,8 @@ void main() {
   test('Deve retornar um success com "Teste Void"', () async {
     returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
     final data = await returnResultUsecaseBaseVoid.callIsolate(
-        parameters: NoParamsGeneral());
+      NoParamsGeneral(),
+    );
     switch (data) {
       case SuccessReturn():
         print(data);
@@ -140,8 +142,9 @@ void main() {
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data =
-        await returnResultUsecaseBase.callIsolate(parameters: parameters);
+    final data = await returnResultUsecaseBase.callIsolate(
+      parameters,
+    );
     switch (data) {
       case SuccessReturn():
         print(data.result);
@@ -155,8 +158,9 @@ void main() {
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final data =
-        await returnResultUsecaseBase.callIsolate(parameters: parameters);
+    final data = await returnResultUsecaseBase.callIsolate(
+      parameters,
+    );
     switch (data) {
       case SuccessReturn():
         print(data.result);
@@ -168,7 +172,7 @@ void main() {
   });
 
   test('Deve retornar um success void data "true"', () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(true),
     );
     final data = await returnResultUsecaseCallDataVoid(
@@ -185,7 +189,7 @@ void main() {
   });
 
   test('Deve retornar um success void data "false"', () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(false),
     );
     final data = await returnResultUsecaseCallDataVoid(
@@ -202,7 +206,7 @@ void main() {
   });
 
   test('Deve retornar um AppError com ErrorGeneric void', () async {
-    when(() => datasource(parameters: parameters)).thenThrow(
+    when(() => datasource(parameters)).thenThrow(
       Exception(),
     );
     final data = await returnResultUsecaseCallDataVoid(
@@ -220,7 +224,7 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "true"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(true),
     );
     final data = await returnResultUsecaseCallData(
@@ -238,7 +242,7 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "false"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(false),
     );
     final data = await returnResultUsecaseCallData(
@@ -257,7 +261,7 @@ void main() {
   test(
       'Deve retornar um AppError com ErrorGeneric - Error General Feature. Cod. 03-1 --- Catch: Exception',
       () async {
-    when(() => datasource(parameters: parameters)).thenThrow(
+    when(() => datasource(parameters)).thenThrow(
       Exception(),
     );
     final data = await returnResultUsecaseCallData(

@@ -5,15 +5,25 @@ import '../../return_success_or_error.dart';
 mixin IsolateMixin<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> returnIsolate({
     required covariant ParametersReturnResult parameters,
-    required Future<ReturnSuccessOrError<TypeUsecase>> callUsecase,
+    required Function callUsecase,
   }) async {
     final String _messageError = parameters.basic.error.message;
     try {
-      final Future<ReturnSuccessOrError<TypeUsecase>> _result =
-          parameters.basic.isIsolate
-              ? _funcaoIsolate(funcao: await callUsecase)
-              : callUsecase;
-      return _result;
+      final _result = parameters.basic.isIsolate
+          ? _funcaoIsolate(
+              callUsecase: callUsecase,
+              parameters: parameters,
+            )
+          : callUsecase;
+
+      if (_result is Future<ReturnSuccessOrError<TypeUsecase>>) {
+        return _result;
+      } else {
+        return ErrorReturn(
+          error: parameters.basic.error
+            ..message = "$_messageError. \n Cod. 02-1",
+        );
+      }
     } catch (e) {
       return ErrorReturn(
         error: parameters.basic.error
@@ -23,29 +33,62 @@ mixin IsolateMixin<TypeUsecase> {
   }
 
   Future<ReturnSuccessOrError<TypeUsecase>> _funcaoIsolate({
-    required ReturnSuccessOrError<TypeUsecase> funcao,
+    required Function callUsecase,
+    required covariant ParametersReturnResult parameters,
   }) async {
-    ReceivePort _receiveIsolatePort = ReceivePort();
-    await Isolate.spawn(_envioRetornoFuncao, _receiveIsolatePort.sendPort);
-    SendPort _sendToIsolatePort = await _receiveIsolatePort.first;
-    ReturnSuccessOrError<TypeUsecase> _result =
-        await _recebimentoRetornoFuncao(_sendToIsolatePort, funcao);
-    return _result;
+    var isolateListnner = ReceivePort();
+    var port = ReceivePort();
+
+    await Isolate.spawn(_isolateLogic, port.sendPort);
+    SendPort portNewIsolate = await port.first;
+
+    portNewIsolate.send(
+      {
+        'isolate': isolateListnner.sendPort,
+        'callUsecase': callUsecase,
+        'parameters': parameters,
+      },
+    );
+
+    return await isolateListnner.first;
   }
 
-  Future<void> _envioRetornoFuncao(SendPort sendPort) async {
-    ReceivePort _port = ReceivePort();
-    sendPort.send(_port.sendPort);
-    await for (var msg in _port) {
-      ReturnSuccessOrError<TypeUsecase> _data = msg[0];
-      SendPort _replyTo = msg[1];
-      _replyTo.send(_data);
-    }
+  _isolateLogic(SendPort message) {
+    var isolatePrivatePort = ReceivePort();
+    message.send(isolatePrivatePort.sendPort);
+
+    isolatePrivatePort.listen((message) async {
+      var externalIsolate = message['isolate'];
+      var parameters = message['parameters'];
+      Function callUsecase = message['callUsecase'];
+      externalIsolate.send(await callUsecase(parameters));
+    });
   }
 
-  Future<dynamic> _recebimentoRetornoFuncao(SendPort port, resultado) {
-    ReceivePort _response = ReceivePort();
-    port.send([resultado, _response.sendPort]);
-    return _response.first;
-  }
+  // Future<ReturnSuccessOrError<TypeUsecase>> _funcaoIsolate({
+  //   required ReturnSuccessOrError<TypeUsecase> funcao,
+  // }) async {
+  //   ReceivePort _receiveIsolatePort = ReceivePort();
+  //   await Isolate.spawn(_envioRetornoFuncao, _receiveIsolatePort.sendPort);
+  //   SendPort _sendToIsolatePort = await _receiveIsolatePort.first;
+  //   ReturnSuccessOrError<TypeUsecase> _result =
+  //       await _recebimentoRetornoFuncao(_sendToIsolatePort, funcao);
+  //   return _result;
+  // }
+
+  // Future<void> _envioRetornoFuncao(SendPort sendPort) async {
+  //   ReceivePort _port = ReceivePort();
+  //   sendPort.send(_port.sendPort);
+  //   await for (var msg in _port) {
+  //     ReturnSuccessOrError<TypeUsecase> _data = msg[0];
+  //     SendPort _replyTo = msg[1];
+  //     _replyTo.send(_data);
+  //   }
+  // }
+
+  // Future<dynamic> _recebimentoRetornoFuncao(SendPort port, resultado) {
+  //   ReceivePort _response = ReceivePort();
+  //   port.send([resultado, _response.sendPort]);
+  //   return _response.first;
+  // }
 }

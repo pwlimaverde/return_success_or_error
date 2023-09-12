@@ -14,10 +14,10 @@ mixin DatasourceMixin<TypeDatasource> {
       final TypeDatasource _result = parameters.basic.isIsolate
           ? await _funcaoIsolate(
               funcao: await datasource.call(
-              parameters: parameters,
+              parameters,
             ))
           : await datasource.call(
-              parameters: parameters,
+              parameters,
             );
       return SuccessReturn(success: _result);
     } catch (e) {

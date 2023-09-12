@@ -14,24 +14,20 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
 }
 
 abstract base class UsecaseBase<TypeUsecase> with IsolateMixin<TypeUsecase> {
-  Future<ReturnSuccessOrError<TypeUsecase>> call({
-    required covariant ParametersReturnResult parameters,
-  });
+  Future<ReturnSuccessOrError<TypeUsecase>> call(
+    covariant ParametersReturnResult parameters,
+  );
 
-  Future<ReturnSuccessOrError<TypeUsecase>> callIsolate({
-    required covariant ParametersReturnResult parameters,
-  }) async {
+  Future<ReturnSuccessOrError<TypeUsecase>> callIsolate(
+    covariant ParametersReturnResult parameters,
+  ) async {
     final RuntimeMilliseconds _runtime = RuntimeMilliseconds();
 
     if (parameters.basic.showRuntimeMilliseconds) {
       _runtime.startScore();
     }
 
-    final data = returnIsolate(
-        parameters: parameters,
-        callUsecase: call(
-          parameters: parameters,
-        ));
+    final data = await returnIsolate(parameters: parameters, callUsecase: call);
 
     if (parameters.basic.showRuntimeMilliseconds) {
       _runtime.finishScore();

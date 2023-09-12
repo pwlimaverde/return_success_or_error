@@ -5,7 +5,7 @@ import '../core/parameters.dart';
 ///of success, or a throw returning the AppError received in the
 ///ParametersReturnResult.
 abstract interface class Datasource<TypeDatasource> {
-  Future<TypeDatasource> call({
-    required covariant ParametersReturnResult parameters,
-  });
+  Future<TypeDatasource> call(
+    covariant ParametersReturnResult parameters,
+  );
 }
