@@ -14,12 +14,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   });
 
   @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(message: "teste parrametros"),
-        showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
-        isIsolate: true,
-      );
+  AppError get error => ErrorGeneric(message: "teste parrametros");
 }
 
 final class ReturnResultDatasourceMock extends Mock
@@ -30,7 +25,8 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-      {required ParametersSalvarHeader parameters}) async {
+    ParametersSalvarHeader parameters,
+  ) async {
     final teste = await resultDatasource(
       parameters: parameters,
       datasource: datasource,
@@ -45,7 +41,7 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
         }
 
       case ErrorReturn<bool>():
-        return ErrorReturn<String>(error: parameters.basic.error);
+        return ErrorReturn<String>(error: parameters.error);
     }
   }
 }
@@ -56,9 +52,9 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
   TesteUsecaseDirect({required this.testeDependencia});
 
   @override
-  Future<ReturnSuccessOrError<String>> call({
-    required ParametersSalvarHeader parameters,
-  }) async {
+  Future<ReturnSuccessOrError<String>> call(
+    ParametersSalvarHeader parameters,
+  ) async {
     if (testeDependencia) {
       final teste = parameters.nome;
       return SuccessReturn<String>(
@@ -66,7 +62,7 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
       );
     } else {
       return ErrorReturn(
-        error: parameters.basic.error,
+        error: parameters.error,
       );
     }
   }
@@ -77,7 +73,8 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
 
   @override
   Future<ReturnSuccessOrError<void>> call(
-      {required ParametersSalvarHeader parameters}) async {
+    ParametersSalvarHeader parameters,
+  ) async {
     final teste = await resultDatasource(
       parameters: parameters,
       datasource: datasource,
@@ -94,7 +91,7 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
         }
 
       case ErrorReturn<bool>():
-        return ErrorReturn<void>(error: parameters.basic.error);
+        return ErrorReturn<void>(error: parameters.error);
     }
   }
 }
@@ -102,7 +99,8 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
 final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
   @override
   Future<ReturnSuccessOrError<void>> call(
-      {required NoParamsGeneral parameters}) async {
+    NoParams parameters,
+  ) async {
     print("teste void usecase");
     return SuccessReturn<void>.voidResult();
   }
@@ -110,7 +108,9 @@ final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
 
 void main() {
   late Datasource<bool> datasource;
-  final parameters = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
+  final parameters = ParametersSalvarHeader(
+    nome: 'Teste UsecaseBase',
+  );
   late TesteUsecaseCallData returnResultUsecaseCallData;
   late TesteUsecaseDirect returnResultUsecaseBase;
   late TesteUsecaseCallDataVoid returnResultUsecaseCallDataVoid;
@@ -125,8 +125,24 @@ void main() {
 
   test('Deve retornar um success com "Teste Void"', () async {
     returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
-    final data =
-        await returnResultUsecaseBaseVoid(parameters: NoParamsGeneral());
+    final data = await returnResultUsecaseBaseVoid(
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data);
+        expect(data, isA<void>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success com "Teste Void" isolate', () async {
+    returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
+    final data = await returnResultUsecaseBaseVoid.callIsolate(
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
+    );
     switch (data) {
       case SuccessReturn():
         print(data);
@@ -139,7 +155,24 @@ void main() {
 
   test('Deve retornar um success com "Teste UsecaseBase"', () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data = await returnResultUsecaseBase(parameters: parameters);
+    final data = await returnResultUsecaseBase(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data.result);
+        expect(data.result, equals("Teste UsecaseBase"));
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success com "Teste UsecaseBase" isolate', () async {
+    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
+    final data = await returnResultUsecaseBase.callIsolate(
+      parameters,
+    );
     switch (data) {
       case SuccessReturn():
         print(data.result);
@@ -153,7 +186,26 @@ void main() {
   test('Deve retornar um AppError com ErrorGeneric - Error General Feature',
       () async {
     returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-    final data = await returnResultUsecaseBase(parameters: parameters);
+    final data = await returnResultUsecaseBase(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data.result);
+        expect(data.result, equals("Teste UsecaseBase"));
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test(
+      'Deve retornar um AppError com ErrorGeneric - Error General Feature isolate',
+      () async {
+    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
+    final data = await returnResultUsecaseBase.callIsolate(
+      parameters,
+    );
     switch (data) {
       case SuccessReturn():
         print(data.result);
@@ -165,11 +217,28 @@ void main() {
   });
 
   test('Deve retornar um success void data "true"', () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(true),
     );
     final data = await returnResultUsecaseCallDataVoid(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data);
+        expect(data, isA<void>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success void data "true" isolate', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(true),
+    );
+    final data = await returnResultUsecaseCallDataVoid.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():
@@ -182,11 +251,28 @@ void main() {
   });
 
   test('Deve retornar um success void data "false"', () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(false),
     );
     final data = await returnResultUsecaseCallDataVoid(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data);
+        expect(data, isA<void>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success void data "false" isolate', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(false),
+    );
+    final data = await returnResultUsecaseCallDataVoid.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():
@@ -199,11 +285,28 @@ void main() {
   });
 
   test('Deve retornar um AppError com ErrorGeneric void', () async {
-    when(() => datasource(parameters: parameters)).thenThrow(
+    when(() => datasource(parameters)).thenThrow(
       Exception(),
     );
     final data = await returnResultUsecaseCallDataVoid(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data);
+        expect(data, isA<void>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um AppError com ErrorGeneric void isolate', () async {
+    when(() => datasource(parameters)).thenThrow(
+      Exception(),
+    );
+    final data = await returnResultUsecaseCallDataVoid.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():
@@ -217,11 +320,29 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "true"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(true),
     );
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio true"));
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success com "Regra de negocio OK" data "true" isolate',
+      () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(true),
+    );
+    final data = await returnResultUsecaseCallData.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():
@@ -235,11 +356,30 @@ void main() {
 
   test('Deve retornar um success com "Regra de negocio OK" data "false"',
       () async {
-    when(() => datasource(parameters: parameters)).thenAnswer(
+    when(() => datasource(parameters)).thenAnswer(
       (_) => Future.value(false),
     );
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio false"));
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test(
+      'Deve retornar um success com "Regra de negocio OK" data "false" isolate',
+      () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(false),
+    );
+    final data = await returnResultUsecaseCallData.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():
@@ -254,11 +394,30 @@ void main() {
   test(
       'Deve retornar um AppError com ErrorGeneric - Error General Feature. Cod. 03-1 --- Catch: Exception',
       () async {
-    when(() => datasource(parameters: parameters)).thenThrow(
+    when(() => datasource(parameters)).thenThrow(
       Exception(),
     );
     final data = await returnResultUsecaseCallData(
-      parameters: parameters,
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn():
+        print(data.result);
+        expect(data.result, equals("Regra de negocio OK"));
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test(
+      'Deve retornar um AppError com ErrorGeneric - Error General Feature. Cod. 03-1 --- Catch: Exception isolate',
+      () async {
+    when(() => datasource(parameters)).thenThrow(
+      Exception(),
+    );
+    final data = await returnResultUsecaseCallData.callIsolate(
+      parameters,
     );
     switch (data) {
       case SuccessReturn():

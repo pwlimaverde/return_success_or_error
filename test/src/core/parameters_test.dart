@@ -3,6 +3,9 @@ import 'package:return_success_or_error/src/core/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
 
 class ParametersSalvarHeader implements ParametersReturnResult {
+  @override
+  final AppError error;
+
   final String doc;
   final String nome;
   final int prioridade;
@@ -15,15 +18,8 @@ class ParametersSalvarHeader implements ParametersReturnResult {
     required this.prioridade,
     required this.corHeader,
     required this.user,
+    required this.error,
   });
-
-  @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(message: "teste parrametros"),
-        showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
-        isIsolate: true,
-      );
 }
 
 void main() {
@@ -38,6 +34,7 @@ void main() {
       nome: 'novidades',
       prioridade: 1,
       user: 'paulo',
+      error: ErrorGeneric(message: "teste parrametros"),
     );
 
     print(parameters.corHeader);
@@ -45,7 +42,5 @@ void main() {
     expect(parameters.doc, equals('testedoc'));
     expect(parameters.prioridade, isA<int>());
     expect(parameters.prioridade, equals(1));
-    expect(parameters.basic.isIsolate, equals(true));
-    expect(parameters.basic.nameFeature, equals("Teste parametros"));
   });
 }

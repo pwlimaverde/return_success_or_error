@@ -77,7 +77,7 @@ class ConnectivityDatasource
       final resultType = await type;
       return (conect: resultConect, typeConect: resultType);
     } catch (e) {
-      throw parameters.basic.error..message = "$e";
+      throw parameters.error..message = "$e";
     }
   }
 }
@@ -126,7 +126,7 @@ final class ChecarConeccaoUsecase
           );
         } else {
           return ErrorReturn(
-              error: parameters.basic.error..message = "You are offline");
+              error: parameters.error..message = "You are offline");
         }
       case ErrorReturn<({bool conect, String typeConect})>():
         return ErrorReturn(
