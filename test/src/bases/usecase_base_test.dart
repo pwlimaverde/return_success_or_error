@@ -14,9 +14,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   });
 
   @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(message: "teste parrametros"),
-      );
+  AppError get error => ErrorGeneric(message: "teste parrametros");
 }
 
 final class ReturnResultDatasourceMock extends Mock
@@ -43,7 +41,7 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
         }
 
       case ErrorReturn<bool>():
-        return ErrorReturn<String>(error: parameters.basic.error);
+        return ErrorReturn<String>(error: parameters.error);
     }
   }
 }
@@ -64,7 +62,7 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
       );
     } else {
       return ErrorReturn(
-        error: parameters.basic.error,
+        error: parameters.error,
       );
     }
   }
@@ -93,7 +91,7 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
         }
 
       case ErrorReturn<bool>():
-        return ErrorReturn<void>(error: parameters.basic.error);
+        return ErrorReturn<void>(error: parameters.error);
     }
   }
 }
@@ -101,7 +99,7 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
 final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
   @override
   Future<ReturnSuccessOrError<void>> call(
-    NoParamsGeneral parameters,
+    NoParams parameters,
   ) async {
     print("teste void usecase");
     return SuccessReturn<void>.voidResult();
@@ -128,7 +126,7 @@ void main() {
   test('Deve retornar um success com "Teste Void"', () async {
     returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
     final data = await returnResultUsecaseBaseVoid(
-      NoParamsGeneral(),
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
     );
     switch (data) {
       case SuccessReturn():
@@ -143,7 +141,7 @@ void main() {
   test('Deve retornar um success com "Teste Void" isolate', () async {
     returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
     final data = await returnResultUsecaseBaseVoid.callIsolate(
-      NoParamsGeneral(),
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
     );
     switch (data) {
       case SuccessReturn():

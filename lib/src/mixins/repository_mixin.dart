@@ -8,14 +8,14 @@ mixin RepositoryMixin<TypeDatasource> {
     required covariant ParametersReturnResult parameters,
     required Datasource<TypeDatasource> datasource,
   }) async {
-    final String _messageError = parameters.basic.error.message;
+    final String _messageError = parameters.error.message;
     try {
       final _result = await datasource(parameters);
 
       return SuccessReturn(success: _result);
     } catch (e) {
       return ErrorReturn(
-        error: parameters.basic.error
+        error: parameters.error
           ..message = "$_messageError - Cod. 02-1 --- Catch: $e",
       );
     }

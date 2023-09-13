@@ -45,14 +45,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   );
 
   void _checkConnection() async {
-    final data = await checarConeccaoUsecase.callIsolate(
+    final data = await checarConeccaoUsecase(
       NoParams(
-        basic: ParametersBasic(
-          error: ErrorGeneric(
-            message: "Conect error",
-          ),
-          showRuntimeMilliseconds: true,
-          isIsolate: false,
+        error: ErrorGeneric(
+          message: "Conect error",
         ),
       ),
     );
@@ -75,11 +71,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void _checkTypeConnection() async {
     final data = await checarTypeConeccaoUsecase(
       NoParams(
-        basic: ParametersBasic(
-          error: ErrorGeneric(
-            message: "Conect error",
-          ),
-          showRuntimeMilliseconds: true,
+        error: ErrorGeneric(
+          message: "Conect error",
         ),
       ),
     );
@@ -177,7 +170,7 @@ class ConnectivityDatasource
       final resultType = await type;
       return (conect: resultConect, typeConect: resultType);
     } catch (e) {
-      throw parameters.basic.error..message = "$e";
+      throw parameters.error..message = "$e";
     }
   }
 }
@@ -204,7 +197,7 @@ final class ChecarConeccaoUsecase
           );
         } else {
           return ErrorReturn(
-              error: parameters.basic.error..message = "You are offline");
+              error: parameters.error..message = "You are offline");
         }
       case ErrorReturn<({bool conect, String typeConect})>():
         return ErrorReturn(

@@ -1,8 +1,10 @@
-## [0.13.0] - 10/09/2023.
+## [0.13.0] - 12/09/2023.
 
 1 - Removido abstração do presenter(pode ser substituido por aero func conforme exemplo).
-2 - Removido necessidade do nameFeature dos ```ParametersReturnResult```, agora o nome da class é usada por padrão.
-3 - Implementado ```callIsolate``` para ```UsecaseBase```.
+2 - Removido necessidade do ```ParametersBasic``` em ```ParametersReturnResult```, agora só é obrigatório incluir o ```AppError``` no parametros.
+3 - Removido ```NoParams```, usar somente ```NoParams```.
+4 - Implementado ```callIsolate``` para ```UsecaseBase``` e ```UsecaseBaseCallData```.
+
 
 ## [0.12.0] - 18/08/2023.
 

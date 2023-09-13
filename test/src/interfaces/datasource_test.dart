@@ -11,11 +11,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   });
 
   @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(message: "teste parrametros"),
-        showRuntimeMilliseconds: true,
-        isIsolate: true,
-      );
+  AppError get error => ErrorGeneric(message: "teste parrametros");
 }
 
 class ExternalMock<bool> {

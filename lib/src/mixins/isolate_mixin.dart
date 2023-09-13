@@ -7,7 +7,7 @@ mixin IsolateMixin<TypeUsecase> {
     required covariant ParametersReturnResult parameters,
     required Function call,
   }) async {
-    final String _messageError = parameters.basic.error.message;
+    final String _messageError = parameters.error.message;
 
     try {
       final _result = await _callIsolate(
@@ -19,13 +19,12 @@ mixin IsolateMixin<TypeUsecase> {
         return _result;
       } else {
         return ErrorReturn(
-          error: parameters.basic.error
-            ..message = "$_messageError. \n Cod. 02-1",
+          error: parameters.error..message = "$_messageError. \n Cod. 02-1",
         );
       }
     } catch (e) {
       return ErrorReturn(
-        error: parameters.basic.error
+        error: parameters.error
           ..message = "$_messageError. \n Cod. 03-1 --- Catch: $e",
       );
     }

@@ -36,12 +36,7 @@ class Calc {
   Future<int> fibonacciPresenter() async {
     final usecase = FibonacciUsecaseBase();
     final data = await usecase.callIsolate(
-      NoParams(
-        basic: ParametersBasic(
-          isIsolate: true,
-          showRuntimeMilliseconds: true,
-        ),
-      ),
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
     );
     switch (data) {
       case SuccessReturn<int>():
@@ -58,12 +53,7 @@ class Calc {
       datasource: FibonacciDatasource(),
     );
     final data = await usecase.callIsolate(
-      NoParams(
-        basic: ParametersBasic(
-          isIsolate: true,
-          showRuntimeMilliseconds: true,
-        ),
-      ),
+      NoParams(),
     );
     switch (data) {
       case SuccessReturn<int>():
