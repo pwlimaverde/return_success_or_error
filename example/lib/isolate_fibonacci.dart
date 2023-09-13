@@ -57,8 +57,8 @@ class Calc {
     final usecase = FibonacciUsecaseBaseCallData(
       datasource: FibonacciDatasource(),
     );
-    final data = await usecase(
-      parameters: NoParams(
+    final data = await usecase.callIsolate(
+      NoParams(
         basic: ParametersBasic(
           isIsolate: true,
           showRuntimeMilliseconds: true,
@@ -96,9 +96,9 @@ final class FibonacciUsecaseBaseCallData extends UsecaseBaseCallData<int, int> {
   FibonacciUsecaseBaseCallData({required super.datasource});
 
   @override
-  Future<ReturnSuccessOrError<int>> call({
-    required ParametersReturnResult parameters,
-  }) async {
+  Future<ReturnSuccessOrError<int>> call(
+    ParametersReturnResult parameters,
+  ) async {
     final data =
         await resultDatasource(parameters: parameters, datasource: datasource);
 

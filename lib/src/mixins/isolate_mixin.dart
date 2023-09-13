@@ -5,18 +5,17 @@ import '../../return_success_or_error.dart';
 mixin IsolateMixin<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> returnIsolate({
     required covariant ParametersReturnResult parameters,
-    required Function callUsecase,
+    required Function call,
   }) async {
     final String _messageError = parameters.basic.error.message;
-    try {
-      final _result = parameters.basic.isIsolate
-          ? _funcaoIsolate(
-              callUsecase: callUsecase,
-              parameters: parameters,
-            )
-          : callUsecase;
 
-      if (_result is Future<ReturnSuccessOrError<TypeUsecase>>) {
+    try {
+      final _result = await _callIsolate(
+        call: call,
+        parameters: parameters,
+      );
+
+      if (_result is ReturnSuccessOrError<TypeUsecase>) {
         return _result;
       } else {
         return ErrorReturn(
@@ -32,36 +31,45 @@ mixin IsolateMixin<TypeUsecase> {
     }
   }
 
-  Future<ReturnSuccessOrError<TypeUsecase>> _funcaoIsolate({
-    required Function callUsecase,
+  Future<dynamic> _callIsolate({
+    required Function call,
     required covariant ParametersReturnResult parameters,
   }) async {
-    var isolateListnner = ReceivePort();
-    var port = ReceivePort();
+    try {
+      var isolateListnner = ReceivePort();
+      var port = ReceivePort();
 
-    await Isolate.spawn(_isolateLogic, port.sendPort);
-    SendPort portNewIsolate = await port.first;
+      await Isolate.spawn(_isolateLogic, port.sendPort);
+      SendPort portNewIsolate = await port.first;
 
-    portNewIsolate.send(
-      {
-        'isolate': isolateListnner.sendPort,
-        'callUsecase': callUsecase,
-        'parameters': parameters,
-      },
-    );
+      portNewIsolate.send(
+        {
+          'isolate': isolateListnner.sendPort,
+          'call': call,
+          'parameters': parameters,
+        },
+      );
 
-    return await isolateListnner.first;
+      return await isolateListnner.first;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
-  _isolateLogic(SendPort message) {
-    var isolatePrivatePort = ReceivePort();
-    message.send(isolatePrivatePort.sendPort);
+  static _isolateLogic(SendPort message) {
+    try {
+      var isolatePrivatePort = ReceivePort();
+      message.send(isolatePrivatePort.sendPort);
 
-    isolatePrivatePort.listen((message) async {
-      var externalIsolate = message['isolate'];
-      var parameters = message['parameters'];
-      Function callUsecase = message['callUsecase'];
-      externalIsolate.send(await callUsecase(parameters));
-    });
+      isolatePrivatePort.listen((message) async {
+        var externalIsolate = message['isolate'];
+        var parameters = message['parameters'];
+        Function call = message['call'];
+
+        externalIsolate.send(await call(parameters));
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }
