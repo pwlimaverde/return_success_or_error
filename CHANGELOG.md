@@ -1,3 +1,5 @@
+## [0.14.1] - 16/09/2023.
+1 - Ajuste nos testes ```Presenter<TypeUsecase>```.
 ## [0.14.0] - 16/09/2023.
 1 - Inclusão da inteface ```Presenter<TypeUsecase>```.
 
