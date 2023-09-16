@@ -97,8 +97,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => StaggerDemo()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const StaggerDemo()));
               },
               icon: const Icon(Icons.addchart_outlined))
         ],
@@ -165,10 +165,7 @@ class ConnectivityDatasource
             return "Conect none";
         }
       });
-
-      final resultConect = await isOnline;
-      final resultType = await type;
-      return (conect: resultConect, typeConect: resultType);
+      return (conect: isOnline, typeConect: type);
     } catch (e) {
       throw parameters.error..message = "$e";
     }
@@ -186,7 +183,6 @@ final class ChecarConeccaoUsecase
       parameters: parameters,
       datasource: datasource,
     );
-    print(resultDatacource);
 
     switch (resultDatacource) {
       case SuccessReturn<({bool conect, String typeConect})>():
