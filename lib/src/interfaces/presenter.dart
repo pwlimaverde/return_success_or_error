@@ -4,7 +4,7 @@ import '../../return_success_or_error.dart';
 ///o resultado final do caso de uso. Nessa camada o caso de uso é instanciado,
 ///juntamente com o datasource caso exista, e o resultado pode ser exportado diretamente.
 abstract interface class Presenter<TypeUsecase> {
-  Future<ReturnSuccessOrError<TypeUsecase>> call({
-    required covariant ParametersReturnResult parameters,
-  });
+  Future<ReturnSuccessOrError<TypeUsecase>> call(
+    covariant ParametersReturnResult parameters,
+  );
 }
