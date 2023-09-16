@@ -11,7 +11,7 @@ class StaggerAnimation extends StatelessWidget {
         ).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.0,
               0.100,
               curve: Curves.ease,
@@ -24,7 +24,7 @@ class StaggerAnimation extends StatelessWidget {
         ).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.125,
               0.250,
               curve: Curves.ease,
@@ -34,7 +34,7 @@ class StaggerAnimation extends StatelessWidget {
         height = Tween<double>(begin: 50.0, end: 150.0).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.250,
               0.375,
               curve: Curves.ease,
@@ -47,7 +47,7 @@ class StaggerAnimation extends StatelessWidget {
         ).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.250,
               0.375,
               curve: Curves.ease,
@@ -60,7 +60,7 @@ class StaggerAnimation extends StatelessWidget {
         ).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.375,
               0.500,
               curve: Curves.ease,
@@ -73,7 +73,7 @@ class StaggerAnimation extends StatelessWidget {
         ).animate(
           CurvedAnimation(
             parent: controller,
-            curve: Interval(
+            curve: const Interval(
               0.500,
               0.750,
               curve: Curves.ease,
@@ -125,11 +125,13 @@ class StaggerAnimation extends StatelessWidget {
 }
 
 class StaggerDemo extends StatefulWidget {
+  const StaggerDemo({super.key});
+
   @override
-  _StaggerDemoState createState() => _StaggerDemoState();
+  StaggerDemoState createState() => StaggerDemoState();
 }
 
-class _StaggerDemoState extends State<StaggerDemo>
+class StaggerDemoState extends State<StaggerDemo>
     with TickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -168,35 +170,21 @@ class _StaggerDemoState extends State<StaggerDemo>
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  print('####################################################');
-                  print('Start SEM isolate: ${DateTime.now()}');
-                  print('Fibonacci SEM -> ${Calc.fibonacci(43)}');
-                  print('Finish SEM isolate: ${DateTime.now()}');
-                  print('####################################################');
-                  // Calc().fibonacciPresenter();
+                  Calc.fibonacci(43);
                 },
-                child: Text('Calc Fibonacci'),
+                child: const Text('Calc Fibonacci'),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  // print('####################################################');
-                  // print('Start COM isolate: ${DateTime.now()}');
-                  // print(
-                  //   'Fibonacci COM isolate-> ${await Calc().isolateFibonacci(43)}',
-                  // );
-                  // print('Finish COM isolate: ${DateTime.now()}');
-                  // print('####################################################');
                   Calc().fibonacciPresenter();
                   Calc().fibonacciCallDataPresenter();
                 },
-                child: Text('Calc Fibonacci Isolate'),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.red,
-                ),
+                style: ElevatedButton.styleFrom(),
+                child: const Text('Calc Fibonacci Isolate'),
               )
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {

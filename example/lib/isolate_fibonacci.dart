@@ -40,8 +40,6 @@ class Calc {
     );
     switch (data) {
       case SuccessReturn<int>():
-        print("SuccessReturn");
-        print(data.result);
         return data.result;
       case ErrorReturn<int>():
         throw Exception();
@@ -57,8 +55,6 @@ class Calc {
     );
     switch (data) {
       case SuccessReturn<int>():
-        print("SuccessReturn");
-        print(data.result);
         return data.result;
       case ErrorReturn<int>():
         throw Exception();
@@ -72,7 +68,6 @@ final class FibonacciUsecaseBase extends UsecaseBase<int> {
     NoParams parameters,
   ) async {
     final data = _fibonacci(42);
-    print("Teste fibonacci $data");
     return SuccessReturn<int>(success: data);
   }
 
@@ -94,10 +89,8 @@ final class FibonacciUsecaseBaseCallData extends UsecaseBaseCallData<int, int> {
 
     switch (data) {
       case SuccessReturn<int>():
-        print("Teste fibonacci ${data.result}");
         return data;
       case ErrorReturn<int>():
-        print("Teste fibonacci error");
         return data;
     }
   }
@@ -107,7 +100,6 @@ final class FibonacciDatasource implements Datasource<int> {
   @override
   Future<int> call(covariant ParametersReturnResult parameters) async {
     final data = _fibonacci(42);
-    print("Data source $data");
     return data;
   }
 
