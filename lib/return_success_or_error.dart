@@ -7,6 +7,11 @@ library return_success_or_error;
 ///Exeption.
 export 'src/interfaces/datasource.dart';
 
+///Abstraction of the presentation layer when you only need to export
+///the end result of the use case. In this layer the use case is instantiated,
+///along with the datasource if it exists, and the result can be exported directly.
+export 'src/interfaces/presenter.dart';
+
 ///Responsible for exposing the abstraction of the errors.
 ///
 ///The classes that represented the errors need to implement the AppError class

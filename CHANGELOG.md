@@ -1,3 +1,6 @@
+## [0.14.0] - 16/09/2023.
+1 - Inclusão da inteface ```Presenter<TypeUsecase>```.
+
 ## [0.13.0] - 12/09/2023.
 
 1 - Removido abstração do presenter(pode ser substituido por aero func conforme exemplo).
