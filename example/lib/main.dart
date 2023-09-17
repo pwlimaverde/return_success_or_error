@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   String? _resultChecarTypeConeccao;
 
   final checarConeccaoUsecase = ChecarConeccaoUsecase(
-    datasource: ConnectivityDatasource(
+    ConnectivityDatasource(
       connectivity: Connectivity(),
     ),
   );
@@ -175,7 +175,7 @@ class ConnectivityDatasource
 ///Usecase with external Datasource call
 final class ChecarConeccaoUsecase
     extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
-  ChecarConeccaoUsecase({required super.datasource});
+  ChecarConeccaoUsecase(super.datasource);
 
   @override
   Future<ReturnSuccessOrError<String>> call(NoParams parameters) async {

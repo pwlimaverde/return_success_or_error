@@ -21,7 +21,7 @@ final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
 
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
-  TesteUsecaseCallData({required super.datasource});
+  TesteUsecaseCallData(super.datasource);
 
   @override
   Future<ReturnSuccessOrError<String>> call(
@@ -69,7 +69,7 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
 }
 
 final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
-  TesteUsecaseCallDataVoid({required super.datasource});
+  TesteUsecaseCallDataVoid(super.datasource);
 
   @override
   Future<ReturnSuccessOrError<void>> call(
@@ -118,9 +118,9 @@ void main() {
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
-    returnResultUsecaseCallData = TesteUsecaseCallData(datasource: datasource);
+    returnResultUsecaseCallData = TesteUsecaseCallData(datasource);
     returnResultUsecaseCallDataVoid =
-        TesteUsecaseCallDataVoid(datasource: datasource);
+        TesteUsecaseCallDataVoid(datasource);
   });
 
   test('Deve retornar um success com "Teste Void"', () async {

@@ -1,3 +1,7 @@
+## [0.15.0] - 16/09/2023.
+1 - Ajuste nos testes ```Presenter```.
+2 - Passagem de Instancias diretas em vez de nomeada.
+
 ## [0.14.1] - 16/09/2023.
 1 - Ajuste nos testes ```Presenter<TypeUsecase>```.
 
