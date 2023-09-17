@@ -7,7 +7,7 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
     with RepositoryMixin<TypeDatasource>, IsolateMixin<TypeUsecase> {
   final Datasource<TypeDatasource> datasource;
 
-  UsecaseBaseCallData({required this.datasource});
+  UsecaseBaseCallData(this.datasource);
 
   Future<ReturnSuccessOrError<TypeUsecase>> call(
     covariant ParametersReturnResult parameters,

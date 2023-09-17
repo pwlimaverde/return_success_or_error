@@ -16,11 +16,11 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 final class TesteUsecaseDirect extends UsecaseBase<String> {
   final bool testeDependencia;
 
-  TesteUsecaseDirect({required this.testeDependencia});
+  TesteUsecaseDirect(this.testeDependencia);
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-    ParametersReturnResult parameters,
+    ParametersSalvarHeader parameters,
   ) async {
     if (testeDependencia) {
       return SuccessReturn<String>(
@@ -34,11 +34,13 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
   }
 }
 
-final class TestePresenterDirect implements Presenter<String> {
+final class TestePresenterDirect extends PresenterBase<String> {
+  TestePresenterDirect(super.usecase);
+
   @override
-  Future<ReturnSuccessOrError<String>> call(NoParams parameters) async {
-    final instance = TesteUsecaseDirect(testeDependencia: true);
-    final data = instance(parameters);
+  Future<ReturnSuccessOrError<String>> call(
+      [ParametersSalvarHeader? parameters]) async{
+    final data = await usecase(parameters ?? NoParams());
     return data;
   }
 }
@@ -49,7 +51,7 @@ final class ReturnResultDatasourceMock extends Mock
 final datasourceMock = ReturnResultDatasourceMock();
 
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
-  TesteUsecaseCallData({required super.datasource});
+  TesteUsecaseCallData(super.datasource);
 
   @override
   Future<ReturnSuccessOrError<String>> call(
@@ -73,19 +75,19 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   }
 }
 
-final class TestePresenterCallData implements Presenter<String> {
+final class TestePresenterCallData extends PresenterBaseCallData<String, bool> {
+  TestePresenterCallData(super.usecase);
+
   @override
-  Future<ReturnSuccessOrError<String>> call(
-    ParametersSalvarHeader parameters,
-  ) {
-    final instance = TesteUsecaseCallData(
-      datasource: datasourceMock,
-    );
-    final data = instance(
-      parameters,
+  Future<ReturnSuccessOrError<String>> call([ParametersSalvarHeader? parameters]) async{
+
+    final data = await usecase(
+      parameters??NoParams(),
     );
     return data;
   }
+
+
 }
 
 void main() {
@@ -94,13 +96,13 @@ void main() {
   late TestePresenterCallData returnResultPresenterCallData;
 
   setUp(() {
-    returnResultPresenterBase = TestePresenterDirect();
-    returnResultPresenterCallData = TestePresenterCallData();
+    returnResultPresenterBase = TestePresenterDirect(TesteUsecaseDirect(true));
+    returnResultPresenterCallData = TestePresenterCallData(TesteUsecaseCallData(datasourceMock));
   });
 
   test('Deve retornar um success com "teste"', () async {
     final data = await returnResultPresenterBase(
-      NoParams(),
+      parameters,
     );
     switch (data) {
       case SuccessReturn<String>():
