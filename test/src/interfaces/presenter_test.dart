@@ -39,8 +39,9 @@ final class TestePresenterDirect extends PresenterBase<String> {
 
   @override
   Future<ReturnSuccessOrError<String>> call(
-      [ParametersSalvarHeader? parameters]) async{
-    final data = await usecase(parameters ?? NoParams());
+    ParametersSalvarHeader parameters,
+  ) async {
+    final data = await usecase(parameters);
     return data;
   }
 }
@@ -79,15 +80,13 @@ final class TestePresenterCallData extends PresenterBaseCallData<String, bool> {
   TestePresenterCallData(super.usecase);
 
   @override
-  Future<ReturnSuccessOrError<String>> call([ParametersSalvarHeader? parameters]) async{
-
+  Future<ReturnSuccessOrError<String>> call(
+      ParametersSalvarHeader parameters) async {
     final data = await usecase(
-      parameters??NoParams(),
+      parameters,
     );
     return data;
   }
-
-
 }
 
 void main() {
@@ -97,7 +96,8 @@ void main() {
 
   setUp(() {
     returnResultPresenterBase = TestePresenterDirect(TesteUsecaseDirect(true));
-    returnResultPresenterCallData = TestePresenterCallData(TesteUsecaseCallData(datasourceMock));
+    returnResultPresenterCallData =
+        TestePresenterCallData(TesteUsecaseCallData(datasourceMock));
   });
 
   test('Deve retornar um success com "teste"', () async {
