@@ -40,6 +40,26 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        },
+        {
+            "name": "example2",
+            "cwd": "example2",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "example2 (profile mode)",
+            "cwd": "example2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "example2 (release mode)",
+            "cwd": "example2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
         }
     ]
 }
