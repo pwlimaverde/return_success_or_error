@@ -22,41 +22,21 @@
             "flutterMode": "release"
         },
         {
-            "name": "example",
-            "cwd": "example",
+            "name": "example/example_module",
+            "cwd": "example/example_module",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "example (profile mode)",
-            "cwd": "example",
+            "name": "example/example_module (profile mode)",
+            "cwd": "example/example_module",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "example (release mode)",
-            "cwd": "example",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        {
-            "name": "example_module",
-            "cwd": "example_module",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "example_module (profile mode)",
-            "cwd": "example_module",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "example_module (release mode)",
-            "cwd": "example_module",
+            "name": "example/example_module (release mode)",
+            "cwd": "example/example_module",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
