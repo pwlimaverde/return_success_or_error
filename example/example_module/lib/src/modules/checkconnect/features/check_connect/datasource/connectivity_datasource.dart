@@ -9,7 +9,7 @@ final class ConnectivityDatasource
 
   @override
   Future<({bool conect, String typeConect})> call(
-    ParametersReturnResult parameters,
+    NoParams parameters,
   ) async {
     try {
       bool isOnline = await connectivity.checkConnectivity().then((result) {

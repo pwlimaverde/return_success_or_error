@@ -9,8 +9,7 @@ abstract base class PresenterBase<TypeUsecase> {
   PresenterBase(this.usecase);
 
   Future<ReturnSuccessOrError<TypeUsecase>> call(
-    covariant ParametersReturnResult parameters
-  );
+      covariant ParametersReturnResult parameters);
 }
 
 abstract base class PresenterBaseCallData<TypeUsecase, TypeDatasource> {
@@ -19,6 +18,5 @@ abstract base class PresenterBaseCallData<TypeUsecase, TypeDatasource> {
   PresenterBaseCallData(this.usecase);
 
   Future<ReturnSuccessOrError<TypeUsecase>> call(
-    covariant ParametersReturnResult parameters
-  );
+      covariant ParametersReturnResult parameters);
 }
