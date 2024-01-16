@@ -17,6 +17,7 @@ dependencies:
   return_success_or_error:
     path: ../../
   connectivity_plus: ^5.0.2
+  rx_notifier: ^2.3.0
 
 dev_dependencies:
   flutter_test:
