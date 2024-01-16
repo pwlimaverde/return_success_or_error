@@ -14,6 +14,7 @@ class _CheckConnectPageState extends State<CheckConnectPage> {
   @override
   Widget build(BuildContext context) {
     final conn = context.select(() => checarConeccaoState.value);
+    final type = context.select(() => typeConeccaoState.value);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -27,17 +28,22 @@ class _CheckConnectPageState extends State<CheckConnectPage> {
               'Connection query result:',
             ),
             Text(
-              conn ?? "Check conect",
+              conn ?? "Click in Check conect!",
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const Text(
-              'Connection type result:',
-            ),
-            Text(
-              // _resultChecarTypeConeccao ?? "Check conect",
-              "Check conect",
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            conn == null
+                ? const SizedBox()
+                : Column(
+                    children: [
+                      const Text(
+                        'Connection type result:',
+                      ),
+                      Text(
+                        type ?? "Connection lost...",
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ],
+                  ),
           ],
         ),
       ),

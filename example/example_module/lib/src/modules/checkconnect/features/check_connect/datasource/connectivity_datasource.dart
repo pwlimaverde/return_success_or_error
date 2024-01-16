@@ -1,14 +1,15 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
+import '../domain/model/check_connect_model.dart';
+
 ///Datasources
-final class ConnectivityDatasource
-    implements Datasource<({bool conect, String typeConect})> {
+final class ConnectivityDatasource implements Datasource<CheckConnecModel> {
   final Connectivity connectivity;
   ConnectivityDatasource({required this.connectivity});
 
   @override
-  Future<({bool conect, String typeConect})> call(
+  Future<CheckConnecModel> call(
     NoParams parameters,
   ) async {
     try {
@@ -30,7 +31,7 @@ final class ConnectivityDatasource
             return "Conect none";
         }
       });
-      return (conect: isOnline, typeConect: type);
+      return CheckConnecModel(connect: isOnline, typeConect: type);
     } catch (e) {
       throw parameters.error..message = "$e";
     }
