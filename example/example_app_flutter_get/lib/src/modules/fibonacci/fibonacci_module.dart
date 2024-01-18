@@ -6,11 +6,10 @@ import '../../utils/routes.dart';
 
 class FibonacciModule extends Module {
   @override
-  List<GetPage> routers = [
+  List<GetPage> routes = [
     GetPage(
       name: Routes.fibonacci.caminho,
       page: () => const FibonacciPage(),
-      bindings: const [],
     )
   ];
 }

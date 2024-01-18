@@ -6,11 +6,10 @@ import 'ui/home_page.dart';
 
 class HomeModule extends Module {
   @override
-  List<GetPage> routers = [
+  List<GetPage> routes = [
     GetPage(
       name: Routes.initial.caminho,
       page: () => const HomePage(),
-      bindings: const [],
     )
   ];
 }

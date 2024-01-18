@@ -8,7 +8,7 @@ import 'ui/check_connect_page.dart';
 
 class CheckConnectModule extends Module {
   @override
-  List<GetPage> routers = [
+  List<GetPage> routes = [
     GetPage(
       name: Routes.checkconnect.caminho,
       page: () => const CheckConnectPage(),
