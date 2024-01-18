@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-// class FibonacciModule extends Module {
-//   @override
-//   void binds(i) {}
+import '../../utils/module.dart';
+import '../../utils/routes.dart';
 
-//   @override
-//   void routes(r) {
-//     r.child('/', child: (context) => const FibonacciPage());
-//   }
-// }
+class FibonacciModule extends Module {
+  @override
+  List<GetPage> routers = [
+    GetPage(
+      name: Routes.fibonacci.caminho,
+      page: () => const FibonacciPage(),
+      bindings: const [],
+    )
+  ];
+}
 
-// class FibonacciPage extends StatelessWidget {
-//   const FibonacciPage({super.key});
+class FibonacciPage extends StatelessWidget {
+  const FibonacciPage({super.key});
 
-//   @override
-//   Widget build(BuildContext context){
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Fibonacci Page')),
-//       body: const Center(
-//         child: Text('Fibonacci'),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Fibonacci Page')),
+      body: const Center(
+        child: Text('Fibonacci'),
+      ),
+    );
+  }
+}

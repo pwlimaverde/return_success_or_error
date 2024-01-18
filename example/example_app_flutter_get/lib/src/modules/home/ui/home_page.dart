@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../utils/routes.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -19,8 +22,12 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // IconButton(onPressed: () => Modular.to.pushNamed('/fibonacci/'), icon: const Icon(Icons.calculate)),
-                // IconButton(onPressed: () => Modular.to.pushNamed('/checkconnect/'), icon: const Icon(Icons.cast_connected)),
+                IconButton(
+                    onPressed: () => Get.toNamed(Routes.fibonacci.caminho),
+                    icon: const Icon(Icons.calculate)),
+                IconButton(
+                    onPressed: () => Get.toNamed(Routes.checkconnect.caminho),
+                    icon: const Icon(Icons.cast_connected)),
               ],
             ),
           ],

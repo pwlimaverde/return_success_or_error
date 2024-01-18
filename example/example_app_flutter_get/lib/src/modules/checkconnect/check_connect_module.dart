@@ -1,28 +1,30 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/routes/get_route.dart';
 
-import 'features/check_connect/datasource/connectivity_datasource.dart';
-import 'features/check_connect/domain/model/check_connect_model.dart';
-import 'features/check_connect/domain/usecase/check_connect_usecase.dart';
-import 'ui/check_connect_page.dart';
-import 'ui/check_connect_reducer.dart';
+import '../../utils/module.dart';
+import '../../utils/routes.dart';
 
-// class CheckConnectModule extends Module {
-//   @override
-//   void binds(i) {
-//     i.addSingleton<CheckConnectReducer>(CheckConnectReducer.new,
-//         config: BindConfig(onDispose: (reducer) => reducer.dispose()));
-//     i.addInstance<Connectivity>(Connectivity());
-//     i.add<Datasource<CheckConnecModel>>(
-//       ConnectivityDatasource.new,
-//     );
-//     i.add<UsecaseBaseCallData<String, CheckConnecModel>>(
-//       CheckConnectUsecase.new,
-//     );
-//   }
+class CheckConnectModule extends Module {
+  @override
+  List<GetPage> routers = [
+    GetPage(
+      name: Routes.checkconnect.caminho,
+      page: () => const CheckConnectPage(),
+      bindings: const [],
+    )
+  ];
+}
 
-//   @override
-//   void routes(r) {
-//     r.child('/', child: (context) => const CheckConnectPage());
-//   }
-// }
+class CheckConnectPage extends StatelessWidget {
+  const CheckConnectPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('CheckConnectPage Page')),
+      body: const Center(
+        child: Text('CheckConnect Page'),
+      ),
+    );
+  }
+}

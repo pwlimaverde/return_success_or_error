@@ -1,3 +1,5 @@
+import 'package:example_app_flutter_get/src/modules/checkconnect/check_connect_module.dart';
+import 'package:example_app_flutter_get/src/modules/fibonacci/fibonacci_module.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,6 +22,8 @@ class MyApp extends StatelessWidget {
       ),
       getPages: [
         ...HomeModule().routers,
+        ...FibonacciModule().routers,
+        ...CheckConnectModule().routers,
       ],
     );
   }
