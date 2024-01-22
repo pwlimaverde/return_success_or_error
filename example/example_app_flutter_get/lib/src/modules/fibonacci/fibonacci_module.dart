@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../utils/module.dart';
 import '../../utils/routes.dart';
+import 'fibonacci_bindings.dart';
+import 'ui/fibonacci_page.dart';
 
 class FibonacciModule extends Module {
   @override
@@ -10,20 +11,7 @@ class FibonacciModule extends Module {
     GetPage(
       name: Routes.fibonacci.caminho,
       page: () => const FibonacciPage(),
+      binding: FibonacciBindings(),
     )
   ];
-}
-
-class FibonacciPage extends StatelessWidget {
-  const FibonacciPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Fibonacci Page')),
-      body: const Center(
-        child: Text('Fibonacci'),
-      ),
-    );
-  }
 }
