@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'fibonacci_controller.dart';
+import 'widgets/stagger_demo.dart';
 
 class FibonacciPage extends GetView<FibonacciController> {
   const FibonacciPage({super.key});
@@ -20,6 +21,9 @@ class FibonacciPage extends GetView<FibonacciController> {
             const Text(
               'Fibonacci calc result:',
             ),
+            const SizedBox(
+              height: 10,
+            ),
             Obx(
               () {
                 if (controller.showProgress) {
@@ -34,15 +38,23 @@ class FibonacciPage extends GetView<FibonacciController> {
                 }
               },
             ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 400,
+              width: 400,
+              child: StaggerDemo(
+                calc: () {
+                  controller.calcFibonacci(45);
+                },
+                calcIsolate: () {
+                  controller.calcFibonacciIsolate(45);
+                },
+              ),
+            )
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller.calcFibonacci(number: 42);
-        },
-        tooltip: 'Calc Fibonacci',
-        child: const Icon(Icons.calculate_rounded),
       ),
     );
   }

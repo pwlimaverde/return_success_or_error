@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart' show timeDilation;
-
-import 'isolate_fibonacci.dart';
 
 class StaggerAnimation extends StatelessWidget {
   StaggerAnimation({Key? key, required this.controller})
@@ -120,92 +117,6 @@ class StaggerAnimation extends StatelessWidget {
     return AnimatedBuilder(
       builder: _buildAnimation,
       animation: controller,
-    );
-  }
-}
-
-class StaggerDemo extends StatefulWidget {
-  const StaggerDemo({super.key});
-
-  @override
-  StaggerDemoState createState() => StaggerDemoState();
-}
-
-class StaggerDemoState extends State<StaggerDemo>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 250), vsync: this);
-
-    _playAnimation();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _playAnimation() async {
-    _controller.repeat();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    timeDilation = 10.0; // 1.0 is normal animation speed.
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Staggered Animation'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  Calc.fibonacci(43);
-                },
-                child: const Text('Calc Fibonacci'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  Calc().fibonacciPresenter();
-                  Calc().fibonacciCallDataPresenter();
-                },
-                style: ElevatedButton.styleFrom(),
-                child: const Text('Calc Fibonacci Isolate'),
-              )
-            ],
-          ),
-          const SizedBox(height: 20),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              _playAnimation();
-            },
-            child: Center(
-              child: Container(
-                width: 300.0,
-                height: 300.0,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.1),
-                  border: Border.all(
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ),
-                child: StaggerAnimation(controller: _controller.view),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -18,10 +18,31 @@ class FibonacciController extends GetxController {
   set fibonacciState(value) => _fibonacciState.value = value;
   get fibonacciState => _fibonacciState.value;
 
-  void calcFibonacci({required number}) async {
+  void calcFibonacci(int number) async {
     await _load(true);
 
     final status = await calcFibonacciUsecaseUsecase(
+      ParametrosFibonacci(
+        num: number,
+        error: ErrorGeneric(
+          message: "Erro al calcular fibonacci!",
+        ),
+      ),
+    );
+    switch (status) {
+      case SuccessReturn<int>():
+        _fibonacciState(status.result);
+      case ErrorReturn<int>():
+        _fibonacciState(null);
+    }
+
+    await _load(false);
+  }
+
+  void calcFibonacciIsolate(int number) async {
+    await _load(true);
+
+    final status = await calcFibonacciUsecaseUsecase.callIsolate(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(
