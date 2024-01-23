@@ -6,6 +6,9 @@ import 'ui/home_page.dart';
 class HomeModule extends Module {
   @override
   void routes(r) {
-    r.child(Routes.initial.caminho, child: (context) => const HomePage());
+    r.child(
+      Routes.initial.caminho,
+      child: (context) => const HomePage(),
+    );
   }
 }
