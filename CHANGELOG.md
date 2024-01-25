@@ -1,3 +1,6 @@
+## [0.16.1] - 24/01/2024. 
+1 - Ajuste documentação
+
 ## [0.16.0] - 24/01/2024. 
 1 - Remoção da interface ```Presenter```, usecase precisa ser instanciado diretamente.
 2 - Refatoração do Exemplo, demonstrando a utilização em conjunto com Fluter Modular e Get.
