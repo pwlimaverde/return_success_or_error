@@ -1,6 +1,6 @@
 name: return_success_or_error
 description: Usecase abstraction returning success or errorr from a call made by the data source
-version: 0.16.1
+version: 0.17.0
 homepage: https://github.com/pwlimaverde/return_success_or_error
 
 environment:
