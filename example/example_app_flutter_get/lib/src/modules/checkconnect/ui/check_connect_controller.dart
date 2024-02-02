@@ -1,26 +1,30 @@
 import 'package:get/get.dart';
 
 import 'package:return_success_or_error/return_success_or_error.dart';
-
-import '../features/check_connect/domain/model/check_connect_model.dart';
+import '../features/features_checkconnect_presenter.dart';
 
 class CheckConnectController extends GetxController {
-  final UsecaseBaseCallData<String, CheckConnecModel> checkConnectUsecase;
-  CheckConnectController(
-    this.checkConnectUsecase,
-  );
+  CheckConnectController();
 
   final _checarConeccaoState = RxnString(null);
   set checarConeccaoState(value) => _checarConeccaoState.value = value;
-  get checarConeccaoState => _checarConeccaoState.value;
+  String? get checarConeccaoState => _checarConeccaoState.value;
+
+  final _twoPlusTowState = RxnInt(null);
+  set twoPlusTowState(value) => _twoPlusTowState.value = value;
+  int? get twoPlusTowState => _twoPlusTowState.value;
 
   void checkConnect() async {
-    final status = await checkConnectUsecase(NoParams());
-    switch (status) {
-      case SuccessReturn<String>():
-        _checarConeccaoState(status.result);
-      case ErrorReturn<String>():
-        _checarConeccaoState(status.result.message);
-    }
+    final status = await Get.find<FeaturesCheckconnectPresenter>().checkConnect(
+      NoParams(),
+    );
+    _checarConeccaoState(status);
+  }
+
+  void twoPlusTow() async {
+    final status = await Get.find<FeaturesCheckconnectPresenter>().twoPlusTow(
+      NoParams(),
+    );
+    _twoPlusTowState(status);
   }
 }

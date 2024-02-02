@@ -19,7 +19,7 @@ class _CheckConnectPageState extends State<FibonacciPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Check Connect"),
+        title: const Text("Fibonacci"),
       ),
       body: Center(
         child: Column(

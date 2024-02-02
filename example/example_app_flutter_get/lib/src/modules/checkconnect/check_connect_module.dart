@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/routes/get_route.dart';
 import '../../utils/module.dart';
 import '../../utils/routes.dart';
 import 'check_connect_bindings.dart';
+import 'features/features_checkconnect_bindings.dart';
 import 'ui/check_connect_page.dart';
 
 class CheckConnectModule extends Module {
@@ -14,6 +15,7 @@ class CheckConnectModule extends Module {
       page: () => const CheckConnectPage(),
       bindings: [
         CheckConnectBindings(),
+        FeaturesCheckconnectBindings(),
       ],
     )
   ];

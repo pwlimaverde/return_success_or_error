@@ -1,7 +1,9 @@
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 import '../../../utils/parameters.dart';
+import '../feature/features_fibonacci_presenter.dart';
 import 'fibonacci_state.dart';
 
 class FibonacciReducer extends RxReducer {
@@ -16,7 +18,7 @@ class FibonacciReducer extends RxReducer {
     if (num != null) {
       await _load(true);
 
-      final status = await calcFibonacciUsecase(
+      final status = Modular.get<FeaturesFibonacciPresenter>().calcFibonacci(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(
@@ -24,24 +26,20 @@ class FibonacciReducer extends RxReducer {
           ),
         ),
       );
-      switch (status) {
-        case SuccessReturn<int>():
-          fibonacciState.value = status.result;
 
-        case ErrorReturn<int>():
-          fibonacciState.value = null;
-      }
+      fibonacciState.value = await status;
 
       await _load(false);
     }
   }
 
   void _calcFibonacciIsolate() async {
-    final num = calcFibonacciIsolateAction.value;
+    final num = calcFibonacciAction.value;
     if (num != null) {
       await _load(true);
 
-      final status = await calcFibonacciUsecase.callIsolate(
+      final status =
+          Modular.get<FeaturesFibonacciPresenter>().calcFibonacciIsolate(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(
@@ -49,13 +47,8 @@ class FibonacciReducer extends RxReducer {
           ),
         ),
       );
-      switch (status) {
-        case SuccessReturn<int>():
-          fibonacciState.value = status.result;
 
-        case ErrorReturn<int>():
-          fibonacciState.value = null;
-      }
+      fibonacciState.value = await status;
 
       await _load(false);
     }

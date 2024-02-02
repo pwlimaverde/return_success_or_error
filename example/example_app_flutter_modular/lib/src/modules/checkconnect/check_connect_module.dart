@@ -1,14 +1,14 @@
 import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../utils/routes.dart';
-import 'features/features_bindings.dart';
+import 'features/features_checkconnect_bindings.dart';
 import 'ui/check_connect_page.dart';
 import 'ui/check_connect_reducer.dart';
 
 class CheckConnectModule extends Module {
   @override
   List<Module> get imports => [
-        FeaturesBindings(),
+        FeaturesCheckconnectBindings(),
       ];
 
   @override

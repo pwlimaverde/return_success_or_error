@@ -2,7 +2,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
-import '../features/features_presenter.dart';
+import '../features/features_checkconnect_presenter.dart';
 import 'check_connect_state.dart';
 
 class CheckConnectReducer extends RxReducer {
@@ -12,14 +12,14 @@ class CheckConnectReducer extends RxReducer {
   }
 
   void _checkConnectReducer() async {
-    final status = Modular.get<FeaturesPresenter>().checkConnect(
+    final status = Modular.get<FeaturesCheckconnectPresenter>().checkConnect(
       NoParams(),
     );
     checarConeccaoState.value = await status;
   }
 
   void _twoPlusTowReducer() async {
-    final status = Modular.get<FeaturesPresenter>().twoPlusTow(
+    final status = Modular.get<FeaturesCheckconnectPresenter>().twoPlusTow(
       NoParams(),
     );
     twoPlusTowState.value = await status;

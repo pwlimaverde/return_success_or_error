@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../utils/module.dart';
 import '../../utils/routes.dart';
+import 'feature/features_fibonacci_bindings.dart';
 import 'fibonacci_bindings.dart';
 import 'ui/fibonacci_page.dart';
 
@@ -11,7 +12,10 @@ class FibonacciModule extends Module {
     GetPage(
       name: Routes.fibonacci.caminho,
       page: () => const FibonacciPage(),
-      binding: FibonacciBindings(),
+      bindings: [
+        FibonacciBindings(),
+        FeaturesFibonacciBindings(),
+      ],
     )
   ];
 }
