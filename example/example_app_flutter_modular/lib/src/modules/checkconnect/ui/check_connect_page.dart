@@ -3,14 +3,14 @@ import 'package:rx_notifier/rx_notifier.dart';
 
 import 'check_connect_state.dart';
 
-class CheckConnectPage extends StatefulWidget {
+final class CheckConnectPage extends StatefulWidget {
   const CheckConnectPage({super.key});
 
   @override
   State<CheckConnectPage> createState() => _CheckConnectPageState();
 }
 
-class _CheckConnectPageState extends State<CheckConnectPage> {
+final class _CheckConnectPageState extends State<CheckConnectPage> {
   @override
   Widget build(BuildContext context) {
     final conn = context.select(() => checarConeccaoState.value);

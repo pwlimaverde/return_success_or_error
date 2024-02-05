@@ -5,7 +5,7 @@ import 'feature/features_fibonacci_bindings.dart';
 import 'ui/fibonacci_page.dart';
 import 'ui/fibonacci_reducer.dart';
 
-class FibonacciModule extends Module {
+final class FibonacciModule extends Module {
   @override
   List<Module> get imports => [
         FeaturesFibonacciBindings(),

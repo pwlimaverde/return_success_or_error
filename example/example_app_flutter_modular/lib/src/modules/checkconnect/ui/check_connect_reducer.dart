@@ -4,7 +4,7 @@ import 'package:rx_notifier/rx_notifier.dart';
 import '../features/features_checkconnect_presenter.dart';
 import 'check_connect_state.dart';
 
-class CheckConnectReducer extends RxReducer {
+final class CheckConnectReducer extends RxReducer {
   final FeaturesCheckconnectPresenter featuresCheckconnectPresenter;
   CheckConnectReducer(this.featuresCheckconnectPresenter) {
     on(() => [checarConnecaoAction], _checkConnectReducer);

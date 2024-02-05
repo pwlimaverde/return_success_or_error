@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'check_connect_controller.dart';
 
-class CheckConnectPage extends GetView<CheckConnectController> {
+final class CheckConnectPage extends GetView<CheckConnectController> {
   const CheckConnectPage({super.key});
 
   @override

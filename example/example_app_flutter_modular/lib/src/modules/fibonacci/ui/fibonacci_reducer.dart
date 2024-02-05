@@ -5,7 +5,7 @@ import '../../../utils/parameters.dart';
 import '../feature/features_fibonacci_presenter.dart';
 import 'fibonacci_state.dart';
 
-class FibonacciReducer extends RxReducer {
+final class FibonacciReducer extends RxReducer {
   final FeaturesFibonacciPresenter featuresFibonacciPresenter;
   FibonacciReducer(this.featuresFibonacciPresenter) {
     on(() => [calcFibonacciAction], _calcFibonacci);

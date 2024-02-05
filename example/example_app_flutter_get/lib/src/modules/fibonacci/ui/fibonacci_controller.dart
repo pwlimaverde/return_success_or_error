@@ -5,7 +5,7 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import '../../../utils/parameters.dart';
 import '../feature/features_fibonacci_presenter.dart';
 
-class FibonacciController extends GetxController {
+final class FibonacciController extends GetxController {
   final FeaturesFibonacciPresenter featuresFibonacciPresenter;
 
   FibonacciController({

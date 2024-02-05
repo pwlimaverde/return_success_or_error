@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
 
-abstract class Module {
+abstract interface class Module {
   abstract List<GetPage> routes;
 }

@@ -8,7 +8,7 @@ import 'check_connect/domain/usecase/check_connect_usecase.dart';
 import 'features_checkconnect_presenter.dart';
 import 'simple_counter/domain/usecase/two_plus_two_usecase.dart';
 
-class FeaturesCheckconnectBindings extends Module {
+final class FeaturesCheckconnectBindings extends Module {
   @override
   void exportedBinds(Injector i) {
     i.addInstance<Connectivity>(Connectivity());

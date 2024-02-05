@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 import '../features/features_checkconnect_presenter.dart';
 
-class CheckConnectController extends GetxController {
+final class CheckConnectController extends GetxController {
   final FeaturesCheckconnectPresenter featuresCheckconnectPresenter;
 
   CheckConnectController({

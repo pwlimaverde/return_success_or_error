@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'fibonacci_controller.dart';
 import 'widgets/stagger_demo.dart';
 
-class FibonacciPage extends GetView<FibonacciController> {
+final class FibonacciPage extends GetView<FibonacciController> {
   const FibonacciPage({super.key});
 
   @override

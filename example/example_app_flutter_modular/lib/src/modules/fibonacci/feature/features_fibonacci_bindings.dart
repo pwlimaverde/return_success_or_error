@@ -4,7 +4,7 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'calc_fibonacci/domain/calc_fibonacci_usecase.dart';
 import 'features_fibonacci_presenter.dart';
 
-class FeaturesFibonacciBindings extends Module {
+final class FeaturesFibonacciBindings extends Module {
   @override
   void exportedBinds(Injector i) {
     i.add<UsecaseBase<int>>(

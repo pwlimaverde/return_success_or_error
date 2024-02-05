@@ -6,7 +6,7 @@ import 'feature/features_fibonacci_bindings.dart';
 import 'fibonacci_bindings.dart';
 import 'ui/fibonacci_page.dart';
 
-class FibonacciModule extends Module {
+final class FibonacciModule implements Module {
   @override
   List<GetPage> routes = [
     GetPage(

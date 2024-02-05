@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 
 import 'stagger_animation.dart';
 
-class StaggerDemo extends StatefulWidget {
+final class StaggerDemo extends StatefulWidget {
   final void Function() calc;
   final void Function()? calcIsolate;
   const StaggerDemo({
@@ -16,7 +16,7 @@ class StaggerDemo extends StatefulWidget {
   StaggerDemoState createState() => StaggerDemoState();
 }
 
-class StaggerDemoState extends State<StaggerDemo>
+final class StaggerDemoState extends State<StaggerDemo>
     with TickerProviderStateMixin {
   late AnimationController _controller;
 

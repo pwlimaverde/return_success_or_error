@@ -4,7 +4,7 @@ import 'package:rx_notifier/rx_notifier.dart';
 import 'fibonacci_state.dart';
 import 'widgets/stagger_demo.dart';
 
-class FibonacciPage extends StatefulWidget {
+final class FibonacciPage extends StatefulWidget {
   const FibonacciPage({super.key});
 
   @override
