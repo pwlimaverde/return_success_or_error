@@ -4,7 +4,11 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import '../features/features_checkconnect_presenter.dart';
 
 class CheckConnectController extends GetxController {
-  CheckConnectController();
+  final FeaturesCheckconnectPresenter featuresCheckconnectPresenter;
+
+  CheckConnectController({
+    required this.featuresCheckconnectPresenter,
+  });
 
   final _checarConeccaoState = RxnString(null);
   set checarConeccaoState(value) => _checarConeccaoState.value = value;
@@ -15,14 +19,14 @@ class CheckConnectController extends GetxController {
   int? get twoPlusTowState => _twoPlusTowState.value;
 
   void checkConnect() async {
-    final status = await Get.find<FeaturesCheckconnectPresenter>().checkConnect(
+    final status = await featuresCheckconnectPresenter.checkConnect(
       NoParams(),
     );
     _checarConeccaoState(status);
   }
 
   void twoPlusTow() async {
-    final status = await Get.find<FeaturesCheckconnectPresenter>().twoPlusTow(
+    final status = await featuresCheckconnectPresenter.twoPlusTow(
       NoParams(),
     );
     _twoPlusTowState(status);

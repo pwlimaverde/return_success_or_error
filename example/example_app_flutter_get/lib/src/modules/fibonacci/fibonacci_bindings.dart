@@ -5,7 +5,9 @@ class FibonacciBindings implements Bindings {
   @override
   void dependencies() {
     Get.lazyPut<FibonacciController>(
-      () => FibonacciController(),
+      () => FibonacciController(
+        featuresFibonacciPresenter: Get.find(),
+      ),
     );
   }
 }

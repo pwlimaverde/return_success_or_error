@@ -5,7 +5,9 @@ class CheckConnectBindings implements Bindings {
   @override
   void dependencies() {
     Get.lazyPut<CheckConnectController>(
-      () => CheckConnectController(),
+      () => CheckConnectController(
+        featuresCheckconnectPresenter: Get.find(),
+      ),
     );
   }
 }

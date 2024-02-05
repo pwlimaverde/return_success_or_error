@@ -1,4 +1,3 @@
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
@@ -7,8 +6,8 @@ import '../feature/features_fibonacci_presenter.dart';
 import 'fibonacci_state.dart';
 
 class FibonacciReducer extends RxReducer {
-  final UsecaseBase<int> calcFibonacciUsecase;
-  FibonacciReducer(this.calcFibonacciUsecase) {
+  final FeaturesFibonacciPresenter featuresFibonacciPresenter;
+  FibonacciReducer(this.featuresFibonacciPresenter) {
     on(() => [calcFibonacciAction], _calcFibonacci);
     on(() => [calcFibonacciIsolateAction], _calcFibonacciIsolate);
   }
@@ -18,7 +17,7 @@ class FibonacciReducer extends RxReducer {
     if (num != null) {
       await _load(true);
 
-      final status = Modular.get<FeaturesFibonacciPresenter>().calcFibonacci(
+      final status = featuresFibonacciPresenter.calcFibonacci(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(
@@ -38,8 +37,7 @@ class FibonacciReducer extends RxReducer {
     if (num != null) {
       await _load(true);
 
-      final status =
-          Modular.get<FeaturesFibonacciPresenter>().calcFibonacciIsolate(
+      final status = featuresFibonacciPresenter.calcFibonacciIsolate(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(
