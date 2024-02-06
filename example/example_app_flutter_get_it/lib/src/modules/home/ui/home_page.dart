@@ -22,8 +22,10 @@ final class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                    onPressed: () {},
-                    // onPressed: () => Get.toNamed(Routes.fibonacci.caminho),
+                    onPressed: () => Navigator.pushNamed(
+                          context,
+                          Routes.fibonacci.caminho,
+                        ),
                     icon: const Icon(Icons.calculate)),
                 IconButton(
                     onPressed: () => Navigator.pushNamed(

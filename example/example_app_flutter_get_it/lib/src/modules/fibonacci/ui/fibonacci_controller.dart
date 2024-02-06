@@ -1,23 +1,20 @@
-import 'package:get/get.dart';
-
 import 'package:return_success_or_error/return_success_or_error.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../utils/parameters.dart';
 import '../feature/features_fibonacci_presenter.dart';
 
-final class FibonacciController extends GetxController {
+final class FibonacciController {
   final FeaturesFibonacciPresenter featuresFibonacciPresenter;
 
   FibonacciController({
     required this.featuresFibonacciPresenter,
   });
 
-  final _showProgress = false.obs;
-  set showProgress(value) => _showProgress.value = value;
+  final _showProgress = signal<bool?>(false);
   get showProgress => _showProgress.value;
 
-  final _fibonacciState = RxnInt(null);
-  set fibonacciState(value) => _fibonacciState.value = value;
+  final _fibonacciState = signal<int?>(null);
   get fibonacciState => _fibonacciState.value;
 
   void calcFibonacci(int number) async {
@@ -32,7 +29,7 @@ final class FibonacciController extends GetxController {
       ),
     );
 
-    _fibonacciState(status);
+    _fibonacciState.value = status;
 
     await _load(false);
   }
@@ -49,17 +46,17 @@ final class FibonacciController extends GetxController {
       ),
     );
 
-    _fibonacciState(status);
+    _fibonacciState.value = status;
 
     await _load(false);
   }
 
   Future<void> _load(bool load) async {
     if (load) {
-      _showProgress(true);
+      _showProgress.value = true;
       await Future.delayed(const Duration(seconds: 1));
     } else {
-      _showProgress(false);
+      _showProgress.value = false;
     }
   }
 }
