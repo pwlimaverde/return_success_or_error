@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'check_connect_controller.dart';
 
-class CheckConnectPage extends GetView<CheckConnectController> {
+final class CheckConnectPage extends GetView<CheckConnectController> {
   const CheckConnectPage({super.key});
 
   @override
@@ -17,22 +17,43 @@ class CheckConnectPage extends GetView<CheckConnectController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Connection query result:',
+            Obx(
+              () => Text(
+                controller.checarConeccaoState ?? "Click in Check conect!",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
-            Obx(() => Text(
-                  controller.checarConeccaoState ?? "Click in Check conect!",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                )),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: controller.checkConnect,
+              child: const Text(
+                'Check conect!',
+              ),
+            ),
+            const SizedBox(
+              height: 60,
+            ),
+            Obx(
+              () => Text(
+                controller.twoPlusTowState == null
+                    ? "Click in Check sum two Plus Tow!"
+                    : controller.twoPlusTowState.toString(),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: controller.twoPlusTow,
+              child: const Text(
+                'Click in Check two Plus Tow!',
+              ),
+            )
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller.checkConnect();
-        },
-        tooltip: 'Check conect',
-        child: const Icon(Icons.analytics),
       ),
     );
   }

@@ -6,7 +6,7 @@ import '../../utils/routes.dart';
 import 'check_connect_bindings.dart';
 import 'ui/check_connect_page.dart';
 
-class CheckConnectModule extends Module {
+final class CheckConnectModule implements Module {
   @override
   List<GetPage> routes = [
     GetPage(

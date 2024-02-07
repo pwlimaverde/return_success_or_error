@@ -1,0 +1,28 @@
+name: example_app_flutter_get_it
+description: "A new Flutter project."
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.4 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  return_success_or_error:
+    path: ../../
+  connectivity_plus: ^5.0.2
+  flutter_getit: ^2.0.0
+  signals_flutter: ^4.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

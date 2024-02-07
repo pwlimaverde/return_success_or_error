@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'app_module.dart';
 
-class AppWidget extends StatelessWidget {
+final class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
 
   @override

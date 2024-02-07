@@ -3,14 +3,18 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../utils/routes.dart';
 import 'feature/calc_fibonacci/domain/calc_fibonacci_usecase.dart';
+import 'feature/features_fibonacci_presenter.dart';
 import 'ui/fibonacci_page.dart';
 import 'ui/fibonacci_reducer.dart';
 
-class FibonacciModule extends Module {
+final class FibonacciModule extends Module {
   @override
   void binds(Injector i) {
     i.add<UsecaseBase<int>>(
       CalcFibonacciUsecase.new,
+    );
+    i.add<FeaturesFibonacciPresenter>(
+      FeaturesFibonacciPresenter.new,
     );
     i.addSingleton<FibonacciReducer>(
       FibonacciReducer.new,

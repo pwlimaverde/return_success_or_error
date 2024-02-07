@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'fibonacci_controller.dart';
 import 'widgets/stagger_demo.dart';
 
-class FibonacciPage extends GetView<FibonacciController> {
+final class FibonacciPage extends GetView<FibonacciController> {
   const FibonacciPage({super.key});
 
   @override
@@ -12,7 +12,7 @@ class FibonacciPage extends GetView<FibonacciController> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Check Connect"),
+        title: const Text("Fibonacci"),
       ),
       body: Center(
         child: Column(
@@ -46,10 +46,10 @@ class FibonacciPage extends GetView<FibonacciController> {
               width: 400,
               child: StaggerDemo(
                 calc: () {
-                  controller.calcFibonacci(45);
+                  controller.calcFibonacci(42);
                 },
                 calcIsolate: () {
-                  controller.calcFibonacciIsolate(45);
+                  controller.calcFibonacciIsolate(42);
                 },
               ),
             )

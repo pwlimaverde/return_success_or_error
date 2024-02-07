@@ -5,13 +5,15 @@ import '../../utils/routes.dart';
 import 'fibonacci_bindings.dart';
 import 'ui/fibonacci_page.dart';
 
-class FibonacciModule extends Module {
+final class FibonacciModule implements Module {
   @override
   List<GetPage> routes = [
     GetPage(
       name: Routes.fibonacci.caminho,
       page: () => const FibonacciPage(),
-      binding: FibonacciBindings(),
+      bindings: [
+        FibonacciBindings(),
+      ],
     )
   ];
 }
