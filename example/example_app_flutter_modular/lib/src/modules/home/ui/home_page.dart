@@ -3,7 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../../utils/routes.dart';
 
-class HomePage extends StatelessWidget {
+final class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override

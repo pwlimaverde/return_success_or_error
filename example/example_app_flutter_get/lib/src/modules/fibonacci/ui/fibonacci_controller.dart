@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../../utils/parameters.dart';
+import '../feature/features_fibonacci_presenter.dart';
 
-class FibonacciController extends GetxController {
-  final UsecaseBase<int> calcFibonacciUsecaseUsecase;
-  FibonacciController(
-    this.calcFibonacciUsecaseUsecase,
-  );
+final class FibonacciController extends GetxController {
+  final FeaturesFibonacciPresenter featuresFibonacciPresenter;
+
+  FibonacciController({
+    required this.featuresFibonacciPresenter,
+  });
 
   final _showProgress = false.obs;
   set showProgress(value) => _showProgress.value = value;
@@ -21,7 +23,7 @@ class FibonacciController extends GetxController {
   void calcFibonacci(int number) async {
     await _load(true);
 
-    final status = await calcFibonacciUsecaseUsecase(
+    final status = await featuresFibonacciPresenter.calcFibonacci(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(
@@ -29,12 +31,8 @@ class FibonacciController extends GetxController {
         ),
       ),
     );
-    switch (status) {
-      case SuccessReturn<int>():
-        _fibonacciState(status.result);
-      case ErrorReturn<int>():
-        _fibonacciState(null);
-    }
+
+    _fibonacciState(status);
 
     await _load(false);
   }
@@ -42,7 +40,7 @@ class FibonacciController extends GetxController {
   void calcFibonacciIsolate(int number) async {
     await _load(true);
 
-    final status = await calcFibonacciUsecaseUsecase.callIsolate(
+    final status = await featuresFibonacciPresenter.calcFibonacciIsolate(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(
@@ -50,12 +48,8 @@ class FibonacciController extends GetxController {
         ),
       ),
     );
-    switch (status) {
-      case SuccessReturn<int>():
-        _fibonacciState(status.result);
-      case ErrorReturn<int>():
-        _fibonacciState(null);
-    }
+
+    _fibonacciState(status);
 
     await _load(false);
   }

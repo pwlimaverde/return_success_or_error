@@ -68,11 +68,11 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
   }
 }
 
-final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
+final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<Unit, bool> {
   TesteUsecaseCallDataVoid(super.datasource);
 
   @override
-  Future<ReturnSuccessOrError<void>> call(
+  Future<ReturnSuccessOrError<Unit>> call(
     ParametersSalvarHeader parameters,
   ) async {
     final teste = await resultDatasource(
@@ -84,25 +84,63 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<void, bool> {
       case SuccessReturn<bool>():
         if (teste.result) {
           print("Teste retorno opção 1 $teste");
-          return SuccessReturn<void>.voidResult();
+          return SuccessReturn<Unit>(success: unit);
         } else {
           print("Teste retorno opção 2 $teste");
-          return SuccessReturn<void>.voidResult();
+          return SuccessReturn<Unit>(success: unit);
         }
 
       case ErrorReturn<bool>():
-        return ErrorReturn<void>(error: parameters.error);
+        return ErrorReturn<Unit>(error: parameters.error);
     }
   }
 }
 
-final class TesteUsecaseDirectVoid extends UsecaseBase<void> {
+final class TesteUsecaseDirectVoid extends UsecaseBase<Unit> {
   @override
-  Future<ReturnSuccessOrError<void>> call(
+  Future<ReturnSuccessOrError<Unit>> call(
     NoParams parameters,
   ) async {
     print("teste void usecase");
-    return SuccessReturn<void>.voidResult();
+    return SuccessReturn<Unit>(success: unit);
+  }
+}
+
+final class TesteUsecaseCallDataNull extends UsecaseBaseCallData<Nil, bool> {
+  TesteUsecaseCallDataNull(super.datasource);
+
+  @override
+  Future<ReturnSuccessOrError<Nil>> call(
+    ParametersSalvarHeader parameters,
+  ) async {
+    final teste = await resultDatasource(
+      parameters: parameters,
+      datasource: datasource,
+    );
+    print("Teste retorno Datasource - $teste");
+    switch (teste) {
+      case SuccessReturn<bool>():
+        if (teste.result) {
+          print("Teste retorno opção 1 $teste");
+          return SuccessReturn<Nil>(success: nil);
+        } else {
+          print("Teste retorno opção 2 $teste");
+          return SuccessReturn<Nil>(success: nil);
+        }
+
+      case ErrorReturn<bool>():
+        return ErrorReturn<Nil>(error: parameters.error);
+    }
+  }
+}
+
+final class TesteUsecaseDirectNull extends UsecaseBase<Nil> {
+  @override
+  Future<ReturnSuccessOrError<Nil>> call(
+    NoParams parameters,
+  ) async {
+    print("teste null usecase");
+    return SuccessReturn<Nil>(success: nil);
   }
 }
 
@@ -115,12 +153,14 @@ void main() {
   late TesteUsecaseDirect returnResultUsecaseBase;
   late TesteUsecaseCallDataVoid returnResultUsecaseCallDataVoid;
   late TesteUsecaseDirectVoid returnResultUsecaseBaseVoid;
+  late TesteUsecaseCallDataNull returnResultUsecaseCallDataNull;
+  late TesteUsecaseDirectNull returnResultUsecaseBaseNull;
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
     returnResultUsecaseCallData = TesteUsecaseCallData(datasource);
-    returnResultUsecaseCallDataVoid =
-        TesteUsecaseCallDataVoid(datasource);
+    returnResultUsecaseCallDataVoid = TesteUsecaseCallDataVoid(datasource);
+    returnResultUsecaseCallDataNull = TesteUsecaseCallDataNull(datasource);
   });
 
   test('Deve retornar um success com "Teste Void"', () async {
@@ -129,10 +169,10 @@ void main() {
       NoParams(error: ErrorGeneric(message: "teste parrametros")),
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
-      case ErrorReturn():
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn<Unit>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
     }
@@ -144,9 +184,39 @@ void main() {
       NoParams(error: ErrorGeneric(message: "teste parrametros")),
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success com "Teste Null"', () async {
+    returnResultUsecaseBaseNull = TesteUsecaseDirectNull();
+    final data = await returnResultUsecaseBaseNull(
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success com "Teste Null" isolate', () async {
+    returnResultUsecaseBaseNull = TesteUsecaseDirectNull();
+    final data = await returnResultUsecaseBaseNull.callIsolate(
+      NoParams(error: ErrorGeneric(message: "teste parrametros")),
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
       case ErrorReturn():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
@@ -224,10 +294,10 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
-      case ErrorReturn():
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn<Unit>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
     }
@@ -241,10 +311,10 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
-      case ErrorReturn():
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn<Unit>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
     }
@@ -258,9 +328,9 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
       case ErrorReturn():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
@@ -275,9 +345,9 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
       case ErrorReturn():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
@@ -292,10 +362,10 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
-      case ErrorReturn():
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn<Unit>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
     }
@@ -309,10 +379,112 @@ void main() {
       parameters,
     );
     switch (data) {
-      case SuccessReturn():
-        print(data);
-        expect(data, isA<void>());
-      case ErrorReturn():
+      case SuccessReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<Unit>());
+      case ErrorReturn<Unit>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success null data "true"', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(true),
+    );
+    final data = await returnResultUsecaseCallDataNull(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success null data "true" isolate', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(true),
+    );
+    final data = await returnResultUsecaseCallDataNull.callIsolate(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success null data "false"', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(false),
+    );
+    final data = await returnResultUsecaseCallDataNull(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um success null data "false" isolate', () async {
+    when(() => datasource(parameters)).thenAnswer(
+      (_) => Future.value(false),
+    );
+    final data = await returnResultUsecaseCallDataNull.callIsolate(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um AppError com ErrorGeneric null', () async {
+    when(() => datasource(parameters)).thenThrow(
+      Exception(),
+    );
+    final data = await returnResultUsecaseCallDataNull(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<ErrorGeneric>());
+    }
+  });
+
+  test('Deve retornar um AppError com ErrorGeneric null isolate', () async {
+    when(() => datasource(parameters)).thenThrow(
+      Exception(),
+    );
+    final data = await returnResultUsecaseCallDataNull.callIsolate(
+      parameters,
+    );
+    switch (data) {
+      case SuccessReturn<Nil>():
+        print(data.result);
+        expect(data.result, isA<Nil>());
+      case ErrorReturn<Nil>():
         print(data.result);
         expect(data.result, isA<ErrorGeneric>());
     }
