@@ -1,4 +1,4 @@
-class CheckConnecModel {
+final class CheckConnecModel {
   final bool connect;
   final String typeConect;
   CheckConnecModel({

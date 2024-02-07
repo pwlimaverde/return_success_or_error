@@ -5,7 +5,7 @@ import 'modules/fibonacci/fibonacci_module.dart';
 import 'modules/home/home_module.dart';
 import 'utils/module.dart';
 
-class AppModule extends Module {
+final class AppModule implements Module {
   @override
   List<GetPage> routes = [
     ...HomeModule().routes,

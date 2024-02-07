@@ -61,5 +61,25 @@
             "type": "dart",
             "flutterMode": "release"
         },
+        {
+            "name": "example/example_app_flutter_get_it",
+            "cwd": "example/example_app_flutter_get_it",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "example/example_app_flutter_get_it (profile mode)",
+            "cwd": "example/example_app_flutter_get_it",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "example/example_app_flutter_get_it (release mode)",
+            "cwd": "example/example_app_flutter_get_it",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
     ]
 }
