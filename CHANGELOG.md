@@ -1,5 +1,6 @@
 ## [0.17.0] - 01/02/2024. 
-1 - Removido ```SuccessReturn<void>.voidResult()```, onde a representação do voide se dar pela class ```Unit()```, e a representação do nulo, pela class ```Nil()```
+1 - Removido ```SuccessReturn<void>.voidResult()```, onde a representação do voide se dar pela class ```Unit()```, e a representação do nulo, pela class ```Nil()```.
+2 - Refatoração do Exemplo, demonstrando a utilização em conjunto com Fluter_Getit.
 
 ## [0.16.1] - 24/01/2024. 
 1 - Ajuste documentação
