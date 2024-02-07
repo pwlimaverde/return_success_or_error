@@ -4,7 +4,7 @@ import '../../utils/module.dart';
 import '../../utils/routes.dart';
 import 'ui/home_page.dart';
 
-class HomeModule extends Module {
+final class HomeModule implements Module {
   @override
   List<GetPage> routes = [
     GetPage(

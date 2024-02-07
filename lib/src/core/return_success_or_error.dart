@@ -18,11 +18,9 @@ final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
 
   R get result => _success as R;
 
-  SuccessReturn.voidResult();
-
   @override
   String toString() {
-    return "Success: ${_success != null ? this.result : "Void Result"}";
+    return "Success: ${this.result}";
   }
 }
 
@@ -39,3 +37,25 @@ final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
     return "Error: ${this.result}";
   }
 }
+
+//Representation of void as a result
+final class Unit {
+  @override
+  String toString() {
+    return 'Unit{} - void';
+  }
+}
+
+//Geter for loading the Unit instance
+Unit get unit => Unit();
+
+//Representation of null as a result
+final class Nil {
+  @override
+  String toString() {
+    return 'Nil{} - null';
+  }
+}
+
+//Geter for loading the Nil instance
+Nil get nil => Nil();

@@ -5,7 +5,7 @@ import 'modules/fibonacci/fibonacci_module.dart';
 import 'modules/home/home_module.dart';
 import 'utils/routes.dart';
 
-class AppModule extends Module {
+final class AppModule extends Module {
   @override
   void routes(r) {
     r.module(Routes.initial.caminho, module: HomeModule());
