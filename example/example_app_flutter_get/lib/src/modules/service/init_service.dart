@@ -5,6 +5,7 @@ import 'service_bindings.dart';
 
 Future<void> initServices() async {
   ServiceBindings().dependencies();
+
   await Future.wait([
     FeaturesServicePresenter.to.widgetsFlutterBinding(
       NoParams(),
