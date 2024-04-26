@@ -19,7 +19,7 @@ export 'src/interfaces/errors.dart';
 ///that need to be received by the datasource. in the implementation you need
 ///to override the error parameter, which needs to receive an AppError, and
 ///will be returned in case of failure.
-export 'src/core/parameters.dart';
+export 'src/interfaces/parameters.dart';
 
 ///Responsible for exposing the abstraction of the runtime_milliseconds.
 ///
