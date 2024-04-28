@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'features/check_connect/datasource/connectivity_datasource.dart';
@@ -11,13 +10,8 @@ import 'ui/check_connect_controller.dart';
 final class CheckConnectBindings implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<Connectivity>(
-      () => Connectivity(),
-    );
     Get.lazyPut<Datasource<CheckConnecModel>>(
-      () => ConnectivityDatasource(
-        connectivity: Get.find(),
-      ),
+      () => ConnectivityDatasource(),
     );
     Get.lazyPut<UsecaseBaseCallData<String, CheckConnecModel>>(
       () => CheckConnectUsecase(
