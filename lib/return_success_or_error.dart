@@ -27,6 +27,10 @@ export 'src/interfaces/parameters.dart';
 ///presenter to process the response.
 export 'src/core/runtime_milliseconds.dart';
 
+///auxiliary class responsible for standardizing the initialization 
+///of basic services and their dependencies.
+export 'src/core/service.dart';
+
 ///Responsible for exposing the abstraction of the return_success_or_error.
 ///
 ///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
