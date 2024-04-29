@@ -24,3 +24,5 @@ final class WidgetsFlutterBindingUsecase
     }
   }
 }
+
+typedef WidUsecase = UsecaseBaseCallData<Unit, WidgetsBinding>;

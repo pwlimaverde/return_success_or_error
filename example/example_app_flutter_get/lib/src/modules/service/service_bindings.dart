@@ -14,7 +14,7 @@ final class ServiceBindings implements Bindings {
     Get.lazyPut<Connectivity>(
       () => Connectivity(),
     );
-    Get.lazyPut<UsecaseBase<Connectivity>>(
+    Get.lazyPut<ConnectUsecase>(
       () => ConnectivityUsecase(
         connectivity: Get.find(),
       ),
@@ -22,7 +22,7 @@ final class ServiceBindings implements Bindings {
     Get.lazyPut<Datasource<WidgetsBinding>>(
       () => WidgetsFlutterBindingDatasource(),
     );
-    Get.lazyPut<UsecaseBaseCallData<Unit, WidgetsBinding>>(
+    Get.lazyPut<WidUsecase>(
       () => WidgetsFlutterBindingUsecase(
         Get.find(),
       ),

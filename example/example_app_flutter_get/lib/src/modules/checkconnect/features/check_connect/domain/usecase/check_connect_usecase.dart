@@ -31,3 +31,5 @@ final class CheckConnectUsecase
     }
   }
 }
+
+typedef CheckConnect = UsecaseBaseCallData<String, CheckConnecModel>;

@@ -24,3 +24,5 @@ final class CalcFibonacciUsecase extends UsecaseBase<int> {
     return _fibonacci(n - 1) + _fibonacci(n - 2);
   }
 }
+
+typedef CalcFibonacci = UsecaseBase<int>;

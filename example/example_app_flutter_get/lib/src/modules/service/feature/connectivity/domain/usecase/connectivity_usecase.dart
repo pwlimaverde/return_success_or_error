@@ -16,3 +16,5 @@ final class ConnectivityUsecase extends UsecaseBase<Connectivity> {
     }
   }
 }
+
+typedef ConnectUsecase = UsecaseBase<Connectivity>;

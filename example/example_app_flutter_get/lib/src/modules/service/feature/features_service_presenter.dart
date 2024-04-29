@@ -3,24 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
+import 'connectivity/domain/usecase/connectivity_usecase.dart';
+import 'widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
+
 final class FeaturesServicePresenter {
   static FeaturesServicePresenter? _instance;
   late Connectivity connectivity;
 
-  final UsecaseBaseCallData<Unit, WidgetsBinding> _widgetsFlutterBindingUsecase;
-  final UsecaseBase<Connectivity> _connectivityUsecase;
+  final WidUsecase _widgetsFlutterBindingUsecase;
+  final ConnectUsecase _connectivityUsecase;
 
   FeaturesServicePresenter._({
-    required UsecaseBaseCallData<Unit, WidgetsBinding>
-        widgetsFlutterBindingUsecase,
-    required UsecaseBase<Connectivity> connectivityUsecase,
+    required WidUsecase widgetsFlutterBindingUsecase,
+    required ConnectUsecase connectivityUsecase,
   })  : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
         _connectivityUsecase = connectivityUsecase;
 
   factory FeaturesServicePresenter({
-    required UsecaseBaseCallData<Unit, WidgetsBinding>
-        widgetsFlutterBindingUsecase,
-    required UsecaseBase<Connectivity> connectivityUsecase,
+    required WidUsecase widgetsFlutterBindingUsecase,
+    required ConnectUsecase connectivityUsecase,
   }) {
     _instance ??= FeaturesServicePresenter._(
         widgetsFlutterBindingUsecase: widgetsFlutterBindingUsecase,
