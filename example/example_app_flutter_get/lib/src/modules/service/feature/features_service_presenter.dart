@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
@@ -29,8 +28,8 @@ final class FeaturesServicePresenter {
     return _instance!;
   }
 
-  Future<Unit> widgetsFlutterBinding(NoParams params) async {
-    final data = await _widgetsFlutterBindingUsecase(params);
+  Future<Unit> widgetsFlutterBinding() async {
+    final data = await _widgetsFlutterBindingUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Unit>():
         return unit;
@@ -39,8 +38,8 @@ final class FeaturesServicePresenter {
     }
   }
 
-  Future<Unit> connectivityUsecase(NoParams params) async {
-    final data = await _connectivityUsecase(params);
+  Future<Unit> connectivityUsecase() async {
+    final data = await _connectivityUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Connectivity>():
         connectivity = data.result;

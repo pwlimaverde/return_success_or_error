@@ -7,11 +7,7 @@ Future<void> startServices() async {
   await Service.to
       .initDependences(() async => ServiceBindings().dependencies());
   await Service.to.initServices([
-    FeaturesServicePresenter.to.widgetsFlutterBinding(
-      NoParams(),
-    ),
-    FeaturesServicePresenter.to.connectivityUsecase(
-      NoParams(),
-    ),
+    FeaturesServicePresenter.to.widgetsFlutterBinding(),
+    FeaturesServicePresenter.to.connectivityUsecase(),
   ]);
 }

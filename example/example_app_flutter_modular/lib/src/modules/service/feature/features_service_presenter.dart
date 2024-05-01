@@ -1,8 +1,7 @@
+import 'package:auto_injector/auto_injector.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter_modular/flutter_modular.dart';
+import 'package:example_app_flutter_modular/src/modules/service/service_binding.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
-
-import '../service_module.dart';
 import 'connectivity/domain/usecase/connectivity_usecase.dart';
 import 'widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
 
@@ -29,8 +28,8 @@ final class FeaturesServicePresenter {
     return _instance!;
   }
 
-  Future<Unit> widgetsFlutterBinding(NoParams params) async {
-    final data = await _widgetsFlutterBindingUsecase(params);
+  Future<Unit> widgetsFlutterBinding() async {
+    final data = await _widgetsFlutterBindingUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Unit>():
         return unit;
@@ -39,8 +38,8 @@ final class FeaturesServicePresenter {
     }
   }
 
-  Future<Unit> connectivityUsecase(NoParams params) async {
-    final data = await _connectivityUsecase(params);
+  Future<Unit> connectivityUsecase() async {
+    final data = await _connectivityUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Connectivity>():
         connectivity = data.result;

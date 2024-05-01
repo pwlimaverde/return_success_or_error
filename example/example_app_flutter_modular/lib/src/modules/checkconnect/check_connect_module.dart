@@ -1,3 +1,5 @@
+
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
@@ -19,7 +21,8 @@ final class CheckConnectModule extends Module {
     i.add<Datasource<CheckConnecModel>>(
       ConnectivityDatasource.new,
     );
-    i.add<CheckConnect>(
+    ///por bug do modular, não é possivel usar generic UsecaseBaseCallData<String, CheckConnecModel>
+    i.add<CheckConnectUsecase>(
       CheckConnectUsecase.new,
     );
     i.add<TwoPlusTow>(
