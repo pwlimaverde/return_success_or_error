@@ -4,6 +4,7 @@ import 'package:flutter_getit/flutter_getit.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../utils/routes.dart';
+import '../service/feature/features_service_presenter.dart';
 import 'features/check_connect/datasource/connectivity_datasource.dart';
 import 'features/check_connect/domain/model/check_connect_model.dart';
 import 'features/check_connect/domain/usecase/check_connect_usecase.dart';
@@ -15,13 +16,8 @@ import 'ui/check_connect_page.dart';
 final class CheckConnectModule extends FlutterGetItModule {
   @override
   List<Bind<Object>> get bindings => [
-        Bind.lazySingleton<Connectivity>(
-          (i) => Connectivity(),
-        ),
         Bind.factory<Datasource<CheckConnecModel>>(
-          (i) => ConnectivityDatasource(
-            connectivity: i(),
-          ),
+          (i) => ConnectivityDatasource(),
         ),
         Bind.factory<UsecaseBaseCallData<String, CheckConnecModel>>(
           (i) => CheckConnectUsecase(

@@ -12,17 +12,13 @@ final class CheckConnectReducer extends RxReducer {
   }
 
   void _checkConnectReducer() async {
-    final status = featuresCheckconnectPresenter.checkConnect(
-      NoParams(),
-    );
-    checarConeccaoState.value = await status;
+    final status = await featuresCheckconnectPresenter.checkConnect();
+    checarConeccaoState.value = status;
   }
 
   void _twoPlusTowReducer() async {
-    final status = featuresCheckconnectPresenter.twoPlusTow(
-      NoParams(),
-    );
-    twoPlusTowState.value = await status;
+    final status = await featuresCheckconnectPresenter.twoPlusTow();
+    twoPlusTowState.value = status;
   }
 
   @override

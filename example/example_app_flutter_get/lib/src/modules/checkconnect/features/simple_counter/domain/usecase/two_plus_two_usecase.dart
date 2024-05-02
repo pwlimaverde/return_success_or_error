@@ -7,3 +7,5 @@ final class TwoPlusTowUsecase extends UsecaseBase<int> {
     return SuccessReturn<int>(success: sum);
   }
 }
+
+typedef TwoPlusTow = UsecaseBase<int>;
