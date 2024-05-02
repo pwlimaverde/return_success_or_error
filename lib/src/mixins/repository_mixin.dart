@@ -1,4 +1,4 @@
-import '../core/parameters.dart';
+import '../interfaces/parameters.dart';
 import '../core/return_success_or_error.dart';
 import '../interfaces/datasource.dart';
 

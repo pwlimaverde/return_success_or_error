@@ -1,3 +1,5 @@
+## [0.18.0] - 28/04/2024. 
+1 - Incluido Classe Service. Classe responsável pela padronização da inicialização dos seviços basicos.
 ## [0.17.0] - 01/02/2024. 
 1 - Removido ```SuccessReturn<void>.voidResult()```, onde a representação do voide se dar pela class ```Unit()```, e a representação do nulo, pela class ```Nil()```.
 2 - Refatoração do Exemplo, demonstrando a utilização em conjunto com Fluter_Getit.

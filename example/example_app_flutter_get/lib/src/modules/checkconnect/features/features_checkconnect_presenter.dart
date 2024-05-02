@@ -1,14 +1,14 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
-
-import 'check_connect/domain/model/check_connect_model.dart';
+import 'check_connect/domain/usecase/check_connect_usecase.dart';
+import 'simple_counter/domain/usecase/two_plus_two_usecase.dart';
 
 final class FeaturesCheckconnectPresenter {
-  final UsecaseBaseCallData<String, CheckConnecModel> _checkConnectUsecase;
-  final UsecaseBase<int> _twoPlusTowUsecase;
+  final CheckConnect _checkConnectUsecase;
+  final TwoPlusTow _twoPlusTowUsecase;
 
   FeaturesCheckconnectPresenter({
-    required UsecaseBaseCallData<String, CheckConnecModel> checkConnectUsecase,
-    required UsecaseBase<int> twoPlusTowUsecase,
+    required CheckConnect checkConnectUsecase,
+    required TwoPlusTow twoPlusTowUsecase,
   })  : _checkConnectUsecase = checkConnectUsecase,
         _twoPlusTowUsecase = twoPlusTowUsecase;
 

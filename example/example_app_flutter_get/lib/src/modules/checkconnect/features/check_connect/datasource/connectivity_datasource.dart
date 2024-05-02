@@ -6,7 +6,8 @@ import '../domain/model/check_connect_model.dart';
 ///Datasources
 final class ConnectivityDatasource implements Datasource<CheckConnecModel> {
   final Connectivity connectivity;
-  ConnectivityDatasource({required this.connectivity});
+
+  ConnectivityDatasource(this.connectivity);
 
   @override
   Future<CheckConnecModel> call(

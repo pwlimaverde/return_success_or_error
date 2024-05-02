@@ -1,4 +1,4 @@
-import '../core/parameters.dart';
+import 'parameters.dart';
 
 ///Implement the datasource by typing with the expected data type. Override the
 ///call method involving logic in a try catch to return the typed data in case
