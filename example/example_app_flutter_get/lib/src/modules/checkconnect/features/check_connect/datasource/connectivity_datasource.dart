@@ -10,26 +10,21 @@ final class ConnectivityDatasource implements Datasource<CheckConnecModel> {
   ConnectivityDatasource(this.connectivity);
 
   @override
-  Future<CheckConnecModel> call(
-    NoParams parameters,
-  ) async {
+  Future<CheckConnecModel> call(NoParams parameters) async {
     try {
       bool isOnline = await connectivity.checkConnectivity().then((result) {
-        return result == ConnectivityResult.wifi ||
-            result == ConnectivityResult.mobile ||
-            result == ConnectivityResult.ethernet;
+        return !result.contains(ConnectivityResult.none);
       });
 
       String type = await connectivity.checkConnectivity().then((result) {
-        switch (result) {
-          case ConnectivityResult.wifi:
-            return "Conect wifi";
-          case ConnectivityResult.mobile:
-            return "Conect mobile";
-          case ConnectivityResult.ethernet:
-            return "Conect ethernet";
-          default:
-            return "Conect none";
+        if (result.contains(ConnectivityResult.mobile)) {
+          return "Conect mobile";
+        } else if (result.contains(ConnectivityResult.wifi)) {
+          return "Conect wifi";
+        } else if (result.contains(ConnectivityResult.ethernet)) {
+          return "Conect ethernet";
+        } else {
+          return "Conect none";
         }
       });
       return CheckConnecModel(connect: isOnline, typeConect: type);
