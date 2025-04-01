@@ -12,15 +12,15 @@ sealed class ReturnSuccessOrError<R> {
 
 ///Responsible for storing the returned data when successful.
 final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
-  SuccessReturn({
+  const SuccessReturn({
     required R super.success,
   });
 
-  R get result => _success as R;
+  R get result => _success!;
 
   @override
   String toString() {
-    return "Success: ${this.result}";
+    return "Success: $result";
   }
 }
 
@@ -34,28 +34,40 @@ final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
 
   @override
   String toString() {
-    return "Error: ${this.result}";
+    return "Error: $result";
   }
 }
 
-//Representation of void as a result
+/// Representation of void as a result
 final class Unit {
+  static final Unit _instance = Unit._();
+  
+  factory Unit() => _instance;
+  
+  Unit._();
+  
   @override
   String toString() {
     return 'Unit{} - void';
   }
 }
 
-//Geter for loading the Unit instance
+/// Getter for loading the Unit instance
 Unit get unit => Unit();
 
-//Representation of null as a result
+/// Representation of null as a result
 final class Nil {
+  static final Nil _instance = Nil._();
+  
+  factory Nil() => _instance;
+  
+  Nil._();
+  
   @override
   String toString() {
     return 'Nil{} - null';
   }
 }
 
-//Geter for loading the Nil instance
+/// Getter for loading the Nil instance
 Nil get nil => Nil();
