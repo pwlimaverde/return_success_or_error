@@ -53,18 +53,18 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
+      sha256: "04bf81bb0b77de31557b58d052b24b3eee33f09a6e7a8c68a3e247c7df19ec27"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.1.3"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      sha256: "42657c1715d48b167930d5f34d00222ac100475f73d10162ddf43e714932f204"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "2.0.1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -114,10 +114,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "5.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -136,14 +136,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.7.0"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.7"
   leak_tracker:
     dependency: transitive
     description:
@@ -172,10 +164,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "5.1.1"
   matcher:
     dependency: transitive
     description:
@@ -232,29 +224,37 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  preact_signals:
+    dependency: transitive
+    description:
+      name: preact_signals
+      sha256: a5b445796a02244b85fa43d79a7030fbfbbb08f7c48277ee93c636140a8fb2e0
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.3"
   return_success_or_error:
     dependency: "direct main"
     description:
       path: "../.."
       relative: true
     source: path
-    version: "0.18.0"
+    version: "0.19.0"
   signals_core:
     dependency: transitive
     description:
       name: signals_core
-      sha256: "29258212f4e89297e7a6abbc0a000fda934bfa6d8b5634c30ce31ec1033bf9e4"
+      sha256: "5668ff1fb953fe48c88b03d50d43c5fe128cd7c831b932a4157f5f6be868b80f"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.0"
+    version: "6.0.2"
   signals_flutter:
     dependency: "direct main"
     description:
       name: signals_flutter
-      sha256: dd4971b2a0165d1ef8de1a45d59e89cdcdd5fc1c8f7fa180d55e6d049be89e92
+      sha256: "66b36ed0b5961cc7d8d0606813bc3fd66758dc1728cbfcffef0d2a97c7a706a2"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.1"
+    version: "6.0.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -324,6 +324,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.3.1"
+  web:
+    dependency: transitive
+    description:
+      name: web
+      sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   xml:
     dependency: transitive
     description:
@@ -333,5 +341,5 @@ packages:
     source: hosted
     version: "6.5.0"
 sdks:
-  dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.18.0-18.0.pre.54"
+  dart: ">=3.7.2 <4.0.0"
+  flutter: ">=3.29.2"

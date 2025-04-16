@@ -1,0 +1,2 @@
+C:/PROJETOS/FLUTTER/PACKAGES/return_success_or_error/example/example_app_flutter_modular/android/app/.cxx/Debug/493i516x/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/PROJETOS/FLUTTER/PACKAGES/return_success_or_error/example/example_app_flutter_modular/android/app/.cxx/Debug/493i516x/armeabi-v7a/CMakeFiles/rebuild_cache.dir
