@@ -5,7 +5,6 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../utils/routes.dart';
-import '../service/features/features_service_composer.dart';
 import '../service/features/service_hub.dart';
 import 'features/check_connect/datasource/connectivity_datasource.dart';
 import 'features/check_connect/domain/model/check_connect_model.dart';

@@ -1,19 +1,17 @@
-
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../service_binding.dart';
 
-/// Repositório que armazena as instâncias dos serviços
-final class ServiceHub {
-  static ServiceHub? _instance;
+final class ServiceHub extends Hub {
   late Connectivity connectivity;
-
   ServiceHub._();
-  
+
   factory ServiceHub() {
-    _instance ??= ServiceHub._();
-    return _instance!;
+    Hub.instance ??= ServiceHub._();
+    return Hub.instance! as ServiceHub;
   }
+
   static ServiceHub get to =>
       autoInjector.get<ServiceHub>();
 }

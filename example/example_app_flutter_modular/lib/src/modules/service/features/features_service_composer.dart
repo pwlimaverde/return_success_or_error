@@ -5,10 +5,12 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'connectivity/domain/usecase/connectivity_usecase.dart';
 import 'widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
 
-final class FeaturesServiceComposer {
+
+
+final class FeaturesServiceComposer implements Composer{
+  @override
+  late ServiceHub hub; 
   static FeaturesServiceComposer? _instance;
-  
-  final ServiceHub _serviceHub;
 
   final WidUsecase _widgetsFlutterBindingUsecase;
   final ConnectUsecase _connectivityUsecase;
@@ -19,7 +21,7 @@ final class FeaturesServiceComposer {
     required ConnectUsecase connectivityUsecase,
   })  : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
         _connectivityUsecase = connectivityUsecase,
-        _serviceHub = serviceHub;
+        hub = serviceHub;
 
   factory FeaturesServiceComposer({
     required ServiceHub serviceHub,
@@ -47,7 +49,7 @@ final class FeaturesServiceComposer {
     final data = await _connectivityUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Connectivity>():
-        _serviceHub.connectivity = data.result;
+        hub.connectivity = data.result;
         return unit;
       case ErrorReturn<Connectivity>():
         throw data.result.message;
@@ -55,5 +57,7 @@ final class FeaturesServiceComposer {
   }
 
   static FeaturesServiceComposer get to =>
-      autoInjector.get<FeaturesServiceComposer>(); 
+      autoInjector.get<FeaturesServiceComposer>();
+
+  
 }
