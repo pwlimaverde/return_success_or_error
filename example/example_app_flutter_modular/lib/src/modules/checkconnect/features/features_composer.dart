@@ -1,17 +1,21 @@
-import 'package:flutter_modular/flutter_modular.dart';
+
 import 'package:return_success_or_error/return_success_or_error.dart';
-import 'check_connect/domain/model/check_connect_model.dart';
 import 'check_connect/domain/usecase/check_connect_usecase.dart';
+import 'feature_hub.dart';
 import 'simple_counter/domain/usecase/two_plus_two_usecase.dart';
 
-final class FeaturesCheckconnectPresenter {
+final class FeaturesComposer implements Composer {
+  @override
+  late FeatureHub hub;
   final CheckConnectUsecase _checkConnectUsecase;
   final TwoPlusTow _twoPlusTowUsecase;
 
-  FeaturesCheckconnectPresenter({
+  FeaturesComposer({
+    required FeatureHub featureHub,
     required CheckConnectUsecase checkConnectUsecase,
     required TwoPlusTow twoPlusTowUsecase,
   })  : _checkConnectUsecase = checkConnectUsecase,
+        hub = featureHub,
         _twoPlusTowUsecase = twoPlusTowUsecase;
 
   Future<String> checkConnect() async {
@@ -33,4 +37,6 @@ final class FeaturesCheckconnectPresenter {
         return 0;
     }
   }
+
+  
 }

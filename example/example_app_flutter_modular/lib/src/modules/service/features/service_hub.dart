@@ -3,13 +3,14 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../service_binding.dart';
 
-final class ServiceHub extends Hub {
+final class ServiceHub implements Hub {
   late Connectivity connectivity;
+  static ServiceHub? _instance;
   ServiceHub._();
 
   factory ServiceHub() {
-    Hub.instance ??= ServiceHub._();
-    return Hub.instance! as ServiceHub;
+    _instance ??= ServiceHub._();
+    return _instance!;
   }
 
   static ServiceHub get to =>
