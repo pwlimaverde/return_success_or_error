@@ -1,9 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../service_binding.dart';
 
-final class ServiceHub implements Hub {
+final class ServiceHub {
   late Connectivity connectivity;
   static ServiceHub? _instance;
   ServiceHub._();

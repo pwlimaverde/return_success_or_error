@@ -21,9 +21,6 @@ export 'src/interfaces/errors.dart';
 ///will be returned in case of failure.
 export 'src/interfaces/parameters.dart';
 
-export 'src/interfaces/hub.dart';
-export 'src/interfaces/composer.dart';
-
 ///Responsible for exposing the abstraction of the runtime_milliseconds.
 ///
 ///Auxiliary class that allows the observation of the time it took for the

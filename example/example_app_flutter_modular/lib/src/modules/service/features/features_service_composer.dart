@@ -5,13 +5,10 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'connectivity/domain/usecase/connectivity_usecase.dart';
 import 'widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
 
-
-
-final class FeaturesServiceComposer implements Composer{
-  @override
-  late ServiceHub hub; 
+final class FeaturesServiceComposer {
   static FeaturesServiceComposer? _instance;
 
+  final ServiceHub _serviceHub;
   final WidUsecase _widgetsFlutterBindingUsecase;
   final ConnectUsecase _connectivityUsecase;
 
@@ -19,9 +16,9 @@ final class FeaturesServiceComposer implements Composer{
     required ServiceHub serviceHub,
     required WidUsecase widgetsFlutterBindingUsecase,
     required ConnectUsecase connectivityUsecase,
-  })  : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
-        _connectivityUsecase = connectivityUsecase,
-        hub = serviceHub;
+  }) : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
+       _connectivityUsecase = connectivityUsecase,
+       _serviceHub = serviceHub;
 
   factory FeaturesServiceComposer({
     required ServiceHub serviceHub,
@@ -29,9 +26,10 @@ final class FeaturesServiceComposer implements Composer{
     required ConnectUsecase connectivityUsecase,
   }) {
     _instance ??= FeaturesServiceComposer._(
-        serviceHub: serviceHub,
-        widgetsFlutterBindingUsecase: widgetsFlutterBindingUsecase,
-        connectivityUsecase: connectivityUsecase);
+      serviceHub: serviceHub,
+      widgetsFlutterBindingUsecase: widgetsFlutterBindingUsecase,
+      connectivityUsecase: connectivityUsecase,
+    );
     return _instance!;
   }
 
@@ -49,7 +47,7 @@ final class FeaturesServiceComposer implements Composer{
     final data = await _connectivityUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Connectivity>():
-        hub.connectivity = data.result;
+        _serviceHub.connectivity = data.result;
         return unit;
       case ErrorReturn<Connectivity>():
         throw data.result.message;
@@ -58,6 +56,4 @@ final class FeaturesServiceComposer implements Composer{
 
   static FeaturesServiceComposer get to =>
       autoInjector.get<FeaturesServiceComposer>();
-
-  
 }

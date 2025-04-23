@@ -1,7 +1,6 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import '../../utils/routes.dart';
 import 'features/calc_fibonacci/domain/calc_fibonacci_usecase.dart';
-import 'features/feature_hub.dart';
 import 'features/features_composer.dart';
 import 'ui/fibonacci_page.dart';
 import 'ui/fibonacci_reducer.dart';
@@ -9,7 +8,7 @@ import 'ui/fibonacci_reducer.dart';
 final class FibonacciModule extends Module {
   @override
   void binds(Injector i) {
-    i.addInstance<FeatureHub>(FeatureHub());
+
     i.add<CalcFibonacci>(
       CalcFibonacciUsecase.new,
     );
