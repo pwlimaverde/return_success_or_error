@@ -33,18 +33,21 @@ final class CheckConnectModule extends FlutterGetItModule {
             twoPlusTowUsecase: i(),
           ),
         ),
-        Bind.lazySingleton(
-          (i) => CheckConnectController(
-            featuresCheckconnectPresenter: i(),
-          ),
-        ),
       ];
 
   @override
   String get moduleRouteName => Routes.checkconnect.caminho;
 
   @override
-  Map<String, WidgetBuilder> get pages => {
-        '/': (context) => const CheckConnectPage(),
-      };
+  List<FlutterGetItPageRouter> get pages => [
+        FlutterGetItPageRouter(
+          name: '/',
+          builderAsync: (context, isReady, loader) => const CheckConnectPage(),
+          bindings: [
+            Bind.lazySingleton<CheckConnectController>(
+              (i) => i<CheckConnectController>(),
+            ),
+          ],
+        ),
+  ];
 }

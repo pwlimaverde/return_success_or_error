@@ -20,18 +20,21 @@ final class FibonacciModule extends FlutterGetItModule {
             calcFibonacciUsecase: i(),
           ),
         ),
-        Bind.lazySingleton<FibonacciController>(
-          (i) => FibonacciController(
-            featuresFibonacciPresenter: i(),
-          ),
-        ),
       ];
 
   @override
   String get moduleRouteName => Routes.fibonacci.caminho;
 
   @override
-  Map<String, WidgetBuilder> get pages => {
-        '/': (context) => const FibonacciPage(),
-      };
+  List<FlutterGetItPageRouter> get pages => [
+        FlutterGetItPageRouter(
+          name: '/',
+          builder: (context) => const FibonacciPage(),
+          bindings: [
+            Bind.lazySingleton<FibonacciController>(
+              (i) => i<FibonacciController>(),
+            ),
+          ],
+        ),
+  ];
 }
