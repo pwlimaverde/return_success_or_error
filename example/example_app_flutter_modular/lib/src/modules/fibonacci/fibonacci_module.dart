@@ -1,18 +1,19 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import '../../utils/routes.dart';
-import 'feature/calc_fibonacci/domain/calc_fibonacci_usecase.dart';
-import 'feature/features_fibonacci_presenter.dart';
+import 'features/calc_fibonacci/domain/calc_fibonacci_usecase.dart';
+import 'features/features_composer.dart';
 import 'ui/fibonacci_page.dart';
 import 'ui/fibonacci_reducer.dart';
 
 final class FibonacciModule extends Module {
   @override
   void binds(Injector i) {
+
     i.add<CalcFibonacci>(
       CalcFibonacciUsecase.new,
     );
-    i.add<FeaturesFibonacciPresenter>(
-      FeaturesFibonacciPresenter.new,
+    i.add<FeaturesComposer>(
+      FeaturesComposer.new,
     );
     i.addSingleton<FibonacciReducer>(
       FibonacciReducer.new,

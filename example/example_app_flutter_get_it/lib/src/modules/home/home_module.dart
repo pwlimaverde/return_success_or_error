@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_getit/flutter_getit.dart';
 
 import '../../utils/routes.dart';
@@ -9,7 +8,7 @@ final class HomeModule extends FlutterGetItModule {
   String get moduleRouteName => Routes.initial.caminho;
 
   @override
-  Map<String, WidgetBuilder> get pages => {
-        '/': (context) => const HomePage(),
-      };
+  List<FlutterGetItPageRouter> get pages => [
+    FlutterGetItPageRouter(name: '/', builder: (context) => const HomePage()),
+  ];
 }
