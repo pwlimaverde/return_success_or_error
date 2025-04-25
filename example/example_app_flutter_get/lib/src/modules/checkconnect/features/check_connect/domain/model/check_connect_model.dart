@@ -1,7 +1,7 @@
-final class CheckConnecModel {
+final class CheckConnectModel {
   final bool connect;
   final String typeConect;
-  CheckConnecModel({
+  CheckConnectModel({
     required this.connect,
     required this.typeConect,
   });
@@ -10,7 +10,7 @@ final class CheckConnecModel {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is CheckConnecModel &&
+    return other is CheckConnectModel &&
         other.connect == connect &&
         other.typeConect == typeConect;
   }
@@ -20,5 +20,5 @@ final class CheckConnecModel {
 
   @override
   String toString() =>
-      'CheckConnecModel(connect: $connect, typeConect: $typeConect)';
+      'CheckConnectModel(connect: $connect, typeConect: $typeConect)';
 }

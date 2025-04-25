@@ -11,7 +11,7 @@ import 'ui/check_connect_controller.dart';
 final class CheckConnectBindings implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<Datasource<CheckConnecModel>>(
+    Get.lazyPut<Datasource<CheckConnectModel>>(
       () => ConnectivityDatasource(
         FeaturesServicePresenter.to.connectivity,
       ),

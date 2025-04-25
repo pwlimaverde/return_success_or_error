@@ -1,12 +1,13 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../../utils/parameters.dart';
+import '../../../utils/typedefs.dart';
 
-final class FeaturesFibonacciPresenter {
-  final UsecaseBase<int> _calcFibonacciUsecase;
+final class FeaturesFibonacciComposer {
+  final FBUsecase _calcFibonacciUsecase;
 
-  FeaturesFibonacciPresenter({
-    required UsecaseBase<int> calcFibonacciUsecase,
+  FeaturesFibonacciComposer({
+    required FBUsecase calcFibonacciUsecase,
   }) : _calcFibonacciUsecase = calcFibonacciUsecase;
 
   Future<int?> calcFibonacci(ParametrosFibonacci params) async {

@@ -3,26 +3,31 @@ import 'package:get_it/get_it.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import 'connectivity/domain/usecase/connectivity_usecase.dart';
+import 'service_hub.dart';
 import 'widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
 
 final class FeaturesServicePresenter {
   static FeaturesServicePresenter? _instance;
-  late Connectivity connectivity;
 
+  final ServiceHub _serviceHub;
   final WidUsecase _widgetsFlutterBindingUsecase;
   final ConnectUsecase _connectivityUsecase;
 
   FeaturesServicePresenter._({
+    required ServiceHub serviceHub,
     required WidUsecase widgetsFlutterBindingUsecase,
     required ConnectUsecase connectivityUsecase,
   })  : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
+        _serviceHub = serviceHub,
         _connectivityUsecase = connectivityUsecase;
 
   factory FeaturesServicePresenter({
+    required ServiceHub serviceHub,
     required WidUsecase widgetsFlutterBindingUsecase,
     required ConnectUsecase connectivityUsecase,
   }) {
     _instance ??= FeaturesServicePresenter._(
+        serviceHub: serviceHub,
         widgetsFlutterBindingUsecase: widgetsFlutterBindingUsecase,
         connectivityUsecase: connectivityUsecase);
     return _instance!;
@@ -42,7 +47,7 @@ final class FeaturesServicePresenter {
     final data = await _connectivityUsecase(NoParams());
     switch (data) {
       case SuccessReturn<Connectivity>():
-        connectivity = data.result;
+        _serviceHub.connectivity = data.result;
         return unit;
       case ErrorReturn<Connectivity>():
         throw data.result.message;

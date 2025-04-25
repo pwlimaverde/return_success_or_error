@@ -16,7 +16,6 @@ final class ServiceBinding {
       tag: 'bindings',
       on: (i) {
         i.addInstance<ServiceHub>(ServiceHub());
-        i.addInstance<Connectivity>(Connectivity());
         i.add<ConnectUsecase>(ConnectivityUsecase.new);
         i.add<Datasource<WidgetsBinding>>(WidgetsFlutterBindingDatasource.new);
         i.add<WidUsecase>(WidgetsFlutterBindingUsecase.new);

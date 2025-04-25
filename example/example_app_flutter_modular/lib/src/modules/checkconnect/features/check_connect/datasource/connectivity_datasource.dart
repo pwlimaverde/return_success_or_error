@@ -4,19 +4,19 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import '../domain/model/check_connect_model.dart';
 
 ///Datasources
-final class ConnectivityDatasource implements Datasource<CheckConnecModel> {
-  final Connectivity connectivity;
+final class ConnectivityDatasource implements Datasource<CheckConnectModel> {
+  final Connectivity _connectivity;
 
-  ConnectivityDatasource(this.connectivity);
+  ConnectivityDatasource(Connectivity connectivity):_connectivity = connectivity;
 
   @override
-  Future<CheckConnecModel> call(NoParams parameters) async {
+  Future<CheckConnectModel> call(NoParams parameters) async {
     try {
-      bool isOnline = await connectivity.checkConnectivity().then((result) {
+      bool isOnline = await _connectivity.checkConnectivity().then((result) {
         return !result.contains(ConnectivityResult.none);
       });
 
-      String type = await connectivity.checkConnectivity().then((result) {
+      String type = await _connectivity.checkConnectivity().then((result) {
         if (result.contains(ConnectivityResult.mobile)) {
           return "Conect mobile";
         } else if (result.contains(ConnectivityResult.wifi)) {
@@ -27,7 +27,7 @@ final class ConnectivityDatasource implements Datasource<CheckConnecModel> {
           return "Conect none";
         }
       });
-      return CheckConnecModel(connect: isOnline, typeConect: type);
+      return CheckConnectModel(connect: isOnline, typeConect: type);
     } catch (e) {
       throw parameters.error..message = "$e";
     }

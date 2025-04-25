@@ -6,10 +6,10 @@ import '../../../utils/parameters.dart';
 import '../feature/features_fibonacci_presenter.dart';
 
 final class FibonacciController extends GetxController {
-  final FeaturesFibonacciPresenter featuresFibonacciPresenter;
+  final FeaturesFibonacciPresenter featuresFibonacciComposer;
 
   FibonacciController({
-    required this.featuresFibonacciPresenter,
+    required this.featuresFibonacciComposer,
   });
 
   final _showProgress = false.obs;
@@ -23,7 +23,7 @@ final class FibonacciController extends GetxController {
   void calcFibonacci(int number) async {
     await _load(true);
 
-    final status = await featuresFibonacciPresenter.calcFibonacci(
+    final status = await featuresFibonacciComposer.calcFibonacci(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(
@@ -40,7 +40,7 @@ final class FibonacciController extends GetxController {
   void calcFibonacciIsolate(int number) async {
     await _load(true);
 
-    final status = await featuresFibonacciPresenter.calcFibonacciIsolate(
+    final status = await featuresFibonacciComposer.calcFibonacciIsolate(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(

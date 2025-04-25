@@ -20,10 +20,10 @@ final class CheckConnectModule extends Module {
   void binds(i) {
 
     i.addInstance<Connectivity>(ServiceHub.to.connectivity);
-    i.add<Datasource<CheckConnecModel>>(
+    i.add<Datasource<CheckConnectModel>>(
       ConnectivityDatasource.new,
     );
-    ///por bug do modular, não é possivel usar generic UsecaseBaseCallData<String, CheckConnecModel>
+    ///por bug do modular, não é possivel usar generic UsecaseBaseCallData<String, CheckConnectModel>
     i.add<CheckConnectUsecase>(
       CheckConnectUsecase.new,
     );

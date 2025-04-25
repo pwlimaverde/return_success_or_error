@@ -22,15 +22,13 @@ final class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                    onPressed: () => Navigator.pushNamed(
-                          context,
-                          Routes.fibonacci.caminho,
+                    onPressed: () => Navigator.of(context).pushNamed(
+                          '${Routes.fibonacci.caminho}/',
                         ),
                     icon: const Icon(Icons.calculate)),
                 IconButton(
-                    onPressed: () => Navigator.pushNamed(
-                          context,
-                          Routes.checkconnect.caminho,
+                    onPressed: () => Navigator.of(context).pushNamed(
+                          '${Routes.checkconnect.caminho}/',
                         ),
                     icon: const Icon(Icons.cast_connected)),
               ],

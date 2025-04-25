@@ -16,7 +16,7 @@ final class FibonacciBindings implements Bindings {
     );
     Get.lazyPut<FibonacciController>(
       () => FibonacciController(
-        featuresFibonacciPresenter: Get.find(),
+        featuresFibonacciComposer: Get.find(),
       ),
     );
   }

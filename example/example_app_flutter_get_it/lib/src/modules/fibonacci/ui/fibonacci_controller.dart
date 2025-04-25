@@ -2,13 +2,13 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../utils/parameters.dart';
-import '../feature/features_fibonacci_presenter.dart';
+import '../feature/features_fibonacci_composer.dart';
 
 final class FibonacciController {
-  final FeaturesFibonacciPresenter featuresFibonacciPresenter;
+  final FeaturesFibonacciComposer featuresFibonacciComposer;
 
   FibonacciController({
-    required this.featuresFibonacciPresenter,
+    required this.featuresFibonacciComposer,
   });
 
   final _showProgress = signal<bool?>(false);
@@ -20,7 +20,7 @@ final class FibonacciController {
   void calcFibonacci(int number) async {
     await _load(true);
 
-    final status = await featuresFibonacciPresenter.calcFibonacci(
+    final status = await featuresFibonacciComposer.calcFibonacci(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(
@@ -37,7 +37,7 @@ final class FibonacciController {
   void calcFibonacciIsolate(int number) async {
     await _load(true);
 
-    final status = await featuresFibonacciPresenter.calcFibonacciIsolate(
+    final status = await featuresFibonacciComposer.calcFibonacciIsolate(
       ParametrosFibonacci(
         num: number,
         error: ErrorGeneric(

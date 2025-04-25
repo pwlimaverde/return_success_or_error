@@ -1,14 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_getit/flutter_getit.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../utils/routes.dart';
-import '../service/feature/features_service_presenter.dart';
+import '../../utils/typedefs.dart';
+import '../service/feature/service_hub.dart';
 import 'features/check_connect/datasource/connectivity_datasource.dart';
-import 'features/check_connect/domain/model/check_connect_model.dart';
 import 'features/check_connect/domain/usecase/check_connect_usecase.dart';
-import 'features/features_checkconnect_presenter.dart';
+import 'features/features_checkconnect_composer.dart';
 import 'features/simple_counter/domain/usecase/two_plus_two_usecase.dart';
 import 'ui/check_connect_controller.dart';
 import 'ui/check_connect_page.dart';
@@ -16,38 +14,31 @@ import 'ui/check_connect_page.dart';
 final class CheckConnectModule extends FlutterGetItModule {
   @override
   List<Bind<Object>> get bindings => [
-        Bind.factory<Datasource<CheckConnecModel>>(
-          (i) => ConnectivityDatasource(),
-        ),
-        Bind.factory<UsecaseBaseCallData<String, CheckConnecModel>>(
-          (i) => CheckConnectUsecase(
-            i(),
-          ),
-        ),
-        Bind.factory<UsecaseBase<int>>(
-          (i) => TwoPlusTowUsecase(),
-        ),
-        Bind.lazySingleton<FeaturesCheckconnectPresenter>(
-          (i) => FeaturesCheckconnectPresenter(
-            checkConnectUsecase: i(),
-            twoPlusTowUsecase: i(),
-          ),
-        ),
-      ];
+    Bind.lazySingleton<Connectivity>((i) => ServiceHub.to.connectivity),
+    Bind.lazySingleton<CCData>((i) => ConnectivityDatasource(i())),
+    Bind.lazySingleton<CCUsecase>((i) => CheckConnectUsecase(i())),
+    Bind.factory<TwoPlusTowUsecase>((i) => TwoPlusTowUsecase()),
+    Bind.lazySingleton<FeaturesCheckconnectComposer>(
+      (i) => FeaturesCheckconnectComposer(
+        checkConnectUsecase: i(),
+        twoPlusTowUsecase: i(),
+      ),
+    ),
+  ];
 
   @override
   String get moduleRouteName => Routes.checkconnect.caminho;
 
   @override
   List<FlutterGetItPageRouter> get pages => [
-        FlutterGetItPageRouter(
-          name: '/',
-          builderAsync: (context, isReady, loader) => const CheckConnectPage(),
-          bindings: [
-            Bind.lazySingleton<CheckConnectController>(
-              (i) => i<CheckConnectController>(),
-            ),
-          ],
+    FlutterGetItPageRouter(
+      name: '/',
+      builder: (context) => const CheckConnectPage(),
+      bindings: [
+        Bind.lazySingleton<CheckConnectController>(
+          (i) => CheckConnectController(featuresCheckconnectPresenter: i()),
         ),
+      ],
+    ),
   ];
 }
