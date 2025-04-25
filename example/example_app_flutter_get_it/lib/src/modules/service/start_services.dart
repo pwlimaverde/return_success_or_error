@@ -1,6 +1,6 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-import 'feature/features_service_presenter.dart';
+import 'feature/features_service_composer.dart';
 import 'service_bindings.dart';
 
 Future<void> startServices() async {

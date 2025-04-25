@@ -1,0 +1,1 @@
+C:\PROJETOS\FLUTTER\PACKAGES\return_success_or_error\example\example_app_flutter_modular\build\app\intermediates\cxx\Debug\493i516x\obj\x86

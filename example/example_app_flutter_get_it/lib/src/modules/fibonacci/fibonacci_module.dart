@@ -1,28 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_getit/flutter_getit.dart';
-import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../utils/routes.dart';
 
+import '../../utils/typedefs.dart';
 import 'feature/calc_fibonacci/domain/calc_fibonacci_usecase.dart';
-import 'feature/features_fibonacci_presenter.dart';
+import 'feature/features_fibonacci_composer.dart';
 import 'ui/fibonacci_controller.dart';
 import 'ui/fibonacci_page.dart';
 
 final class FibonacciModule extends FlutterGetItModule {
   @override
   List<Bind<Object>> get bindings => [
-        Bind.factory<UsecaseBase<int>>(
+        Bind.lazySingleton<FBUsecase>(
           (i) => CalcFibonacciUsecase(),
         ),
-        Bind.lazySingleton<FeaturesFibonacciPresenter>(
-          (i) => FeaturesFibonacciPresenter(
+        Bind.lazySingleton<FeaturesFibonacciComposer>(
+          (i) => FeaturesFibonacciComposer(
             calcFibonacciUsecase: i(),
-          ),
-        ),
-        Bind.lazySingleton<FibonacciController>(
-          (i) => FibonacciController(
-            featuresFibonacciPresenter: i(),
           ),
         ),
       ];
@@ -31,7 +25,15 @@ final class FibonacciModule extends FlutterGetItModule {
   String get moduleRouteName => Routes.fibonacci.caminho;
 
   @override
-  Map<String, WidgetBuilder> get pages => {
-        '/': (context) => const FibonacciPage(),
-      };
+  List<FlutterGetItPageRouter> get pages => [
+        FlutterGetItPageRouter(
+          name: '/',
+          builder: (context) => const FibonacciPage(),
+          bindings: [
+            Bind.lazySingleton<FibonacciController>(
+              (i) => FibonacciController(featuresFibonacciComposer: i()),
+            ),
+          ],
+        ),
+  ];
 }

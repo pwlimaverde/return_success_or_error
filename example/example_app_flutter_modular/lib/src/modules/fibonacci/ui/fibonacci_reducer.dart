@@ -2,12 +2,12 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 import '../../../utils/parameters.dart';
-import '../feature/features_fibonacci_presenter.dart';
+import '../features/features_composer.dart';
 import 'fibonacci_state.dart';
 
 final class FibonacciReducer extends RxReducer {
-  final FeaturesFibonacciPresenter featuresFibonacciPresenter;
-  FibonacciReducer(this.featuresFibonacciPresenter) {
+  final FeaturesComposer featuresComposer;
+  FibonacciReducer(this.featuresComposer) {
     on(() => [calcFibonacciAction], _calcFibonacci);
     on(() => [calcFibonacciIsolateAction], _calcFibonacciIsolate);
   }
@@ -17,7 +17,7 @@ final class FibonacciReducer extends RxReducer {
     if (num != null) {
       await _load(true);
 
-      final status = featuresFibonacciPresenter.calcFibonacci(
+      final status = featuresComposer.calcFibonacci(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(
@@ -37,7 +37,7 @@ final class FibonacciReducer extends RxReducer {
     if (num != null) {
       await _load(true);
 
-      final status = featuresFibonacciPresenter.calcFibonacciIsolate(
+      final status = featuresComposer.calcFibonacciIsolate(
         ParametrosFibonacci(
           num: num,
           error: ErrorGeneric(

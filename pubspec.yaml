@@ -1,19 +1,20 @@
 name: return_success_or_error
 description: Usecase abstraction returning success or errorr from a call made by the data source
-version: 0.18.0
+version: 0.19.0
 homepage: https://github.com/pwlimaverde/return_success_or_error
 
 environment:
-  sdk: ">=3.2.4 <4.0.0"
-  flutter: ">=3.16.7"
+  sdk: ">=3.7.2 <4.0.0"
+  flutter: ">=3.29.2"
 
 dependencies:
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  mocktail: ^1.0.2
+  mocktail: ^1.0.4
   flutter_test:
     sdk: flutter
 
 flutter:
+  uses-material-design: true

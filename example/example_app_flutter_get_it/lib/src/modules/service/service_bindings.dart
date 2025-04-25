@@ -1,21 +1,20 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
+
 import 'feature/connectivity/domain/usecase/connectivity_usecase.dart';
-import 'feature/features_service_presenter.dart';
+import 'feature/features_service_composer.dart';
+import 'feature/service_hub.dart';
 import 'feature/widgets_flutter_binding/datasource/widgets_flutter_binding_datasource.dart';
 import 'feature/widgets_flutter_binding/domain/usecase/widgets_flutter_binding_usecase.dart';
 
 final class ServiceBindings {
   void initBindings() {
     final getIt = GetIt.I;
-    getIt.registerLazySingleton<Connectivity>(() => Connectivity());
+    getIt.registerSingleton<ServiceHub>(ServiceHub());
     getIt.registerFactory<ConnectUsecase>(
-      () => ConnectivityUsecase(
-        connectivity: getIt.get<Connectivity>(),
-      ),
+      () => ConnectivityUsecase(),
     );
     getIt.registerFactory<Datasource<WidgetsBinding>>(
       () => WidgetsFlutterBindingDatasource(),
@@ -27,6 +26,7 @@ final class ServiceBindings {
     );
     getIt.registerSingleton<FeaturesServicePresenter>(
       FeaturesServicePresenter(
+        serviceHub: getIt.get<ServiceHub>(),
         widgetsFlutterBindingUsecase: getIt.get<WidUsecase>(),
         connectivityUsecase: getIt.get<ConnectUsecase>(),
       ),

@@ -1,10 +1,11 @@
+import 'dart:isolate';
+
 import '../../return_success_or_error.dart';
 
-import '../mixins/isolate_mixin.dart';
 import '../mixins/repository_mixin.dart';
 
 abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
-    with RepositoryMixin<TypeDatasource>, IsolateMixin<TypeUsecase> {
+    with RepositoryMixin<TypeDatasource> {
   final Datasource<TypeDatasource> datasource;
 
   UsecaseBaseCallData(this.datasource);
@@ -16,19 +17,14 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
   Future<ReturnSuccessOrError<TypeUsecase>> callIsolate(
     covariant ParametersReturnResult parameters,
   ) async {
-    if (call.runtimeType.toString() ==
-        '(Object?) => Future<ReturnSuccessOrError<void>>') {
-      return call(parameters);
-    }
 
     final RuntimeMilliseconds _runtime = RuntimeMilliseconds();
 
     _runtime.startScore();
 
-    final data = await returnIsolate(
-      parameters: parameters,
-      call: call,
-    );
+    final data = Isolate.run((){
+      return call(parameters);
+    });
 
     _runtime.finishScore();
     print(
@@ -38,7 +34,7 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
   }
 }
 
-abstract base class UsecaseBase<TypeUsecase> with IsolateMixin<TypeUsecase> {
+abstract base class UsecaseBase<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> call(
     covariant ParametersReturnResult parameters,
   );
@@ -46,19 +42,14 @@ abstract base class UsecaseBase<TypeUsecase> with IsolateMixin<TypeUsecase> {
   Future<ReturnSuccessOrError<TypeUsecase>> callIsolate(
     covariant ParametersReturnResult parameters,
   ) async {
-    if (call.runtimeType.toString() ==
-        '(Object?) => Future<ReturnSuccessOrError<void>>') {
-      return call(parameters);
-    }
 
     final RuntimeMilliseconds _runtime = RuntimeMilliseconds();
 
     _runtime.startScore();
 
-    final data = await returnIsolate(
-      parameters: parameters,
-      call: call,
-    );
+    final data = Isolate.run((){
+      return call(parameters);
+    });
 
     _runtime.finishScore();
     print(

@@ -4,7 +4,7 @@ import '../model/check_connect_model.dart';
 
 ///Usecase with external Datasource call
 final class CheckConnectUsecase
-    extends UsecaseBaseCallData<String, CheckConnecModel> {
+    extends UsecaseBaseCallData<String, CheckConnectModel> {
   CheckConnectUsecase(super.datasource);
 
   @override
@@ -15,7 +15,7 @@ final class CheckConnectUsecase
     );
 
     switch (resultDatacource) {
-      case SuccessReturn<CheckConnecModel>():
+      case SuccessReturn<CheckConnectModel>():
         if (resultDatacource.result.connect) {
           return SuccessReturn(
             success:
@@ -25,7 +25,7 @@ final class CheckConnectUsecase
           return ErrorReturn(
               error: parameters.error..message = "You are offline");
         }
-      case ErrorReturn<CheckConnecModel>():
+      case ErrorReturn<CheckConnectModel>():
         return ErrorReturn(
             error: ErrorGeneric(message: "Error check Connectivity"));
     }

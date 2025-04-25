@@ -1,10 +1,10 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../features/features_checkconnect_presenter.dart';
+import '../features/features_checkconnect_composer.dart';
 
 final class CheckConnectController {
-  final FeaturesCheckconnectPresenter featuresCheckconnectPresenter;
+  final FeaturesCheckconnectComposer featuresCheckconnectPresenter;
 
   CheckConnectController({
     required this.featuresCheckconnectPresenter,

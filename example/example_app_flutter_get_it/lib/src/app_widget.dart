@@ -9,15 +9,21 @@ final class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlutterGetIt(
       modules: AppModule().routes,
-      builder: (context, routes, flutterGetItNavObserver) {
+      builder: (context, routes, isReady) {
         return MaterialApp(
-          navigatorObservers: [flutterGetItNavObserver],
-          routes: routes,
           title: 'Example App Flutter Get',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
+          routes: routes,
+          builder:
+              (context, child) => switch (isReady) {
+                true => child ?? const SizedBox.shrink(),
+                false => const Scaffold(
+                  body: Center(child: Text('⏰ - Carregando Dependencias...')),
+                ),
+              },
         );
       },
     );
