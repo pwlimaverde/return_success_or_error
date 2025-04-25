@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 import '../../../utils/parameters.dart';
-import '../feature/features_fibonacci_presenter.dart';
+import '../feature/features_fibonacci_composer.dart';
 
 final class FibonacciController extends GetxController {
-  final FeaturesFibonacciPresenter featuresFibonacciComposer;
+  final FeaturesFibonacciComposer featuresFibonacciComposer;
 
   FibonacciController({
     required this.featuresFibonacciComposer,

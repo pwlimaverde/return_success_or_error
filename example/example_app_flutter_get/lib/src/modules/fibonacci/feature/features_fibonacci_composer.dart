@@ -3,10 +3,10 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import '../../../utils/parameters.dart';
 import 'calc_fibonacci/domain/calc_fibonacci_usecase.dart';
 
-final class FeaturesFibonacciPresenter {
+final class FeaturesFibonacciComposer {
   final CalcFibonacci _calcFibonacciUsecase;
 
-  FeaturesFibonacciPresenter({
+  FeaturesFibonacciComposer({
     required CalcFibonacci calcFibonacciUsecase,
   }) : _calcFibonacciUsecase = calcFibonacciUsecase;
 

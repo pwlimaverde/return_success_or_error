@@ -2,11 +2,11 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 import 'check_connect/domain/usecase/check_connect_usecase.dart';
 import 'simple_counter/domain/usecase/two_plus_two_usecase.dart';
 
-final class FeaturesCheckconnectPresenter {
+final class FeaturesCheckconnectComposer {
   final CheckConnect _checkConnectUsecase;
   final TwoPlusTow _twoPlusTowUsecase;
 
-  FeaturesCheckconnectPresenter({
+  FeaturesCheckconnectComposer({
     required CheckConnect checkConnectUsecase,
     required TwoPlusTow twoPlusTowUsecase,
   })  : _checkConnectUsecase = checkConnectUsecase,

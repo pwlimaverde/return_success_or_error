@@ -12,7 +12,7 @@ import 'feature/widgets_flutter_binding/domain/usecase/widgets_flutter_binding_u
 final class ServiceBindings {
   void initBindings() {
     final getIt = GetIt.I;
-    getIt.registerLazySingleton<ServiceHub>(() => ServiceHub());
+    getIt.registerSingleton<ServiceHub>(ServiceHub());
     getIt.registerFactory<ConnectUsecase>(
       () => ConnectivityUsecase(),
     );

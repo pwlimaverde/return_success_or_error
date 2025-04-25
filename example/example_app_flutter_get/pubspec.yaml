@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   return_success_or_error:
     path: ../../
-  connectivity_plus: ^6.1.3
+  connectivity_plus: ^6.1.4
 
   cupertino_icons: ^1.0.8
   get: ^5.0.0-release-candidate-9.3.2
