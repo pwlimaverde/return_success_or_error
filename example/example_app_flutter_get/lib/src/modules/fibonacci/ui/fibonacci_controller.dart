@@ -13,12 +13,12 @@ final class FibonacciController extends GetxController {
   });
 
   final _showProgress = false.obs;
-  set showProgress(value) => _showProgress.value = value;
-  get showProgress => _showProgress.value;
+  set showProgress(bool value) => _showProgress.value = value;
+  bool get showProgress => _showProgress.value;
 
   final _fibonacciState = RxnInt(null);
-  set fibonacciState(value) => _fibonacciState.value = value;
-  get fibonacciState => _fibonacciState.value;
+  set fibonacciState(int? value) => _fibonacciState.value = value;
+  int? get fibonacciState => _fibonacciState.value;
 
   void calcFibonacci(int number) async {
     await _load(true);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 final class StaggerAnimation extends StatelessWidget {
-  StaggerAnimation({Key? key, required this.controller})
+  StaggerAnimation({super.key, required this.controller})
       : opacity = Tween<double>(
           begin: 0.0,
           end: 1.0,
@@ -76,8 +76,7 @@ final class StaggerAnimation extends StatelessWidget {
               curve: Curves.ease,
             ),
           ),
-        ),
-        super(key: key);
+        );
 
   final Animation<double> controller;
   final Animation<double> opacity;

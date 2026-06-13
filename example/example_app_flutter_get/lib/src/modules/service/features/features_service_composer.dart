@@ -14,12 +14,10 @@ final class FeaturesServiceComposer {
   final ConnectUsecase _connectivityUsecase;
 
   FeaturesServiceComposer._({
-    required ServiceHub serviceHub,
-    required WidUsecase widgetsFlutterBindingUsecase,
-    required ConnectUsecase connectivityUsecase,
-  })  : _widgetsFlutterBindingUsecase = widgetsFlutterBindingUsecase,
-        _serviceHub = serviceHub,
-        _connectivityUsecase = connectivityUsecase;
+    required this._serviceHub,
+    required this._widgetsFlutterBindingUsecase,
+    required this._connectivityUsecase,
+  });
 
   factory FeaturesServiceComposer({
     required ServiceHub serviceHub,

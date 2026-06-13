@@ -11,11 +11,11 @@ final class CheckConnectController extends GetxController {
   });
 
   final _checarConeccaoState = RxnString(null);
-  set checarConeccaoState(value) => _checarConeccaoState.value = value;
+  set checarConeccaoState(String? value) => _checarConeccaoState.value = value;
   String? get checarConeccaoState => _checarConeccaoState.value;
 
   final _twoPlusTowState = RxnInt(null);
-  set twoPlusTowState(value) => _twoPlusTowState.value = value;
+  set twoPlusTowState(int? value) => _twoPlusTowState.value = value;
   int? get twoPlusTowState => _twoPlusTowState.value;
 
   void checkConnect() async {

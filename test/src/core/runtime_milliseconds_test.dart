@@ -1,17 +1,14 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:return_success_or_error/src/core/runtime_milliseconds.dart';
+import 'package:test/test.dart';
 
 void main() {
-  final RuntimeMilliseconds runtime = RuntimeMilliseconds();
-  test('Deve retornar o resultado dos Parâmetros', () async {
+  final runtime = RuntimeMilliseconds();
+
+  test('Deve medir o tempo decorrido em milissegundos', () async {
     runtime.startScore();
-    await Future.delayed(Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     runtime.finishScore();
 
-    final teste = runtime.calculateRuntime() > 2000 ? true : false;
-
-    print("Execution Time: ${runtime.calculateRuntime()}ms");
-
-    expect(teste, equals(true));
+    expect(runtime.calculateRuntime(), greaterThanOrEqualTo(2000));
   });
 }

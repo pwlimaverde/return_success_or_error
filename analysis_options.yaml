@@ -1,0 +1,20 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - example/**
+    - doc_dev/**
+    - build/**
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_locals
+    - no_leading_underscores_for_local_identifiers
+    - directives_ordering

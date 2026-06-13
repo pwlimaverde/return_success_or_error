@@ -1,5 +1,4 @@
 import 'package:auto_injector/auto_injector.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:example_app_flutter_modular/src/modules/service/features/service_hub.dart';
 import 'package:flutter/material.dart';
 import 'package:return_success_or_error/return_success_or_error.dart';

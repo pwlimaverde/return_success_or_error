@@ -4,10 +4,41 @@ sealed class ReturnSuccessOrError<R> {
   final AppError? _error;
   final R? _success;
   const ReturnSuccessOrError({
-    R? success,
-    AppError? error,
-  })  : _success = success,
-        _error = error;
+    this._success,
+    this._error,
+  });
+
+  /// Resolves both cases at once. Returns the value produced by [onSuccess] when
+  /// this is a [SuccessReturn], or by [onError] when it is an [ErrorReturn].
+  ///
+  /// Avoids the boilerplate of an exhaustive `switch` when you only need to
+  /// fold the result into a single value:
+  /// ```dart
+  /// final message = result.fold(
+  ///   onSuccess: (value) => 'OK: $value',
+  ///   onError: (error) => 'Fail: ${error.message}',
+  /// );
+  /// ```
+  T fold<T>({
+    required T Function(R success) onSuccess,
+    required T Function(AppError error) onError,
+  }) =>
+      switch (this) {
+        SuccessReturn<R>(:final result) => onSuccess(result),
+        ErrorReturn<R>(:final result) => onError(result),
+      };
+
+  /// Whether this result represents a success.
+  bool get isSuccess => this is SuccessReturn<R>;
+
+  /// Whether this result represents an error.
+  bool get isError => this is ErrorReturn<R>;
+
+  /// Returns the success value, or `null` when this is an [ErrorReturn].
+  R? get getOrNull => switch (this) {
+        SuccessReturn<R>(:final result) => result,
+        ErrorReturn<R>() => null,
+      };
 }
 
 ///Responsible for storing the returned data when successful.

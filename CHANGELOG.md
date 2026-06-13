@@ -1,3 +1,32 @@
+## [1.0.0] - 13/06/2026.
+
+Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44.
+
+**BREAKING CHANGES**
+1 - O pacote agora é **Dart puro**: removida a dependência de Flutter (`environment.flutter`,
+    `uses-material-design`) e a dependência de `flutter_test` (testes usam `package:test`).
+    Apps Flutter continuam consumindo o pacote normalmente.
+2 - `AppError` agora é **imutável**: `message` passou a ser um getter (`String get message`) e
+    a interface exige `AppError copyWith({String? message})`. Para enriquecer uma mensagem,
+    use `error.copyWith(message: ...)` em vez de `error..message = ...`.
+3 - `ErrorGeneric` agora tem `message` `final` e construtor `const`.
+
+**Correções**
+4 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
+    media sempre `0ms`); usa `Stopwatch` e loga via `dart:developer` apenas em debug
+    (removido o `print` de produção).
+5 - `RuntimeMilliseconds` reescrito com `Stopwatch` (o cálculo manual anterior quebrava na
+    virada de hora).
+
+**Melhorias**
+6 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
+7 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
+8 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
+    sem issues de análise.
+9 - READMEs reescritos para refletir a API real (removidos `ParametersBasic`, `call`
+    nomeado, `showRuntimeMilliseconds`, `nameFeature`, `isIsolate`).
+10 - Exemplos atualizados (SDK, dependências e padrão de erro imutável).
+
 ## [0.19.0] - 25/04/2024. 
 1 - Refatoração de callIsolate.
 2 - Atualização dos examples.

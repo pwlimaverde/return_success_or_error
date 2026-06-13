@@ -23,7 +23,7 @@ final class CheckConnectUsecase
           );
         } else {
           return ErrorReturn(
-              error: parameters.error..message = "You are offline");
+              error: parameters.error.copyWith(message: "You are offline"));
         }
       case ErrorReturn<CheckConnectModel>():
         return ErrorReturn(

@@ -1,22 +1,34 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
+import 'package:test/test.dart';
 
 final class ErrorTeste implements AppError {
   @override
-  String message;
-  ErrorTeste({required this.message});
+  final String message;
+
+  const ErrorTeste({required this.message});
+
   @override
-  String toString() {
-    return "ErrorTeste - $message";
-  }
+  ErrorTeste copyWith({String? message}) =>
+      ErrorTeste(message: message ?? this.message);
+
+  @override
+  String toString() => "ErrorTeste - $message";
 }
 
 void main() {
-  test('Deve retornar um AppError', () async {
-    final result = ErrorTeste(message: "Teste Error");
-    final message = result.message;
-    print("teste result - $result");
+  test('Deve retornar um AppError', () {
+    const result = ErrorTeste(message: "Teste Error");
+
     expect(result, isA<AppError>());
-    expect(message, equals("Teste Error"));
+    expect(result.message, equals("Teste Error"));
+  });
+
+  test('copyWith deve substituir apenas a message', () {
+    const result = ErrorTeste(message: "Original");
+    final copy = result.copyWith(message: "Novo");
+
+    expect(copy, isA<ErrorTeste>());
+    expect(copy.message, equals("Novo"));
+    expect(result.message, equals("Original"));
   });
 }

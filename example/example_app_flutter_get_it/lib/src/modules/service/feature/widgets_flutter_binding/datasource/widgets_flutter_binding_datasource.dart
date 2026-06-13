@@ -12,7 +12,7 @@ final class WidgetsFlutterBindingDatasource
       final widgetsFlutterBinding = WidgetsFlutterBinding.ensureInitialized();
       return widgetsFlutterBinding;
     } catch (e) {
-      throw parameters.error..message = "$e";
+      throw parameters.error.copyWith(message: "$e");
     }
   }
 }

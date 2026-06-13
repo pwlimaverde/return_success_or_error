@@ -20,8 +20,8 @@ class _CheckConnectPageState extends State<FibonacciPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Fibonacci"),
       ),
-      body: Watch(
-        (context) => Center(
+      body: SignalBuilder(
+        builder: (context) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[

@@ -10,8 +10,8 @@ final class FeaturesComposer {
   final CalcFibonacci _calcFibonacciUsecase;
 
   FeaturesComposer({
-    required CalcFibonacci calcFibonacciUsecase,
-  }) : _calcFibonacciUsecase = calcFibonacciUsecase;
+    required this._calcFibonacciUsecase,
+  });
 
   Future<int?> calcFibonacci(ParametrosFibonacci params) async {
     final data = await _calcFibonacciUsecase(params);

@@ -1,21 +1,22 @@
-///auxiliary class responsible for initializing basic services
+/// Auxiliary singleton that standardizes the initialization of basic services
+/// and their dependencies.
 final class Service {
-
-   static Service? _instance;
+  static Service? _instance;
 
   Service._();
 
-  ///function for initializing service dependencies
+  /// Runs the dependency-registration routine (e.g. DI container setup).
   Future<void> initDependences(
-      Future<void> Function() registroDependencias) async {
-    await registroDependencias();
-  }
-  ///function for starting services
-  Future<void> initServices(List<Future<dynamic>> listServices) async {
-    await Future.wait(listServices);
+    Future<void> Function() registerDependencies,
+  ) async {
+    await registerDependencies();
   }
 
-  ///singleton loading
-  static Service get to =>
-      _instance == null ? _instance = Service._() : _instance!;
+  /// Starts the given services in parallel, completing when all of them do.
+  Future<void> initServices(List<Future<dynamic>> services) async {
+    await Future.wait(services);
+  }
+
+  /// Singleton accessor.
+  static Service get to => _instance ??= Service._();
 }

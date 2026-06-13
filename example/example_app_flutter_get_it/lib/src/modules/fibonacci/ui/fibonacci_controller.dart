@@ -11,11 +11,11 @@ final class FibonacciController {
     required this.featuresFibonacciComposer,
   });
 
-  final _showProgress = signal<bool?>(false);
-  get showProgress => _showProgress.value;
+  final _showProgress = signal<bool>(false);
+  bool get showProgress => _showProgress.value;
 
   final _fibonacciState = signal<int?>(null);
-  get fibonacciState => _fibonacciState.value;
+  int? get fibonacciState => _fibonacciState.value;
 
   void calcFibonacci(int number) async {
     await _load(true);

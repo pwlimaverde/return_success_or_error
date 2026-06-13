@@ -14,10 +14,11 @@ abstract interface class ParametersReturnResult {
 ///Implementation used when the datasource does not require extra parameters.
 ///It receives the Error directly.
 final class NoParams implements ParametersReturnResult {
+  @override
   final AppError error;
   NoParams({AppError? error})
       : error = error ??
-            ErrorGeneric(
+            const ErrorGeneric(
               message: "Error General Error",
             );
 }

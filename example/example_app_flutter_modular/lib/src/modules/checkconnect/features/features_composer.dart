@@ -9,10 +9,9 @@ final class FeaturesComposer{
   final TwoPlusTow _twoPlusTowUsecase;
 
   FeaturesComposer({
-    required CheckConnectUsecase checkConnectUsecase,
-    required TwoPlusTow twoPlusTowUsecase,
-  })  : _checkConnectUsecase = checkConnectUsecase,
-        _twoPlusTowUsecase = twoPlusTowUsecase;
+    required this._checkConnectUsecase,
+    required this._twoPlusTowUsecase,
+  });
 
   Future<String> checkConnect() async {
     final data = await _checkConnectUsecase(NoParams());

@@ -6,24 +6,24 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.7.2 <4.0.0"
+  sdk: ^3.12.0
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   return_success_or_error:
     path: ../../
-  connectivity_plus: ^6.1.4
+  connectivity_plus: ^7.1.1
   flutter_getit: ^3.0.1
-  get_it: ^7.7.0
-  signals_flutter: ^6.0.2
+  get_it: ^7.7.0 # limitado pelo flutter_getit 3.0.1 (requer get_it 7.x)
+  signals_flutter: ^7.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

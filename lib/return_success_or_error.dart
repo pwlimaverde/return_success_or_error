@@ -1,4 +1,27 @@
-library return_success_or_error;
+library;
+
+//Responsible for the business rule
+///
+///Base class responsible for accessing and processing the datasource and
+///building the feature's business rule
+export 'src/bases/usecase_base.dart';
+
+///Responsible for exposing the abstraction of the return_success_or_error.
+///
+///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
+///ErrorReturn which in turn stores the result in case of success or an
+///AppError in case of failure.
+export 'src/core/return_success_or_error.dart';
+
+///Responsible for exposing the abstraction of the runtime_milliseconds.
+///
+///Auxiliary class that allows the observation of the time it took for the
+///presenter to process the response.
+export 'src/core/runtime_milliseconds.dart';
+
+///auxiliary class responsible for standardizing the initialization
+///of basic services and their dependencies.
+export 'src/core/service.dart';
 
 ///Responsible for exposing the abstraction of the datasource.
 ///
@@ -20,26 +43,3 @@ export 'src/interfaces/errors.dart';
 ///to override the error parameter, which needs to receive an AppError, and
 ///will be returned in case of failure.
 export 'src/interfaces/parameters.dart';
-
-///Responsible for exposing the abstraction of the runtime_milliseconds.
-///
-///Auxiliary class that allows the observation of the time it took for the
-///presenter to process the response.
-export 'src/core/runtime_milliseconds.dart';
-
-///auxiliary class responsible for standardizing the initialization 
-///of basic services and their dependencies.
-export 'src/core/service.dart';
-
-///Responsible for exposing the abstraction of the return_success_or_error.
-///
-///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
-///ErrorReturn which in turn stores the result in case of success or an
-///AppError in case of failure.
-export 'src/core/return_success_or_error.dart';
-
-//Responsible for the business rule
-///
-///Base class responsible for accessing and processing the datasource and
-///building the feature's business rule
-export 'src/bases/usecase_base.dart';

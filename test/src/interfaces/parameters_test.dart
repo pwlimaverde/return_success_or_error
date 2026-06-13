@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/src/interfaces/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
+import 'package:return_success_or_error/src/interfaces/parameters.dart';
+import 'package:test/test.dart';
 
 class ParametersSalvarHeader implements ParametersReturnResult {
   @override
@@ -9,7 +9,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   final String doc;
   final String nome;
   final int prioridade;
-  final Map corHeader;
+  final Map<String, int> corHeader;
   final String user;
 
   ParametersSalvarHeader({
@@ -25,7 +25,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 void main() {
   test('Deve retornar o resultado dos Parâmetros', () {
     final parameters = ParametersSalvarHeader(
-      corHeader: {
+      corHeader: const {
         "r": 60,
         "g": 60,
         "b": 60,
@@ -34,10 +34,8 @@ void main() {
       nome: 'novidades',
       prioridade: 1,
       user: 'paulo',
-      error: ErrorGeneric(message: "teste parrametros"),
+      error: const ErrorGeneric(message: "teste parrametros"),
     );
-
-    print(parameters.corHeader);
 
     expect(parameters.doc, equals('testedoc'));
     expect(parameters.prioridade, isA<int>());

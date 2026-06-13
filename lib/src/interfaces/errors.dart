@@ -1,19 +1,30 @@
-///calsse implements Exception and requires the String with the error message.
+/// Immutable error contract. Implements [Exception] and exposes a [message].
+///
+/// Implementations must be immutable: to enrich an error (for example, to
+/// append context while it bubbles up through the layers), use [copyWith] to
+/// produce a new instance instead of mutating the existing one.
 abstract interface class AppError implements Exception {
-  late final String message;
+  /// Human readable description of the error.
+  String get message;
+
+  /// Returns a copy of this error, optionally replacing the [message].
+  AppError copyWith({String? message});
 
   @override
-  String toString() {
-    return "Error - $message";
-  }
+  String toString() => "Error - $message";
 }
 
+/// Default concrete [AppError] implementation.
 final class ErrorGeneric implements AppError {
   @override
-  String message;
-  ErrorGeneric({required this.message});
+  final String message;
+
+  const ErrorGeneric({required this.message});
+
   @override
-  String toString() {
-    return "ErrorGeneric - $message";
-  }
+  ErrorGeneric copyWith({String? message}) =>
+      ErrorGeneric(message: message ?? this.message);
+
+  @override
+  String toString() => "ErrorGeneric - $message";
 }

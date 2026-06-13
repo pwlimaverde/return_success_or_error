@@ -33,7 +33,7 @@ final class ConnectivityDatasource implements Datasource<CheckConnectModel> {
           });
       return CheckConnectModel(connect: isOnline, typeConect: type);
     } catch (e) {
-      throw parameters.error..message = "$e";
+      throw parameters.error.copyWith(message: "$e");
     }
   }
 }

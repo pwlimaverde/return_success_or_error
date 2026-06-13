@@ -1,7 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:return_success_or_error/src/interfaces/parameters.dart';
 import 'package:return_success_or_error/src/interfaces/datasource.dart';
 import 'package:return_success_or_error/src/interfaces/errors.dart';
+import 'package:return_success_or_error/src/interfaces/parameters.dart';
+import 'package:test/test.dart';
 
 class ParametersSalvarHeader implements ParametersReturnResult {
   final String nome;
@@ -11,14 +11,14 @@ class ParametersSalvarHeader implements ParametersReturnResult {
   });
 
   @override
-  AppError get error => ErrorGeneric(message: "teste parrametros");
+  AppError get error => const ErrorGeneric(message: "teste parrametros");
 }
 
-class ExternalMock<bool> {
+class ExternalMock {
   final bool? teste;
-  ExternalMock({
-    this.teste,
-  });
+
+  ExternalMock({this.teste});
+
   bool returnBool() {
     if (teste != null) {
       return teste!;
@@ -29,7 +29,7 @@ class ExternalMock<bool> {
 }
 
 class TesteDataSourceMock implements Datasource<bool> {
-  final ExternalMock<bool> external;
+  final ExternalMock external;
 
   TesteDataSourceMock({required this.external});
 
@@ -52,8 +52,8 @@ void main() {
     )(
       ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
-    print("teste result - $result");
     expect(result, isA<bool>());
+    expect(result, isTrue);
   });
 
   test('Deve retornar um success com false', () async {
@@ -62,17 +62,18 @@ void main() {
     )(
       ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
     );
-    print("teste result - $result");
     expect(result, isA<bool>());
+    expect(result, isFalse);
   });
 
   test('Deve retornar um erro', () async {
     expect(
-        () async => await TesteDataSourceMock(
-              external: ExternalMock(),
-            )(
-              ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
-            ),
-        throwsA(isA<Exception>()));
+      () async => TesteDataSourceMock(
+        external: ExternalMock(),
+      )(
+        ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
+      ),
+      throwsA(isA<Exception>()),
+    );
   });
 }

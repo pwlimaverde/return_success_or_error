@@ -32,7 +32,7 @@ final class _CheckConnectPageState extends State<CheckConnectPage> {
               height: 10,
             ),
             ElevatedButton(
-              onPressed: checarConnecaoAction,
+              onPressed: checarConnecaoAction.call,
               child: const Text(
                 'Check conect!',
               ),
@@ -48,7 +48,7 @@ final class _CheckConnectPageState extends State<CheckConnectPage> {
               height: 10,
             ),
             ElevatedButton(
-              onPressed: twoPlusTowAction,
+              onPressed: twoPlusTowAction.call,
               child: const Text(
                 'Click in Check two Plus Tow!',
               ),

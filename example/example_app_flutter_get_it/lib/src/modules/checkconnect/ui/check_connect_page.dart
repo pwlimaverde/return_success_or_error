@@ -20,8 +20,8 @@ final class _CheckConnectPageState extends State<CheckConnectPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Check Connect"),
       ),
-      body: Watch(
-        (context) => Center(
+      body: SignalBuilder(
+        builder: (context) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
