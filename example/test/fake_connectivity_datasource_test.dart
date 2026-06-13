@@ -3,7 +3,9 @@ import 'package:return_success_or_error_example/features/check_connection/dataso
 import 'package:test/test.dart';
 
 void main() {
-  final params = NoParams(error: const ErrorGeneric(message: "connection error"));
+  final params = NoParams(
+    error: const ErrorGeneric(message: "connection error"),
+  );
 
   test('online: true retorna true', () async {
     const datasource = FakeConnectivityDatasource(online: true);

@@ -25,11 +25,7 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 void main() {
   test('Deve retornar o resultado dos Parâmetros', () {
     final parameters = ParametersSalvarHeader(
-      corHeader: const {
-        "r": 60,
-        "g": 60,
-        "b": 60,
-      },
+      corHeader: const {"r": 60, "g": 60, "b": 60},
       doc: 'testedoc',
       nome: 'novidades',
       prioridade: 1,
@@ -48,7 +44,10 @@ void main() {
 
       expect(params, isA<ParametersReturnResult>());
       expect(params.error, isA<ErrorGeneric>());
-      expect(params.error.message, equals("NoParams: unspecified generic error"));
+      expect(
+        params.error.message,
+        equals("NoParams: unspecified generic error"),
+      );
     });
 
     test('com error usa o fornecido', () {

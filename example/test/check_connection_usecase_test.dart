@@ -4,7 +4,9 @@ import 'package:return_success_or_error_example/features/check_connection/domain
 import 'package:test/test.dart';
 
 void main() {
-  final params = NoParams(error: const ErrorGeneric(message: "connection error"));
+  final params = NoParams(
+    error: const ErrorGeneric(message: "connection error"),
+  );
 
   test('online -> success "You are connected"', () async {
     final usecase = CheckConnectionUsecase(
@@ -23,7 +25,10 @@ void main() {
     final data = await usecase(params);
 
     expect(data.isError, isTrue);
-    expect((data as ErrorReturn<String>).result.message, equals("You are offline"));
+    expect(
+      (data as ErrorReturn<String>).result.message,
+      equals("You are offline"),
+    );
   });
 
   test('exceção do datasource -> error enriquecido com Cod. 02-1', () async {

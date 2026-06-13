@@ -1,5 +1,12 @@
+import 'package:meta/meta.dart';
+
 import '../../return_success_or_error.dart';
 
+/// Sealed result type: either a [SuccessReturn] or an [ErrorReturn].
+///
+/// Always handle it with an exhaustive `switch` over both cases, or use the
+/// helpers [fold], [isSuccess]/[isError], [getOrNull] and [getOrElse].
+@immutable
 sealed class ReturnSuccessOrError<R> {
   const ReturnSuccessOrError();
 
@@ -17,11 +24,10 @@ sealed class ReturnSuccessOrError<R> {
   T fold<T>({
     required T Function(R success) onSuccess,
     required T Function(AppError error) onError,
-  }) =>
-      switch (this) {
-        SuccessReturn<R>(:final result) => onSuccess(result),
-        ErrorReturn<R>(:final result) => onError(result),
-      };
+  }) => switch (this) {
+    SuccessReturn<R>(:final result) => onSuccess(result),
+    ErrorReturn<R>(:final result) => onError(result),
+  };
 
   /// Whether this result represents a success.
   bool get isSuccess => this is SuccessReturn<R>;
@@ -31,9 +37,19 @@ sealed class ReturnSuccessOrError<R> {
 
   /// Returns the success value, or `null` when this is an [ErrorReturn].
   R? get getOrNull => switch (this) {
-        SuccessReturn<R>(:final result) => result,
-        ErrorReturn<R>() => null,
-      };
+    SuccessReturn<R>(:final result) => result,
+    ErrorReturn<R>() => null,
+  };
+
+  /// Returns the success value, or the value produced by [orElse] (from the
+  /// [AppError]) when this is an [ErrorReturn]. Useful for a non-null fallback:
+  /// ```dart
+  /// final value = result.getOrElse((error) => 'default');
+  /// ```
+  R getOrElse(R Function(AppError error) orElse) => switch (this) {
+    SuccessReturn<R>(:final result) => result,
+    ErrorReturn<R>(:final result) => orElse(result),
+  };
 }
 
 /// Stores the returned data on success.
@@ -58,36 +74,34 @@ final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
   String toString() => "Error: $result";
 }
 
-/// Representation of void as a result
+/// Represents `void` as a result value (a single shared instance).
+@immutable
 final class Unit {
   static final Unit _instance = Unit._();
-  
+
   factory Unit() => _instance;
-  
+
   Unit._();
-  
+
   @override
-  String toString() {
-    return 'Unit{} - void';
-  }
+  String toString() => 'Unit{} - void';
 }
 
-/// Getter for loading the Unit instance
+/// The shared [Unit] instance.
 Unit get unit => Unit();
 
-/// Representation of null as a result
+/// Represents `null` as a result value (a single shared instance).
+@immutable
 final class Nil {
   static final Nil _instance = Nil._();
-  
+
   factory Nil() => _instance;
-  
+
   Nil._();
-  
+
   @override
-  String toString() {
-    return 'Nil{} - null';
-  }
+  String toString() => 'Nil{} - null';
 }
 
-/// Getter for loading the Nil instance
+/// The shared [Nil] instance.
 Nil get nil => Nil();

@@ -18,6 +18,10 @@ void main() {
       expect(result.getOrNull, equals(42));
     });
 
+    test('getOrElse retorna o valor (ignora orElse)', () {
+      expect(result.getOrElse((error) => -1), equals(42));
+    });
+
     test('fold chama onSuccess', () {
       final out = result.fold(
         onSuccess: (value) => "ok:$value",
@@ -32,8 +36,9 @@ void main() {
   });
 
   group('ErrorReturn', () {
-    const ReturnSuccessOrError<int> result =
-        ErrorReturn(error: ErrorGeneric(message: "falhou"));
+    const ReturnSuccessOrError<int> result = ErrorReturn(
+      error: ErrorGeneric(message: "falhou"),
+    );
 
     test('expõe o erro via result', () {
       expect((result as ErrorReturn<int>).result.message, equals("falhou"));
@@ -46,6 +51,10 @@ void main() {
 
     test('getOrNull retorna null', () {
       expect(result.getOrNull, isNull);
+    });
+
+    test('getOrElse retorna o fallback de orElse', () {
+      expect(result.getOrElse((error) => error.message.length), equals(6));
     });
 
     test('fold chama onError', () {

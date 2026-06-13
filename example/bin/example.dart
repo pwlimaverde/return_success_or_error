@@ -38,10 +38,12 @@ Future<void> _checkConnection() async {
   final r2 = await offline(
     NoParams(error: const ErrorGeneric(message: "connection error")),
   );
-  print(r2.fold(
-    onSuccess: (value) => "ok  -> $value",
-    onError: (error) => "err -> ${error.message}",
-  ));
+  print(
+    r2.fold(
+      onSuccess: (value) => "ok  -> $value",
+      onError: (error) => "err -> ${error.message}",
+    ),
+  );
 
   // 3) Datasource throws — captured and enriched by resultDatasource.
   final failing = CheckConnectionUsecase(
@@ -50,10 +52,12 @@ Future<void> _checkConnection() async {
   final r3 = await failing(
     NoParams(error: const ErrorGeneric(message: "connection error")),
   );
-  print(r3.fold(
-    onSuccess: (value) => "ok  -> $value",
-    onError: (error) => "err -> ${error.message}",
-  ));
+  print(
+    r3.fold(
+      onSuccess: (value) => "ok  -> $value",
+      onError: (error) => "err -> ${error.message}",
+    ),
+  );
 
   print("");
 }
@@ -70,8 +74,10 @@ Future<void> _fibonacci() async {
     ),
   );
 
-  print(result.fold(
-    onSuccess: (value) => "ok  -> fib(30) = $value",
-    onError: (error) => "err -> ${error.message}",
-  ));
+  print(
+    result.fold(
+      onSuccess: (value) => "ok  -> fib(30) = $value",
+      onError: (error) => "err -> ${error.message}",
+    ),
+  );
 }

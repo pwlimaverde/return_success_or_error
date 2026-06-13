@@ -8,8 +8,5 @@ final class FibonacciParameters implements ParametersReturnResult {
   @override
   final AppError error;
 
-  const FibonacciParameters({
-    required this.n,
-    required this.error,
-  });
+  const FibonacciParameters({required this.n, required this.error});
 }

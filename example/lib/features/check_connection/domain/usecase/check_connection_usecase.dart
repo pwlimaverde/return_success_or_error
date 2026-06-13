@@ -16,11 +16,12 @@ final class CheckConnectionUsecase extends UsecaseBaseCallData<String, bool> {
     final result = await resultDatasource(parameters);
 
     return switch (result) {
-      SuccessReturn<bool>() => result.result
-          ? const SuccessReturn(success: "You are connected")
-          : ErrorReturn(
-              error: parameters.error.copyWith(message: "You are offline"),
-            ),
+      SuccessReturn<bool>() =>
+        result.result
+            ? const SuccessReturn(success: "You are connected")
+            : ErrorReturn(
+                error: parameters.error.copyWith(message: "You are offline"),
+              ),
       ErrorReturn<bool>() => ErrorReturn(error: result.result),
     };
   }

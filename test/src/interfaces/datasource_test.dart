@@ -6,9 +6,7 @@ import 'package:test/test.dart';
 class ParametersSalvarHeader implements ParametersReturnResult {
   final String nome;
 
-  ParametersSalvarHeader({
-    required this.nome,
-  });
+  ParametersSalvarHeader({required this.nome});
 
   @override
   AppError get error => const ErrorGeneric(message: "teste parrametros");
@@ -34,9 +32,7 @@ class TesteDataSourceMock implements Datasource<bool> {
   TesteDataSourceMock({required this.external});
 
   @override
-  Future<bool> call(
-    ParametersSalvarHeader parameters,
-  ) async {
+  Future<bool> call(ParametersSalvarHeader parameters) async {
     try {
       return external.returnBool();
     } catch (e) {
@@ -49,9 +45,7 @@ void main() {
   test('Deve retornar um success com true', () async {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: true),
-    )(
-      ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
-    );
+    )(ParametersSalvarHeader(nome: 'Teste UsecaseBase'));
     expect(result, isA<bool>());
     expect(result, isTrue);
   });
@@ -59,18 +53,14 @@ void main() {
   test('Deve retornar um success com false', () async {
     final result = await TesteDataSourceMock(
       external: ExternalMock(teste: false),
-    )(
-      ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
-    );
+    )(ParametersSalvarHeader(nome: 'Teste UsecaseBase'));
     expect(result, isA<bool>());
     expect(result, isFalse);
   });
 
   test('Deve retornar um erro', () async {
     expect(
-      () async => TesteDataSourceMock(
-        external: ExternalMock(),
-      )(
+      () async => TesteDataSourceMock(external: ExternalMock())(
         ParametersSalvarHeader(nome: 'Teste UsecaseBase'),
       ),
       throwsA(isA<Exception>()),

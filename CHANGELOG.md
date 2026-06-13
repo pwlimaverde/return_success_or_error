@@ -31,7 +31,8 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
     (removido o `print` de produção).
 
 **Melhorias**
-10 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
+10 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError`, `getOrNull` e
+    `getOrElse` (fallback não-nulo a partir do `AppError`).
 11 - `ReturnSuccessOrError` redesenhado: o valor passou a ser um campo da subclasse
     (`SuccessReturn.result` / `ErrorReturn.result`), eliminando os campos nullable e o
     operador `!` da classe base. Construtores (`success:`/`error:`) e `.result` preservados.
@@ -52,6 +53,11 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
     `NoParams` (erro default/custom), `toString` de `SuccessReturn`/`ErrorReturn`/`Unit`/`Nil`,
     enriquecimento de erro com `Cod. 02-1` em `resultDatasource` e `callIsolate` em
     `UsecaseBaseCallData` com datasource *sendable*. O exemplo também tem testes (`example/test/`).
+20 - `@immutable` (de `package:meta`) aplicado em `AppError`/`ErrorGeneric`,
+    `ReturnSuccessOrError` (e casos), `Unit`/`Nil` e `NoParams` — o analyzer agora sinaliza
+    implementações com estado mutável.
+21 - Código formatado com `dart format` (estilo Dart 3.12) e documentação reescrita em
+    detalhe (READMEs com fluxo e guia de uso passo a passo; `doc_dev/arquitetura_e_fluxo.md`).
 
 ## [0.19.0] - 25/04/2024. 
 1 - Refatoração de callIsolate.

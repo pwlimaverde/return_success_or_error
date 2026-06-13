@@ -8,9 +8,7 @@ import '../parameters/fibonacci_parameters.dart';
 /// [UsecaseBase.callIsolate], which runs the computation on a background isolate.
 final class FibonacciUsecase extends UsecaseBase<int> {
   @override
-  Future<ReturnSuccessOrError<int>> call(
-    FibonacciParameters parameters,
-  ) async {
+  Future<ReturnSuccessOrError<int>> call(FibonacciParameters parameters) async {
     if (parameters.n < 0) {
       return ErrorReturn(
         error: parameters.error.copyWith(message: "n must be >= 0"),

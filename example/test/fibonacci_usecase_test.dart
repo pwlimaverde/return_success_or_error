@@ -7,9 +7,9 @@ void main() {
   final usecase = FibonacciUsecase();
 
   FibonacciParameters params(int n) => FibonacciParameters(
-        n: n,
-        error: const ErrorGeneric(message: "fibonacci error"),
-      );
+    n: n,
+    error: const ErrorGeneric(message: "fibonacci error"),
+  );
 
   test('fib(0) = 0 e fib(1) = 1', () async {
     expect((await usecase(params(0))).getOrNull, equals(0));

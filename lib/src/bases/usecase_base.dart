@@ -48,8 +48,7 @@ base mixin _UsecaseRunner<TypeUsecase> {
 }
 
 /// Pure business rule, without any external (datasource) call.
-abstract base class UsecaseBase<TypeUsecase>
-    with _UsecaseRunner<TypeUsecase> {}
+abstract base class UsecaseBase<TypeUsecase> with _UsecaseRunner<TypeUsecase> {}
 
 /// Business rule that consumes a [Datasource].
 ///
