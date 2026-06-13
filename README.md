@@ -159,7 +159,7 @@ final class TwoPlusTwoUsecase extends UsecaseBase<int> {
 Instantiate the usecase and invoke it with `call` (positional parameters):
 
 ```dart
-final usecase = CheckConnectUsecase(ConnectivityDatasource(Connectivity()));
+final usecase = CheckConnectUsecase(datasource: ConnectivityDatasource(Connectivity()));
 
 final data = await usecase(
   NoParams(error: const ErrorGeneric(message: "Connection error")),
@@ -195,8 +195,10 @@ lib/
 
 ## Examples
 
-The [`example/`](example/) directory contains three Flutter apps demonstrating integration
-with different DI/navigation solutions: `get`, `flutter_getit` and `flutter_modular`.
+The [`example/`](example/) directory contains a **pure Dart** (CLI) example demonstrating the
+package without Flutter: a `UsecaseBaseCallData` consuming a `Datasource` (success, business
+error and a captured exception) and a `UsecaseBase` running on a background isolate via
+`callIsolate`. Run it with `dart run bin/example.dart`.
 
 ## Environment
 

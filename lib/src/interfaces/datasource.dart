@@ -1,9 +1,10 @@
 import 'parameters.dart';
 
-///Implement the datasource by typing with the expected data type. Override the
-///call method involving logic in a try catch to return the typed data in case
-///of success, or a throw returning the AppError received in the
-///ParametersReturnResult.
+/// Abstraction for an external call, typed with the expected data type.
+///
+/// Implement [call] wrapping the logic in a `try/catch`: return the typed data
+/// on success, or `throw` the [AppError] carried by the [ParametersReturnResult]
+/// on failure (the usecase's `resultDatasource` captures it).
 abstract interface class Datasource<TypeDatasource> {
   Future<TypeDatasource> call(
     covariant ParametersReturnResult parameters,

@@ -31,4 +31,14 @@ void main() {
     expect(copy.message, equals("Novo"));
     expect(result.message, equals("Original"));
   });
+
+  test('ErrorGeneric deve comparar por valor (== e hashCode)', () {
+    const a = ErrorGeneric(message: "mesma");
+    const b = ErrorGeneric(message: "mesma");
+    const c = ErrorGeneric(message: "diferente");
+
+    expect(a, equals(b));
+    expect(a.hashCode, equals(b.hashCode));
+    expect(a, isNot(equals(c)));
+  });
 }

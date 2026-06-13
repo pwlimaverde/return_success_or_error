@@ -41,4 +41,20 @@ void main() {
     expect(parameters.prioridade, isA<int>());
     expect(parameters.prioridade, equals(1));
   });
+
+  group('NoParams', () {
+    test('sem error usa um ErrorGeneric default', () {
+      final params = NoParams();
+
+      expect(params, isA<ParametersReturnResult>());
+      expect(params.error, isA<ErrorGeneric>());
+      expect(params.error.message, equals("NoParams: unspecified generic error"));
+    });
+
+    test('com error usa o fornecido', () {
+      final params = NoParams(error: const ErrorGeneric(message: "meu erro"));
+
+      expect(params.error.message, equals("meu erro"));
+    });
+  });
 }

@@ -6,7 +6,7 @@ final class Service {
   Service._();
 
   /// Runs the dependency-registration routine (e.g. DI container setup).
-  Future<void> initDependences(
+  Future<void> initDependencies(
     Future<void> Function() registerDependencies,
   ) async {
     await registerDependencies();

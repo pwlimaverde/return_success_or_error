@@ -20,6 +20,36 @@ class ParametersSalvarHeader implements ParametersReturnResult {
 final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
 
+/// Datasource concreto e *sendable* (sem closures/objetos não-transferíveis),
+/// usado para exercitar `callIsolate` em um [UsecaseBaseCallData].
+final class SendableBoolDatasource implements Datasource<bool> {
+  final bool value;
+
+  const SendableBoolDatasource(this.value);
+
+  @override
+  Future<bool> call(ParametersReturnResult parameters) async => value;
+}
+
+/// Usecase que **propaga** o erro enriquecido devolvido por `resultDatasource`
+/// (ao contrário de [TesteUsecaseCallData], que devolve `parameters.error` cru).
+final class TesteUsecasePropagaErro extends UsecaseBaseCallData<String, bool> {
+  TesteUsecasePropagaErro({required super.datasource});
+
+  @override
+  Future<ReturnSuccessOrError<String>> call(
+    ParametersSalvarHeader parameters,
+  ) async {
+    final teste = await resultDatasource(parameters);
+    switch (teste) {
+      case SuccessReturn<bool>():
+        return const SuccessReturn<String>(success: "ok");
+      case ErrorReturn<bool>():
+        return ErrorReturn<String>(error: teste.result);
+    }
+  }
+}
+
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   TesteUsecaseCallData({required super.datasource});
 
@@ -340,6 +370,52 @@ void main() {
       case ErrorReturn():
         expect(data.result, isA<ErrorGeneric>());
     }
+  });
+
+  test(
+      'resultDatasource deve enriquecer a mensagem de erro com Cod. 02-1 '
+      'preservando a original', () async {
+    when(() => datasource(parameters)).thenThrow(Exception('boom'));
+    final usecase = TesteUsecasePropagaErro(datasource: datasource);
+
+    final data = await usecase(parameters);
+
+    expect(data, isA<ErrorReturn<String>>());
+    final message = (data as ErrorReturn<String>).result.message;
+    expect(message, contains('teste parrametros')); // mensagem original
+    expect(message, contains('Cod. 02-1')); // código do catch
+    expect(message, contains('boom')); // contexto da exceção
+  });
+
+  group('callIsolate com UsecaseBaseCallData (datasource sendable)', () {
+    test('Deve retornar success processando o datasource em isolate', () async {
+      final usecase =
+          TesteUsecaseCallData(datasource: const SendableBoolDatasource(true));
+
+      final data = await usecase.callIsolate(parameters);
+
+      switch (data) {
+        case SuccessReturn<String>():
+          expect(data.result, equals("Regra de negocio true"));
+        case ErrorReturn<String>():
+          fail('Esperava SuccessReturn');
+      }
+    });
+
+    test('Deve retornar success "false" processando o datasource em isolate',
+        () async {
+      final usecase =
+          TesteUsecaseCallData(datasource: const SendableBoolDatasource(false));
+
+      final data = await usecase.callIsolate(parameters);
+
+      switch (data) {
+        case SuccessReturn<String>():
+          expect(data.result, equals("Regra de negocio false"));
+        case ErrorReturn<String>():
+          fail('Esperava SuccessReturn');
+      }
+    });
   });
 
   group('Helpers de ReturnSuccessOrError', () {

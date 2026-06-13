@@ -1,12 +1,7 @@
 import '../../return_success_or_error.dart';
 
 sealed class ReturnSuccessOrError<R> {
-  final AppError? _error;
-  final R? _success;
-  const ReturnSuccessOrError({
-    this._success,
-    this._error,
-  });
+  const ReturnSuccessOrError();
 
   /// Resolves both cases at once. Returns the value produced by [onSuccess] when
   /// this is a [SuccessReturn], or by [onError] when it is an [ErrorReturn].
@@ -41,32 +36,26 @@ sealed class ReturnSuccessOrError<R> {
       };
 }
 
-///Responsible for storing the returned data when successful.
+/// Stores the returned data on success.
 final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
-  const SuccessReturn({
-    required R super.success,
-  });
+  /// The success value.
+  final R result;
 
-  R get result => _success!;
+  const SuccessReturn({required R success}) : result = success;
 
   @override
-  String toString() {
-    return "Success: $result";
-  }
+  String toString() => "Success: $result";
 }
 
-///Responsible for storing the returned data when error.
+/// Stores the returned error on failure.
 final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
-  const ErrorReturn({
-    required AppError super.error,
-  });
+  /// The failure.
+  final AppError result;
 
-  AppError get result => _error!;
+  const ErrorReturn({required AppError error}) : result = error;
 
   @override
-  String toString() {
-    return "Error: $result";
-  }
+  String toString() => "Error: $result";
 }
 
 /// Representation of void as a result

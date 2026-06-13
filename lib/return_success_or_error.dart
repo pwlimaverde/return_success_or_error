@@ -1,45 +1,35 @@
 library;
 
-//Responsible for the business rule
+/// Base classes for the feature's business rule.
 ///
-///Base class responsible for accessing and processing the datasource and
-///building the feature's business rule
+/// [UsecaseBase] runs a pure business rule; [UsecaseBaseCallData] consumes a
+/// [Datasource] and bridges to it through `resultDatasource`.
 export 'src/bases/usecase_base.dart';
 
-///Responsible for exposing the abstraction of the return_success_or_error.
+/// The sealed result type and its cases.
 ///
-///the ReturnSuccessOrError class stores 2 types of data. SuccessReturn and
-///ErrorReturn which in turn stores the result in case of success or an
-///AppError in case of failure.
+/// [ReturnSuccessOrError] stores either a [SuccessReturn] (the success value) or
+/// an [ErrorReturn] (an [AppError]). Also exposes the `Unit`/`Nil` singletons.
 export 'src/core/return_success_or_error.dart';
 
-///Responsible for exposing the abstraction of the runtime_milliseconds.
-///
-///Auxiliary class that allows the observation of the time it took for the
-///presenter to process the response.
-export 'src/core/runtime_milliseconds.dart';
-
-///auxiliary class responsible for standardizing the initialization
-///of basic services and their dependencies.
+/// Auxiliary singleton that standardizes the initialization of basic services
+/// and their dependencies.
 export 'src/core/service.dart';
 
-///Responsible for exposing the abstraction of the datasource.
+/// The external-call abstraction.
 ///
-///The ´´´Datasource´´´ is the class responsible for querying the external call. And
-///must return the type of the pre-defined data or an AppError which is an
-///Exeption.
+/// A [Datasource] queries the external call and must return the predefined data
+/// type, or `throw` the [AppError] carried by the parameters (an [Exception]).
 export 'src/interfaces/datasource.dart';
 
-///Responsible for exposing the abstraction of the errors.
+/// The immutable error contract and its default implementation.
 ///
-///The classes that represented the errors need to implement the AppError class
-///and override the ´´´message´´´ parameter
+/// Implementations of [AppError] expose a `message` getter and produce enriched
+/// copies through `copyWith` (errors are immutable).
 export 'src/interfaces/errors.dart';
 
-///Responsible for exposing the abstraction of the parameters.
+/// The call-parameters abstraction.
 ///
-///The parameter class is responsible for storing and handling the parameters
-///that need to be received by the datasource. in the implementation you need
-///to override the error parameter, which needs to receive an AppError, and
-///will be returned in case of failure.
+/// Implementations of [ParametersReturnResult] carry the data required by the
+/// datasource and must expose the [AppError] returned on failure.
 export 'src/interfaces/parameters.dart';

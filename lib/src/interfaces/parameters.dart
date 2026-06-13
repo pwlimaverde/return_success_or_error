@@ -1,24 +1,24 @@
 import '../../return_success_or_error.dart';
 
-///Responsible for storing and processing the data necessary to execute the
-///datasource call.
-
+/// Carries the data required to execute the datasource call.
+///
+/// Pure interface: implementations must expose the [AppError] returned in case
+/// of failure. Implement it with `implements` and declare your own fields.
 abstract interface class ParametersReturnResult {
-  final AppError error;
-
-  ParametersReturnResult({
-    required this.error,
-  });
+  /// The error returned when the call fails.
+  AppError get error;
 }
 
-///Implementation used when the datasource does not require extra parameters.
-///It receives the Error directly.
+/// Implementation used when the datasource does not require extra parameters.
+///
+/// Optionally receives the [error]; otherwise falls back to a generic one.
 final class NoParams implements ParametersReturnResult {
   @override
   final AppError error;
+
   NoParams({AppError? error})
       : error = error ??
             const ErrorGeneric(
-              message: "Error General Error",
+              message: "NoParams: unspecified generic error",
             );
 }

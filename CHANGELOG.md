@@ -13,26 +13,45 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
 4 - O datasource de `UsecaseBaseCallData` agora é **privado e encapsulado**: o construtor usa
     private named parameter (`{required this._datasource}`, Dart 3.12) e as subclasses
     encaminham com `{required super.datasource}` (antes era posicional, `super.datasource`).
-    `resultDatasource` deixou de receber o datasource: agora é `resultDatasource(parameters)`.
+    `resultDatasource` deixou de receber o datasource: agora é `resultDatasource(parameters)`
+    e está anotado com `@protected` (uso restrito a subclasses).
     Na DI, construa com argumento nomeado: `MyUsecase(datasource: ...)`.
 5 - Removido o `RepositoryMixin` público: `resultDatasource` foi incorporado a
     `UsecaseBaseCallData` (necessário para manter o `_datasource` privado).
+6 - Removido `RuntimeMilliseconds` (e seu export): era API pública órfã, sem uso na lib nem
+    nos exemplos (`callIsolate` mede com `Stopwatch` próprio).
+7 - `Service.initDependences` renomeado para `Service.initDependencies` (correção de typo).
+8 - `ParametersReturnResult` agora é **interface pura**: expõe apenas `AppError get error`
+    (removidos o campo e o construtor inertes). Implementadores continuam usando `implements`
+    e declarando o próprio `error`.
 
 **Correções**
-6 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
+9 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
     media sempre `0ms`); usa `Stopwatch` e loga via `dart:developer` apenas em debug
     (removido o `print` de produção).
-7 - `RuntimeMilliseconds` reescrito com `Stopwatch` (o cálculo manual anterior quebrava na
-    virada de hora).
 
 **Melhorias**
-8 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
-9 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
-10 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
+10 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
+11 - `ReturnSuccessOrError` redesenhado: o valor passou a ser um campo da subclasse
+    (`SuccessReturn.result` / `ErrorReturn.result`), eliminando os campos nullable e o
+    operador `!` da classe base. Construtores (`success:`/`error:`) e `.result` preservados.
+12 - `ErrorGeneric` agora compara por valor (`==`/`hashCode`), facilitando asserts e
+    comparações de erro.
+13 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
+14 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
     sem issues de análise.
-11 - READMEs reescritos para refletir a API real (removidos `ParametersBasic`, `call`
+15 - Adicionada a dependência `meta` (para `@protected`).
+16 - Dartdoc do barrel e das interfaces corrigido (referências defasadas a "presenter",
+    `message` mutável e crases tipográficas `´´´`).
+17 - READMEs reescritos para refletir a API real (removidos `ParametersBasic`, `call`
     nomeado, `showRuntimeMilliseconds`, `nameFeature`, `isIsolate`).
-12 - Exemplos atualizados (SDK, dependências e padrão de erro imutável).
+18 - Exemplos refeitos: os 3 apps Flutter (`get`/`flutter_getit`/`flutter_modular`) foram
+    substituídos por um único exemplo **Dart puro** (CLI) em `example/`, coerente com a lib
+    agora ser Dart puro.
+19 - Cobertura de testes ampliada: `Service` (singleton, `initDependencies`, `initServices`),
+    `NoParams` (erro default/custom), `toString` de `SuccessReturn`/`ErrorReturn`/`Unit`/`Nil`,
+    enriquecimento de erro com `Cod. 02-1` em `resultDatasource` e `callIsolate` em
+    `UsecaseBaseCallData` com datasource *sendable*. O exemplo também tem testes (`example/test/`).
 
 ## [0.19.0] - 25/04/2024. 
 1 - Refatoração de callIsolate.

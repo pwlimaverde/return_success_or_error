@@ -15,6 +15,9 @@ abstract interface class AppError implements Exception {
 }
 
 /// Default concrete [AppError] implementation.
+///
+/// Compares by value: two [ErrorGeneric] with the same [message] are equal,
+/// which keeps assertions and error comparisons predictable.
 final class ErrorGeneric implements AppError {
   @override
   final String message;
@@ -24,6 +27,14 @@ final class ErrorGeneric implements AppError {
   @override
   ErrorGeneric copyWith({String? message}) =>
       ErrorGeneric(message: message ?? this.message);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ErrorGeneric && other.message == message;
+
+  @override
+  int get hashCode => message.hashCode;
 
   @override
   String toString() => "ErrorGeneric - $message";

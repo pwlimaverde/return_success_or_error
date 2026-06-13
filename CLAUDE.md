@@ -12,8 +12,8 @@ forçando o tratamento explícito de sucesso/erro via `switch` exaustivo.
 
 Este é um pacote-biblioteca: o código de produção vive em [lib/](lib/), não há "app"
 principal a rodar. **O pacote não depende de Flutter** (usa só `dart:isolate`/`dart:async`).
-Os apps em [example/](example/) demonstram integração com diferentes soluções de
-DI/navegação (`get`, `flutter_getit`, `flutter_modular`) — esses sim são apps Flutter.
+O [example/](example/) é um exemplo **Dart puro** (CLI, também sem Flutter) que demonstra o
+uso essencial da lib — rode com `dart run bin/example.dart` dentro de `example/`.
 
 ## Comandos
 
@@ -36,9 +36,9 @@ dart test --name "Deve retornar um success com"
 dart analyze
 ```
 
-Para mexer nos exemplos, rode os comandos `flutter` dentro do diretório do exemplo
-(ex.: `flutter analyze` em `example/example_app_flutter_get_it/`), pois cada um é um app
-Flutter independente.
+O [example/](example/) também é Dart puro: rode `dart pub get`, `dart analyze`, `dart test`
+e `dart run bin/example.dart` dentro de `example/` (não precisa de Flutter). As features do
+exemplo têm testes em `example/test/`.
 
 ## Arquitetura
 
@@ -66,10 +66,12 @@ e loga o tempo via `dart:developer` **apenas em debug** (gated por `assert`).
 
 Método de `UsecaseBaseCallData` (não há mais um `RepositoryMixin` separado — foi
 incorporado para manter o `_datasource` privado, já que privacidade em Dart é por
-biblioteca). `resultDatasource(parameters)` invoca o datasource privado dentro de um
-`try/catch`, devolvendo `SuccessReturn` ou um `ErrorReturn` cuja mensagem é enriquecida via
-`parameters.error.copyWith(...)`. É a única ponte entre usecase e datasource — o usecase
-nunca chama o datasource diretamente; ele chama `resultDatasource` e faz `switch` no retorno.
+biblioteca). `resultDatasource(parameters)` é anotado com `@protected` (uso restrito a
+subclasses) e invoca o datasource privado dentro de um `try/catch`, devolvendo `SuccessReturn`
+ou um `ErrorReturn` cuja mensagem é enriquecida via `parameters.error.copyWith(...)` (o código
+`Cod. 02-1` vem da constante `_datasourceCatchCode`). É a única ponte entre usecase e
+datasource — o usecase nunca chama o datasource diretamente; ele chama `resultDatasource` e
+faz `switch` no retorno.
 
 ### Datasource ([lib/src/interfaces/datasource.dart](lib/src/interfaces/datasource.dart))
 
@@ -79,16 +81,17 @@ caso de falha (o `resultDatasource` do usecase captura).
 
 ### Parâmetros ([lib/src/interfaces/parameters.dart](lib/src/interfaces/parameters.dart))
 
-`abstract interface class ParametersReturnResult` exige um campo `error` do tipo
-`AppError`. Implemente-a para carregar os dados da chamada. `NoParams` é a implementação
-pronta para quando não há parâmetros extras.
+`abstract interface class ParametersReturnResult` é uma **interface pura**: expõe apenas
+`AppError get error`. Implemente-a (`implements`) declarando seu próprio `error` e os dados da
+chamada. `NoParams` é a implementação pronta para quando não há parâmetros extras.
 
 ### Erros ([lib/src/interfaces/errors.dart](lib/src/interfaces/errors.dart))
 
 `abstract interface class AppError implements Exception` — **imutável**: `String get message`
 e `AppError copyWith({String? message})`. `ErrorGeneric` é a implementação concreta padrão
-(`message` `final`, construtor `const`). Para enriquecer uma mensagem ao propagar o erro, use
-`error.copyWith(message: ...)` (nunca mutação — o antigo `error..message = ...` não existe mais).
+(`message` `final`, construtor `const`, compara por valor via `==`/`hashCode`). Para enriquecer
+uma mensagem ao propagar o erro, use `error.copyWith(message: ...)` (nunca mutação — o antigo
+`error..message = ...` não existe mais).
 
 ### Resultado ([lib/src/core/return_success_or_error.dart](lib/src/core/return_success_or_error.dart))
 
@@ -101,9 +104,7 @@ singletons: `Unit`/`unit` (representa `void`) e `Nil`/`nil` (representa `null`).
 ### Auxiliares core
 
 - `Service` ([lib/src/core/service.dart](lib/src/core/service.dart)) — singleton (`Service.to`)
-  para padronizar `initDependences` (registro de DI) e `initServices` (inicialização paralela).
-- `RuntimeMilliseconds` ([lib/src/core/runtime_milliseconds.dart](lib/src/core/runtime_milliseconds.dart))
-  — mede tempo de execução; usado por `callIsolate`.
+  para padronizar `initDependencies` (registro de DI) e `initServices` (inicialização paralela).
 
 ## Convenções importantes
 
@@ -115,7 +116,8 @@ singletons: `Unit`/`unit` (representa `void`) e `Nil`/`nil` (representa `null`).
 - **Datasource é encapsulado**: subclasses de `UsecaseBaseCallData` declaram
   `MyUsecase({required super.datasource})` e dentro do `call` usam `resultDatasource(parameters)`
   — nunca acessam o datasource diretamente (ele é privado na base). Na DI, construa com o
-  argumento nomeado: `MyUsecase(datasource: ...)` (ou tear-off `.new`, que o auto_injector resolve).
+  argumento nomeado: `MyUsecase(datasource: ...)` (ou tear-off `.new`, que injetores como o
+  auto_injector resolvem por tipo).
 - **README e testes refletem a API real** ([README.md](README.md) / [README-pt.md](README-pt.md)
   foram reescritos na v1.0.0). Mesmo assim, ao validar comportamento, [test/](test/) e
   [lib/](lib/) são a fonte de verdade.

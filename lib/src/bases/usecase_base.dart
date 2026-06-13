@@ -1,7 +1,13 @@
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:meta/meta.dart';
+
 import '../../return_success_or_error.dart';
+
+/// Error code appended by [UsecaseBaseCallData.resultDatasource] when the
+/// datasource throws, to mark where in the flow the failure was caught.
+const String _datasourceCatchCode = "Cod. 02-1";
 
 /// Shared `call`/`callIsolate` contract for both usecase base classes.
 ///
@@ -76,6 +82,10 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
   /// Invokes the datasource within a `try/catch`, wrapping the outcome in a
   /// [ReturnSuccessOrError]. On failure, the original [AppError] message is
   /// preserved and enriched (via `copyWith`) with the catch context.
+  ///
+  /// Intended to be called only by subclasses — it is the single bridge between
+  /// usecase and datasource.
+  @protected
   Future<ReturnSuccessOrError<TypeDatasource>> resultDatasource(
     covariant ParametersReturnResult parameters,
   ) async {
@@ -87,7 +97,7 @@ abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
     } catch (e) {
       return ErrorReturn(
         error: parameters.error.copyWith(
-          message: "$messageError - Cod. 02-1 --- Catch: $e",
+          message: "$messageError - $_datasourceCatchCode --- Catch: $e",
         ),
       );
     }
