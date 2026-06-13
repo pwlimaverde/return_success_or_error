@@ -3,8 +3,6 @@ import 'dart:isolate';
 
 import '../../return_success_or_error.dart';
 
-import '../mixins/repository_mixin.dart';
-
 /// Shared `call`/`callIsolate` contract for both usecase base classes.
 ///
 /// Defines the abstract [call] and a concrete [callIsolate] that runs [call]
@@ -43,18 +41,55 @@ base mixin _UsecaseRunner<TypeUsecase> {
   }
 }
 
-/// Business rule that consumes a [Datasource].
-///
-/// [TypeUsecase] is the type returned by the usecase; [TypeDatasource] is the
-/// raw type returned by the datasource. The datasource is received through the
-/// positional constructor and accessed via [RepositoryMixin.resultDatasource].
-abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
-    with RepositoryMixin<TypeDatasource>, _UsecaseRunner<TypeUsecase> {
-  final Datasource<TypeDatasource> datasource;
-
-  UsecaseBaseCallData(this.datasource);
-}
-
 /// Pure business rule, without any external (datasource) call.
 abstract base class UsecaseBase<TypeUsecase>
     with _UsecaseRunner<TypeUsecase> {}
+
+/// Business rule that consumes a [Datasource].
+///
+/// [TypeUsecase] is the type returned by the usecase; [TypeDatasource] is the
+/// raw type returned by the datasource. The datasource is provided through the
+/// constructor and kept **private**: subclasses never touch it directly — they
+/// invoke [resultDatasource], which is the single bridge between usecase and
+/// datasource.
+///
+/// Subclasses forward the datasource with a super parameter:
+/// ```dart
+/// final class MyUsecase extends UsecaseBaseCallData<Foo, Bar> {
+///   MyUsecase({required super.datasource});
+///
+///   @override
+///   Future<ReturnSuccessOrError<Foo>> call(MyParams parameters) async {
+///     final result = await resultDatasource(parameters);
+///     return switch (result) { ... };
+///   }
+/// }
+/// ```
+abstract base class UsecaseBaseCallData<TypeUsecase, TypeDatasource>
+    with _UsecaseRunner<TypeUsecase> {
+  final Datasource<TypeDatasource> _datasource;
+
+  /// The datasource is received as a private named parameter (Dart 3.12): the
+  /// caller uses the public name `datasource`, but the field stays private.
+  UsecaseBaseCallData({required this._datasource});
+
+  /// Invokes the datasource within a `try/catch`, wrapping the outcome in a
+  /// [ReturnSuccessOrError]. On failure, the original [AppError] message is
+  /// preserved and enriched (via `copyWith`) with the catch context.
+  Future<ReturnSuccessOrError<TypeDatasource>> resultDatasource(
+    covariant ParametersReturnResult parameters,
+  ) async {
+    final messageError = parameters.error.message;
+    try {
+      final result = await _datasource(parameters);
+
+      return SuccessReturn(success: result);
+    } catch (e) {
+      return ErrorReturn(
+        error: parameters.error.copyWith(
+          message: "$messageError - Cod. 02-1 --- Catch: $e",
+        ),
+      );
+    }
+  }
+}

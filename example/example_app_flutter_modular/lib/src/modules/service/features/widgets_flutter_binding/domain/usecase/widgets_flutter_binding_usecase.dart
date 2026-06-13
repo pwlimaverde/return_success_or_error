@@ -4,14 +4,11 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 ///Usecase with external Datasource call
 final class WidgetsFlutterBindingUsecase
     extends UsecaseBaseCallData<Unit, WidgetsBinding> {
-  WidgetsFlutterBindingUsecase(super.datasource);
+  WidgetsFlutterBindingUsecase({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<Unit>> call(NoParams parameters) async {
-    final resultDatacource = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final resultDatacource = await resultDatasource(parameters);
 
     switch (resultDatacource) {
       case SuccessReturn<WidgetsBinding>():

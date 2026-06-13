@@ -21,7 +21,7 @@ final class ServiceBindings {
     );
     getIt.registerFactory<WidUsecase>(
       () => WidgetsFlutterBindingUsecase(
-        getIt.get<Datasource<WidgetsBinding>>(),
+        datasource: getIt.get<Datasource<WidgetsBinding>>(),
       ),
     );
     getIt.registerSingleton<FeaturesServicePresenter>(

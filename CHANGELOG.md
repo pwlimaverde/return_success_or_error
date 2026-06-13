@@ -10,22 +10,29 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
     a interface exige `AppError copyWith({String? message})`. Para enriquecer uma mensagem,
     use `error.copyWith(message: ...)` em vez de `error..message = ...`.
 3 - `ErrorGeneric` agora tem `message` `final` e construtor `const`.
+4 - O datasource de `UsecaseBaseCallData` agora é **privado e encapsulado**: o construtor usa
+    private named parameter (`{required this._datasource}`, Dart 3.12) e as subclasses
+    encaminham com `{required super.datasource}` (antes era posicional, `super.datasource`).
+    `resultDatasource` deixou de receber o datasource: agora é `resultDatasource(parameters)`.
+    Na DI, construa com argumento nomeado: `MyUsecase(datasource: ...)`.
+5 - Removido o `RepositoryMixin` público: `resultDatasource` foi incorporado a
+    `UsecaseBaseCallData` (necessário para manter o `_datasource` privado).
 
 **Correções**
-4 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
+6 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
     media sempre `0ms`); usa `Stopwatch` e loga via `dart:developer` apenas em debug
     (removido o `print` de produção).
-5 - `RuntimeMilliseconds` reescrito com `Stopwatch` (o cálculo manual anterior quebrava na
+7 - `RuntimeMilliseconds` reescrito com `Stopwatch` (o cálculo manual anterior quebrava na
     virada de hora).
 
 **Melhorias**
-6 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
-7 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
-8 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
+8 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError` e `getOrNull`.
+9 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
+10 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
     sem issues de análise.
-9 - READMEs reescritos para refletir a API real (removidos `ParametersBasic`, `call`
+11 - READMEs reescritos para refletir a API real (removidos `ParametersBasic`, `call`
     nomeado, `showRuntimeMilliseconds`, `nameFeature`, `isIsolate`).
-10 - Exemplos atualizados (SDK, dependências e padrão de erro imutável).
+12 - Exemplos atualizados (SDK, dependências e padrão de erro imutável).
 
 ## [0.19.0] - 25/04/2024. 
 1 - Refatoração de callIsolate.

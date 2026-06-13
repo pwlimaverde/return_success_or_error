@@ -5,14 +5,11 @@ import '../model/check_connect_model.dart';
 ///Usecase with external Datasource call
 final class CheckConnectUsecase
     extends UsecaseBaseCallData<String, CheckConnectModel> {
-  CheckConnectUsecase(super.datasource);
+  CheckConnectUsecase({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<String>> call(NoParams parameters) async {
-    final resultDatacource = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final resultDatacource = await resultDatasource(parameters);
 
     switch (resultDatacource) {
       case SuccessReturn<CheckConnectModel>():

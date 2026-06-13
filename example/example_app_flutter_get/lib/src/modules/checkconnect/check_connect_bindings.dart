@@ -22,7 +22,7 @@ final class CheckConnectBindings implements Binding {
     ),
     Bind.lazyPut<CheckConnect>(
       () => CheckConnectUsecase(
-        Get.find(),
+        datasource: Get.find(),
       ),
     ),
     Bind.lazyPut<TwoPlusTow>(

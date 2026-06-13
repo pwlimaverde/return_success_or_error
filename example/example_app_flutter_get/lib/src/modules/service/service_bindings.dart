@@ -20,7 +20,7 @@ final class ServiceBindings implements Binding {
     ),
     Bind.lazyPut<WidUsecase>(
       () => WidgetsFlutterBindingUsecase(
-        Get.find(),
+        datasource: Get.find(),
       ),
     ),
     Bind.put<FeaturesServiceComposer>(

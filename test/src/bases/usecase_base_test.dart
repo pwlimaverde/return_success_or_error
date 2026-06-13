@@ -21,16 +21,13 @@ final class ReturnResultDatasourceMock extends Mock
     implements Datasource<bool> {}
 
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
-  TesteUsecaseCallData(super.datasource);
+  TesteUsecaseCallData({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<String>> call(
     ParametersSalvarHeader parameters,
   ) async {
-    final teste = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final teste = await resultDatasource(parameters);
     switch (teste) {
       case SuccessReturn<bool>():
         if (teste.result) {
@@ -63,16 +60,13 @@ final class TesteUsecaseDirect extends UsecaseBase<String> {
 }
 
 final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<Unit, bool> {
-  TesteUsecaseCallDataVoid(super.datasource);
+  TesteUsecaseCallDataVoid({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<Unit>> call(
     ParametersSalvarHeader parameters,
   ) async {
-    final teste = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final teste = await resultDatasource(parameters);
     switch (teste) {
       case SuccessReturn<bool>():
         return SuccessReturn<Unit>(success: unit);
@@ -92,16 +86,13 @@ final class TesteUsecaseDirectVoid extends UsecaseBase<Unit> {
 }
 
 final class TesteUsecaseCallDataNull extends UsecaseBaseCallData<Nil, bool> {
-  TesteUsecaseCallDataNull(super.datasource);
+  TesteUsecaseCallDataNull({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<Nil>> call(
     ParametersSalvarHeader parameters,
   ) async {
-    final teste = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final teste = await resultDatasource(parameters);
     switch (teste) {
       case SuccessReturn<bool>():
         return SuccessReturn<Nil>(success: nil);
@@ -132,9 +123,11 @@ void main() {
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
-    returnResultUsecaseCallData = TesteUsecaseCallData(datasource);
-    returnResultUsecaseCallDataVoid = TesteUsecaseCallDataVoid(datasource);
-    returnResultUsecaseCallDataNull = TesteUsecaseCallDataNull(datasource);
+    returnResultUsecaseCallData = TesteUsecaseCallData(datasource: datasource);
+    returnResultUsecaseCallDataVoid =
+        TesteUsecaseCallDataVoid(datasource: datasource);
+    returnResultUsecaseCallDataNull =
+        TesteUsecaseCallDataNull(datasource: datasource);
   });
 
   test('Deve retornar um success com "Teste Void"', () async {

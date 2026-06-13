@@ -52,26 +52,30 @@ a implementação fica em `lib/src/`. O fluxo de uma feature é:
 - `UsecaseBase<TypeUsecase>` — regra de negócio pura, sem chamada externa.
 - `UsecaseBaseCallData<TypeUsecase, TypeDatasource>` — regra de negócio que consome um
   `Datasource`. `TypeUsecase` é o tipo retornado pelo usecase; `TypeDatasource` é o tipo
-  cru devolvido pelo datasource. Recebe o datasource via construtor posicional e usa o
-  `RepositoryMixin`.
+  cru devolvido pelo datasource. Recebe o datasource via **private named parameter**
+  (`{required this._datasource}`, Dart 3.12) — a subclasse encaminha com
+  `{required super.datasource}`. O datasource fica **privado**; a subclasse não o acessa,
+  só chama `resultDatasource(parameters)`.
 
 Ambos são `abstract base class` (Dart 3). O `call(parameters)` posicional e o
 `callIsolate(parameters)` vêm de um `base mixin` compartilhado (`_UsecaseRunner`).
 `callIsolate` executa o `call` em `Isolate.run`, mede com `Stopwatch` (await antes de medir)
 e loga o tempo via `dart:developer` **apenas em debug** (gated por `assert`).
 
-### RepositoryMixin ([lib/src/mixins/repository_mixin.dart](lib/src/mixins/repository_mixin.dart))
+### resultDatasource (em [lib/src/bases/usecase_base.dart](lib/src/bases/usecase_base.dart))
 
-Usado por `UsecaseBaseCallData`. `resultDatasource(...)` invoca o datasource dentro de um
-`try/catch`, devolvendo `SuccessReturn` ou um `ErrorReturn` cuja mensagem é anexada à
-`parameters.error`. É a única ponte entre usecase e datasource — o usecase nunca chama o
-datasource diretamente; ele chama `resultDatasource` e faz `switch` no retorno.
+Método de `UsecaseBaseCallData` (não há mais um `RepositoryMixin` separado — foi
+incorporado para manter o `_datasource` privado, já que privacidade em Dart é por
+biblioteca). `resultDatasource(parameters)` invoca o datasource privado dentro de um
+`try/catch`, devolvendo `SuccessReturn` ou um `ErrorReturn` cuja mensagem é enriquecida via
+`parameters.error.copyWith(...)`. É a única ponte entre usecase e datasource — o usecase
+nunca chama o datasource diretamente; ele chama `resultDatasource` e faz `switch` no retorno.
 
 ### Datasource ([lib/src/interfaces/datasource.dart](lib/src/interfaces/datasource.dart))
 
 `abstract interface class Datasource<TypeDatasource>` com um único `call(parameters)`.
 A implementação deve envolver a lógica em `try/catch` e fazer `throw parameters.error` em
-caso de falha (o `RepositoryMixin` captura).
+caso de falha (o `resultDatasource` do usecase captura).
 
 ### Parâmetros ([lib/src/interfaces/parameters.dart](lib/src/interfaces/parameters.dart))
 
@@ -108,6 +112,10 @@ singletons: `Unit`/`unit` (representa `void`) e `Nil`/`nil` (representa `null`).
   `covariant`, então subclasses podem tipar o parâmetro com sua própria `ParametersReturnResult`.
 - **Sempre trate o resultado com `switch` exaustivo** sobre `SuccessReturn<T>()` e
   `ErrorReturn<T>()` — é assim que o tipo selado garante o tratamento de erro.
+- **Datasource é encapsulado**: subclasses de `UsecaseBaseCallData` declaram
+  `MyUsecase({required super.datasource})` e dentro do `call` usam `resultDatasource(parameters)`
+  — nunca acessam o datasource diretamente (ele é privado na base). Na DI, construa com o
+  argumento nomeado: `MyUsecase(datasource: ...)` (ou tear-off `.new`, que o auto_injector resolve).
 - **README e testes refletem a API real** ([README.md](README.md) / [README-pt.md](README-pt.md)
   foram reescritos na v1.0.0). Mesmo assim, ao validar comportamento, [test/](test/) e
   [lib/](lib/) são a fonte de verdade.

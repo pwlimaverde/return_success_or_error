@@ -16,7 +16,7 @@ final class CheckConnectModule extends FlutterGetItModule {
   List<Bind<Object>> get bindings => [
     Bind.lazySingleton<Connectivity>((i) => ServiceHub.to.connectivity),
     Bind.lazySingleton<CCData>((i) => ConnectivityDatasource(i())),
-    Bind.lazySingleton<CCUsecase>((i) => CheckConnectUsecase(i())),
+    Bind.lazySingleton<CCUsecase>((i) => CheckConnectUsecase(datasource: i())),
     Bind.factory<TwoPlusTowUsecase>((i) => TwoPlusTowUsecase()),
     Bind.lazySingleton<FeaturesCheckconnectComposer>(
       (i) => FeaturesCheckconnectComposer(

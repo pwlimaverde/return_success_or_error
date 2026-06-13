@@ -84,7 +84,8 @@ Quando a chamada não precisa de dados extras, use `NoParams`.
 ## Datasource
 
 Implemente `Datasource<D>` tipando-o com o dado a ser retornado. Envolva a lógica em um
-`try/catch` e faça `throw parameters.error` em caso de falha (o `RepositoryMixin` captura):
+`try/catch` e faça `throw parameters.error` em caso de falha (o `resultDatasource` do
+usecase captura):
 
 ```dart
 final class ConnectivityDatasource implements Datasource<bool> {
@@ -110,20 +111,18 @@ final class ConnectivityDatasource implements Datasource<bool> {
 ## Usecase com chamada externa de Datasource
 
 Estenda `UsecaseBaseCallData<TypeUsecase, TypeDatasource>` — o primeiro tipo é o que o usecase
-retorna, o segundo é o tipo cru devolvido pelo datasource. O datasource é passado pelo
-construtor **posicional**. Dentro do `call`, use `resultDatasource(...)` e faça `switch` sobre
-o retorno:
+retorna, o segundo é o tipo cru devolvido pelo datasource. O datasource é encaminhado pelo
+construtor via **super parameter** (`{required super.datasource}`); ele fica **privado** na
+classe base, então a subclasse nunca o acessa diretamente — apenas chama
+`resultDatasource(parameters)`:
 
 ```dart
 final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectUsecase(super.datasource);
+  CheckConnectUsecase({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<String>> call(NoParams parameters) async {
-    final result = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final result = await resultDatasource(parameters);
 
     switch (result) {
       case SuccessReturn<bool>():
@@ -137,9 +136,10 @@ final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
 }
 ```
 
-`resultDatasource(...)` executa o datasource dentro de um `try/catch` e devolve
-`SuccessReturn<TypeDatasource>` ou um `ErrorReturn` cuja mensagem é enriquecida com
-`parameters.error`.
+`resultDatasource(parameters)` executa o datasource (privado) dentro de um `try/catch` e
+devolve `SuccessReturn<TypeDatasource>` ou um `ErrorReturn` cuja mensagem é enriquecida com
+`parameters.error`. O datasource fica encapsulado: é a única ponte entre usecase e datasource,
+então as subclasses não conseguem contorná-lo.
 
 ## Usecase apenas com a regra de negócio
 

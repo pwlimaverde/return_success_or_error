@@ -84,7 +84,8 @@ When a call needs no extra data, use `NoParams`.
 ## Datasource
 
 Implement `Datasource<D>` typing it with the data to be returned. Wrap the logic in a
-`try/catch` and `throw parameters.error` on failure (the `RepositoryMixin` captures it):
+`try/catch` and `throw parameters.error` on failure (the usecase's `resultDatasource`
+captures it):
 
 ```dart
 final class ConnectivityDatasource implements Datasource<bool> {
@@ -111,19 +112,17 @@ final class ConnectivityDatasource implements Datasource<bool> {
 
 Extend `UsecaseBaseCallData<TypeUsecase, TypeDatasource>` — the first type is what the
 usecase returns, the second is the raw type returned by the datasource. The datasource is
-passed through the **positional** constructor. Inside `call`, use `resultDatasource(...)` and
-`switch` over its result:
+forwarded through the constructor with a **super parameter** (`{required super.datasource}`);
+it is kept **private** inside the base class, so the subclass never accesses it directly —
+it only calls `resultDatasource(parameters)`:
 
 ```dart
 final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectUsecase(super.datasource);
+  CheckConnectUsecase({required super.datasource});
 
   @override
   Future<ReturnSuccessOrError<String>> call(NoParams parameters) async {
-    final result = await resultDatasource(
-      parameters: parameters,
-      datasource: datasource,
-    );
+    final result = await resultDatasource(parameters);
 
     switch (result) {
       case SuccessReturn<bool>():
@@ -137,9 +136,10 @@ final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
 }
 ```
 
-`resultDatasource(...)` runs the datasource inside a `try/catch` and returns
+`resultDatasource(parameters)` runs the (private) datasource inside a `try/catch` and returns
 `SuccessReturn<TypeDatasource>` or an `ErrorReturn` whose message is enriched with
-`parameters.error`.
+`parameters.error`. The datasource is encapsulated: it is the single bridge between usecase
+and datasource, so subclasses cannot bypass it.
 
 ## Usecase with the business rule only
 
