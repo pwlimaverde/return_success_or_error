@@ -292,17 +292,27 @@ final class GerarSalesReportUsecase
 
 #### b) Apenas a regra de negócio — `UsecaseBase<TypeUsecase>`
 
-Quando não há chamada externa de I/O, estenda `UsecaseBase` e implemente o `process` recebendo apenas os parâmetros:
+Quando não há chamada externa de I/O, estenda `UsecaseBase` e implemente o `process` recebendo apenas os parâmetros. Por exemplo, calcular a comissão de uma venda baseada no valor total:
 
 ```dart
-final class TwoPlusTwoUsecase extends UsecaseBase<int> {
-  const TwoPlusTwoUsecase({super.runInIsolate});
+final class CalcularComissaoParameters implements ParametersReturnResult {
+  final double valorTotal;
+  @override
+  final AppError error;
+
+  const CalcularComissaoParameters({required this.valorTotal, required this.error});
+}
+
+final class CalcularComissaoUsecase extends UsecaseBase<double> {
+  const CalcularComissaoUsecase({super.runInIsolate});
 
   @override
-  ProcessPure<int> get process => _process;
+  ProcessPure<double> get process => _process;
 
-  static ReturnSuccessOrError<int> _process(ParametersReturnResult parameters) =>
-      const SuccessReturn(success: 4);
+  static ReturnSuccessOrError<double> _process(ParametersReturnResult parameters) {
+    final params = parameters as CalcularComissaoParameters;
+    return SuccessReturn(success: params.valorTotal * 0.05); // 5% de comissão
+  }
 }
 ```
 
@@ -357,7 +367,11 @@ decorrido (via `dart:developer`, com sufixo `(Direct)`/`(Isolate)`), ligue tamb�
 `monitorExecutionTime: true` — desligado por padrão, garantindo custo zero em produção:
 
 ```dart
-final usecase = MeuUsecase(runInIsolate: true, monitorExecutionTime: true);
+final usecase = GerarSalesReportUsecase(
+  datasource: const FakeSalesDatasource(),
+  runInIsolate: true,
+  monitorExecutionTime: true,
+);
 final result = await usecase(parameters);
 ```
 
@@ -395,14 +409,16 @@ final class LogoutUsecase extends UsecaseBase<Unit> {
 ```
 lib/
   features/
-    check_connection/
+    sales_report/
       datasources/
-        connectivity_datasource.dart
+        fake_sales_datasource.dart
       domain/
+        model/
+          sales_report.dart
         parameters/
-          check_connection_parameters.dart
+          sales_report_parameters.dart
         usecase/
-          check_connection_usecase.dart
+          gerar_sales_report_usecase.dart
   main.dart
 ```
 
