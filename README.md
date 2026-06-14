@@ -188,41 +188,47 @@ final class ApiError implements AppError {
 
 ### 2. Define the parameters — `ParametersReturnResult` / `NoParams`
 
-`ParametersReturnResult` is a pure interface: the only requirement is to expose the
-`AppError` returned on failure. Add whatever data your call needs:
+`ParametersReturnResult` is a pure interface: the only requirement is to expose the `AppError` returned on failure. Add whatever data your API/database call or processing needs:
 
 ```dart
-final class ParametersFibonacci implements ParametersReturnResult {
-  final int n;
+final class SalesReportParameters implements ParametersReturnResult {
+  final int mes;
+  final int ano;
+
   @override
   final AppError error;
 
-  const ParametersFibonacci({required this.n, required this.error});
+  const SalesReportParameters({
+    required this.mes,
+    required this.ano,
+    required this.error,
+  });
 }
 ```
 
-When a call needs no extra data, use `NoParams`:
+When the call does not need extra data, you can use the `NoParams` helper provided by the library:
 
 ```dart
-final params = NoParams(error: const ErrorGeneric(message: "Connection error"));
+final params = NoParams(error: const ErrorGeneric(message: "Unexpected error"));
 ```
 
 ### 3. Define the datasource — `Datasource<D>`
 
-Type it with the raw data it returns. Wrap the logic in a `try/catch` and `throw
-parameters.error` on failure (the base's fetch phase captures it):
+Type it with the raw data it returns (for example, `List<Map<String, dynamic>>` from the database or raw JSON). Wrap the logic in a `try/catch` and `throw parameters.error` on failure (the usecase's fetch phase automatically captures it and triggers short-circuit):
 
 ```dart
-final class ConnectivityDatasource implements Datasource<bool> {
-  final Connectivity _connectivity;
-
-  const ConnectivityDatasource(this._connectivity);
+final class FakeSalesDatasource implements Datasource<List<Map<String, dynamic>>> {
+  const FakeSalesDatasource();
 
   @override
-  Future<bool> call(ParametersReturnResult parameters) async {
+  Future<List<Map<String, dynamic>>> call(covariant SalesReportParameters parameters) async {
     try {
-      final result = await _connectivity.checkConnectivity();
-      return !result.contains(ConnectivityResult.none);
+      // Simulates database query (async I/O that doesn't block the UI)
+      await Future.delayed(const Duration(milliseconds: 100));
+      return [
+        {'produto': 'Produto A', 'quantidade': 10, 'valor_unitario': 50.0},
+        {'produto': 'Produto B', 'quantidade': 5, 'valor_unitario': 100.0},
+      ];
     } catch (e) {
       throw parameters.error.copyWith(message: "$e");
     }
@@ -234,37 +240,56 @@ final class ConnectivityDatasource implements Datasource<bool> {
 
 #### a) With an external datasource — `UsecaseBaseCallData<TypeUsecase, TypeDatasource>`
 
-`TypeUsecase` is what the usecase returns; `TypeDatasource` is the raw type from the
-datasource. The datasource is forwarded through the constructor with a **super parameter**
-(`{required super.datasource}`) and kept **private** in the base class. The subclass only
-implements the `process` getter, pointing to a **static** function that receives the raw data
-already loaded by the datasource (the base does the fetch and the short-circuit on error):
+`TypeUsecase` is the type of the processed domain object returned by the usecase; `TypeDatasource` is the raw type returned by the datasource. The datasource is forwarded through the constructor with a **super parameter** (`{required super.datasource}`) and kept **private** in the base class.
+
+The subclass only implements the `process` getter, pointing to a **static** function that receives the raw data already loaded (the base handles the fetch and the short-circuit on fetch error):
 
 ```dart
-final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectUsecase({required super.datasource});
+final class GerarSalesReportUsecase
+    extends UsecaseBaseCallData<SalesReport, List<Map<String, dynamic>>> {
+  GerarSalesReportUsecase({
+    required super.datasource,
+    super.runInIsolate,
+    super.monitorExecutionTime,
+  });
 
   @override
-  ProcessData<String, bool> get process => _process;
+  ProcessData<SalesReport, List<Map<String, dynamic>>> get process => _process;
 
-  static ReturnSuccessOrError<String> _process(
-    bool online,
+  // Static function: essential not to capture "this" so it can run in an Isolate.
+  static ReturnSuccessOrError<SalesReport> _process(
+    List<Map<String, dynamic>> linhas,
     ParametersReturnResult parameters,
-  ) => online
-      ? const SuccessReturn(success: "You are connected")
-      : ErrorReturn(error: parameters.error.copyWith(message: "You are offline"));
+  ) {
+    if (linhas.isEmpty) {
+      return ErrorReturn(
+        error: parameters.error.copyWith(message: "No sales in this period"),
+      );
+    }
+
+    var faturamento = 0.0;
+    var itens = 0;
+    for (final row in linhas) {
+      final quantidade = row['quantidade'] as int;
+      faturamento += quantidade * (row['valor_unitario'] as double);
+      itens += quantidade;
+    }
+
+    return SuccessReturn(
+      success: SalesReport(
+        totalItens: itens,
+        faturamentoTotal: faturamento,
+      ),
+    );
+  }
 }
 ```
 
-> `process` **must be static** (or top-level): it is what runs in the isolate when
-> `runInIsolate: true`, and an instance function would capture `this` — dragging the datasource
-> (and its native resources) into the isolate. That's why it receives everything via parameters.
-> If you need specific fields from the parameter, cast `parameters` to your concrete type inside
-> the function.
+> `process` **must be static** (or top-level): it is what runs in the background isolate when `runInIsolate: true`. An instance function would implicitly capture `this` — dragging the entire datasource (and its native resources like DB drivers or network connections) into the isolate, causing runtime or compilation errors. If you need specific fields from the parameters, cast `parameters` to your concrete type inside `_process`.
 
 #### b) Business rule only — `UsecaseBase<TypeUsecase>`
 
-When there is no external call, implement `process` taking just the parameters:
+When there is no external call, extend `UsecaseBase` and implement `process` taking just the parameters:
 
 ```dart
 final class TwoPlusTwoUsecase extends UsecaseBase<int> {
@@ -280,26 +305,33 @@ final class TwoPlusTwoUsecase extends UsecaseBase<int> {
 
 ### 5. Call the usecase
 
-Instantiate it and invoke it with `call` (positional parameters):
+Instantiate it and invoke it passing the concrete parameters:
 
 ```dart
-final usecase = CheckConnectUsecase(datasource: ConnectivityDatasource(Connectivity()));
+final usecase = GerarSalesReportUsecase(
+  datasource: const FakeSalesDatasource(),
+  runInIsolate: true, // Heavy processing will run in a background Isolate!
+);
 
 final data = await usecase(
-  NoParams(error: const ErrorGeneric(message: "Connection error")),
+  SalesReportParameters(
+    mes: 6,
+    ano: 2026,
+    error: const ErrorGeneric(message: "Failed to generate sales report"),
+  ),
 );
 ```
 
 ### 6. Handle the result
 
-`ReturnSuccessOrError<T>` is sealed, so the most explicit way is an exhaustive `switch`:
+`ReturnSuccessOrError<T>` is a sealed class, ensuring you handle all scenarios exhaustively using a `switch`:
 
 ```dart
 switch (data) {
-  case SuccessReturn<String>():
-    print(data.result);          // success value (String)
-  case ErrorReturn<String>():
-    print(data.result.message);  // AppError
+  case SuccessReturn<SalesReport>():
+    print("Revenue: ${data.result.faturamentoTotal}"); // success value (SalesReport)
+  case ErrorReturn<SalesReport>():
+    print(data.result.message);                         // AppError
 }
 ```
 
@@ -307,8 +339,8 @@ You can also use Dart 3 destructuring patterns for a more concise syntax:
 
 ```dart
 final message = switch (data) {
-  SuccessReturn(:final result) => 'OK: $result',
-  ErrorReturn(:final result) => 'Fail: ${result.message}',
+  SuccessReturn(:final result) => 'Success! Revenue: ${result.faturamentoTotal}',
+  ErrorReturn(:final result) => 'Failure: ${result.message}',
 };
 ```
 

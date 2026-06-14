@@ -191,41 +191,47 @@ final class ApiError implements AppError {
 
 ### 2. Defina os parâmetros — `ParametersReturnResult` / `NoParams`
 
-`ParametersReturnResult` é uma interface pura: a única exigência é expor o `AppError`
-retornado em caso de falha. Adicione os dados que a chamada precisar:
+`ParametersReturnResult` é uma interface pura: a única exigência é expor o `AppError` retornado em caso de falha. Adicione todos os dados que a chamada de API/banco ou processamento precisar:
 
 ```dart
-final class ParametrosFibonacci implements ParametersReturnResult {
-  final int n;
+final class SalesReportParameters implements ParametersReturnResult {
+  final int mes;
+  final int ano;
+
   @override
   final AppError error;
 
-  const ParametrosFibonacci({required this.n, required this.error});
+  const SalesReportParameters({
+    required this.mes,
+    required this.ano,
+    required this.error,
+  });
 }
 ```
 
-Quando a chamada não precisa de dados extras, use `NoParams`:
+Quando a chamada não precisar de dados extras, você pode usar o `NoParams` fornecido pela lib:
 
 ```dart
-final params = NoParams(error: const ErrorGeneric(message: "Erro de conexão"));
+final params = NoParams(error: const ErrorGeneric(message: "Erro inesperado"));
 ```
 
 ### 3. Defina o datasource — `Datasource<D>`
 
-Tipe-o com o dado cru que ele retorna. Envolva a lógica em um `try/catch` e faça `throw
-parameters.error` em caso de falha (a fase de fetch da base captura):
+Tipe-o com o dado cru que ele retorna (por exemplo, `List<Map<String, dynamic>>` vindo do banco ou um JSON cru). Envolva a lógica em um `try/catch` e faça `throw parameters.error` em caso de falha (a fase de fetch do usecase captura automaticamente e faz o short-circuit):
 
 ```dart
-final class ConnectivityDatasource implements Datasource<bool> {
-  final Connectivity _connectivity;
-
-  const ConnectivityDatasource(this._connectivity);
+final class FakeSalesDatasource implements Datasource<List<Map<String, dynamic>>> {
+  const FakeSalesDatasource();
 
   @override
-  Future<bool> call(ParametersReturnResult parameters) async {
+  Future<List<Map<String, dynamic>>> call(covariant SalesReportParameters parameters) async {
     try {
-      final result = await _connectivity.checkConnectivity();
-      return !result.contains(ConnectivityResult.none);
+      // Simula uma busca no banco (I/O assíncrono que não bloqueia a UI)
+      await Future.delayed(const Duration(milliseconds: 100));
+      return [
+        {'produto': 'Produto A', 'quantidade': 10, 'valor_unitario': 50.0},
+        {'produto': 'Produto B', 'quantidade': 5, 'valor_unitario': 100.0},
+      ];
     } catch (e) {
       throw parameters.error.copyWith(message: "$e");
     }
@@ -237,37 +243,56 @@ final class ConnectivityDatasource implements Datasource<bool> {
 
 #### a) Com datasource externo — `UsecaseBaseCallData<TypeUsecase, TypeDatasource>`
 
-`TypeUsecase` é o que o usecase retorna; `TypeDatasource` é o tipo cru do datasource. O
-datasource é encaminhado pelo construtor com um **super parameter**
-(`{required super.datasource}`) e mantido **privado** na classe base. A subclasse implementa
-apenas o getter `process`, apontando para uma função **estática** que recebe o dado bruto já
-carregado pelo datasource (a base faz o fetch e o short-circuit no erro):
+`TypeUsecase` é o tipo do objeto de domínio processado que o usecase retorna; `TypeDatasource` é o tipo cru do datasource. O datasource é encaminhado pelo construtor com um **super parameter** (`{required super.datasource}`) e mantido **privado** na classe base.
+
+A subclasse implementa apenas o getter `process`, apontando para uma função **estática** que recebe o dado bruto já carregado (a base faz o fetch e trata o short-circuit no erro do fetch):
 
 ```dart
-final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectUsecase({required super.datasource});
+final class GerarSalesReportUsecase
+    extends UsecaseBaseCallData<SalesReport, List<Map<String, dynamic>>> {
+  GerarSalesReportUsecase({
+    required super.datasource,
+    super.runInIsolate,
+    super.monitorExecutionTime,
+  });
 
   @override
-  ProcessData<String, bool> get process => _process;
+  ProcessData<SalesReport, List<Map<String, dynamic>>> get process => _process;
 
-  static ReturnSuccessOrError<String> _process(
-    bool online,
+  // Função estática: essencial para não capturar "this" e poder rodar no Isolate.
+  static ReturnSuccessOrError<SalesReport> _process(
+    List<Map<String, dynamic>> linhas,
     ParametersReturnResult parameters,
-  ) => online
-      ? const SuccessReturn(success: "Você está conectado")
-      : ErrorReturn(error: parameters.error.copyWith(message: "Você está offline"));
+  ) {
+    if (linhas.isEmpty) {
+      return ErrorReturn(
+        error: parameters.error.copyWith(message: "Sem vendas no período"),
+      );
+    }
+
+    var faturamento = 0.0;
+    var itens = 0;
+    for (final row in linhas) {
+      final quantidade = row['quantidade'] as int;
+      faturamento += quantidade * (row['valor_unitario'] as double);
+      itens += quantidade;
+    }
+
+    return SuccessReturn(
+      success: SalesReport(
+        totalItens: itens,
+        faturamentoTotal: faturamento,
+      ),
+    );
+  }
 }
 ```
 
-> O `process` **deve ser estático** (ou top-level): é ele que roda no isolate quando
-> `runInIsolate: true`, e uma função de instância capturaria `this` — arrastando o datasource
-> (e seus recursos nativos) para o isolate. Por isso recebe tudo por parâmetro. Se precisar de
-> campos específicos do parâmetro, faça o cast de `parameters` para o seu tipo concreto dentro
-> da função.
+> O `process` **deve ser estático** (ou top-level): é ele que roda no isolate de background quando `runInIsolate: true`. Uma função de instância capturaria implicitamente o `this` — arrastando o datasource inteiro (e seus recursos nativos como drivers ou conexões de rede) para o isolate, o que causaria erros de compilação ou execução. Se precisar de campos específicos dos parâmetros, faça o cast de `parameters` para o seu tipo concreto dentro da função `_process`.
 
 #### b) Apenas a regra de negócio — `UsecaseBase<TypeUsecase>`
 
-Quando não há chamada externa, implemente o `process` recebendo só os parâmetros:
+Quando não há chamada externa de I/O, estenda `UsecaseBase` e implemente o `process` recebendo apenas os parâmetros:
 
 ```dart
 final class TwoPlusTwoUsecase extends UsecaseBase<int> {
@@ -283,34 +308,41 @@ final class TwoPlusTwoUsecase extends UsecaseBase<int> {
 
 ### 5. Chame o usecase
 
-Instancie-o e invoque-o com `call` (parâmetros posicionais):
+Instancie-o e invoque-o passando os parâmetros concretos:
 
 ```dart
-final usecase = CheckConnectUsecase(datasource: ConnectivityDatasource(Connectivity()));
+final usecase = GerarSalesReportUsecase(
+  datasource: const FakeSalesDatasource(),
+  runInIsolate: true, // Processamento pesado rodará em Isolate de segundo plano!
+);
 
 final data = await usecase(
-  NoParams(error: const ErrorGeneric(message: "Erro de conexão")),
+  SalesReportParameters(
+    mes: 6,
+    ano: 2026,
+    error: const ErrorGeneric(message: "Falha ao gerar relatório de vendas"),
+  ),
 );
 ```
 
 ### 6. Trate o resultado
 
-`ReturnSuccessOrError<T>` é selado, então a forma mais explícita é um `switch` exaustivo:
+`ReturnSuccessOrError<T>` é uma classe selada (sealed), garantindo que você trate todos os cenários de forma exaustiva com um `switch`:
 
 ```dart
 switch (data) {
-  case SuccessReturn<String>():
-    print(data.result);          // valor de sucesso (String)
-  case ErrorReturn<String>():
-    print(data.result.message);  // AppError
+  case SuccessReturn<SalesReport>():
+    print("Faturamento: ${data.result.faturamentoTotal}"); // valor de sucesso (SalesReport)
+  case ErrorReturn<SalesReport>():
+    print(data.result.message);                            // AppError
 }
 ```
 
-Você também pode usar patterns de desestruturação do Dart 3 para uma sintaxe mais concisa:
+Você também pode usar as novas expressões de desestruturação e pattern matching do Dart 3 para obter um código super conciso:
 
 ```dart
 final message = switch (data) {
-  SuccessReturn(:final result) => 'OK: $result',
+  SuccessReturn(:final result) => 'Sucesso! Faturamento: ${result.faturamentoTotal}',
   ErrorReturn(:final result) => 'Falha: ${result.message}',
 };
 ```
