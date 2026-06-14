@@ -3,8 +3,9 @@ library;
 /// Classes base para a regra de negócio de uma feature.
 ///
 /// [UsecaseBase] executa uma regra de negócio pura (sem chamada externa);
-/// [UsecaseBaseCallData] consome um [Datasource] e faz a ponte com ele através
-/// do método `resultDatasource` (a única ponte entre usecase e datasource).
+/// [UsecaseBaseCallData] consome um [Datasource]: a base faz o fetch e chama a
+/// função estática `process` (`ProcessData`/`ProcessPure`) com o dado bruto já
+/// carregado, opcionalmente em um isolate de background.
 export 'src/bases/usecase_base.dart';
 
 /// O tipo de resultado selado e seus dois casos.

@@ -60,28 +60,30 @@ Uma feature flui do usecase, opcionalmente por um datasource, de volta a um
 chamador
   │  usecase(parameters)                  // call(parameters) — posicional
   ▼
-UsecaseBaseCallData.call ──► resultDatasource(parameters)   // a única ponte
-                                  │   try { _datasource(parameters) }   // privado
-                                  ▼
-                             Datasource.call ──► throw parameters.error   (falha)
-                                  │                 └► valor cru D         (sucesso)
-                                  ▼
-                       SuccessReturn<D> | ErrorReturn<D>   (erro enriquecido via copyWith)
-  ◄───────────────────────────────┘
-switch (result) { SuccessReturn / ErrorReturn }   // tratamento exaustivo no usecase
+UsecaseBaseCallData.call
+  │  FASE 1 — fetch: _datasource(parameters)   // privado, no isolate principal
+  │              └► throw parameters.error  (falha)  →  ErrorReturn<D> (Cod. 02-1)
+  │              └► valor cru D            (sucesso)  →  SuccessReturn<D>
+  ▼
+  │  FASE 2 — short-circuit: se ErrorReturn, devolve o erro (process NÃO é chamado)
+  ▼
+  │  FASE 3 — process(D, parameters)           // função estática, direto ou em isolate
   ▼
 ReturnSuccessOrError<T>   →   switch (pattern matching exaustivo)
 ```
 
 Pontos-chave:
 
-- O usecase **nunca** toca o datasource diretamente. Ele chama `resultDatasource`, o único
-  lugar onde o datasource (privado) é invocado.
-- O datasource sinaliza falha **lançando** `parameters.error`; o `resultDatasource` captura
-  e devolve um `ErrorReturn` cuja mensagem é **enriquecida** (via `copyWith`) com o contexto
-  do catch — o tipo original do erro é preservado.
-- Com `runInIsolate: true` no construtor, o mesmo `call` roda em um isolate de segundo plano
-  (veja [Rodando em um isolate](#rodando-em-um-isolate-de-segundo-plano)).
+- A base **orquestra tudo**: chama o datasource, faz o short-circuit no erro e só então
+  chama o `process` com o dado **bruto já carregado**. A subclasse implementa apenas o
+  getter `process` (uma função estática) — nunca toca o datasource (privado).
+- O datasource sinaliza falha **lançando** `parameters.error`; a base captura e devolve um
+  `ErrorReturn` cuja mensagem é **enriquecida** (via `copyWith`) com o contexto do catch
+  (`Cod. 02-1`) — o tipo original do erro é preservado.
+- O fetch (fase 1) roda **sempre no isolate principal**, então datasources com recursos
+  nativos (conexão de banco, socket) funcionam normalmente. Com `runInIsolate: true`, apenas
+  o `process` (fase 3) roda em um isolate de segundo plano — veja
+  [Rodando em um isolate](#rodando-em-um-isolate-de-segundo-plano).
 
 ## Uso, passo a passo
 
@@ -142,7 +144,7 @@ final params = NoParams(error: const ErrorGeneric(message: "Erro de conexão"));
 ### 3. Defina o datasource — `Datasource<D>`
 
 Tipe-o com o dado cru que ele retorna. Envolva a lógica em um `try/catch` e faça `throw
-parameters.error` em caso de falha (o `resultDatasource` do usecase captura):
+parameters.error` em caso de falha (a fase de fetch da base captura):
 
 ```dart
 final class ConnectivityDatasource implements Datasource<bool> {
@@ -168,40 +170,45 @@ final class ConnectivityDatasource implements Datasource<bool> {
 
 `TypeUsecase` é o que o usecase retorna; `TypeDatasource` é o tipo cru do datasource. O
 datasource é encaminhado pelo construtor com um **super parameter**
-(`{required super.datasource}`) e mantido **privado** na classe base — a subclasse nunca o
-acessa diretamente, só chama `resultDatasource(parameters)`:
+(`{required super.datasource}`) e mantido **privado** na classe base. A subclasse implementa
+apenas o getter `process`, apontando para uma função **estática** que recebe o dado bruto já
+carregado pelo datasource (a base faz o fetch e o short-circuit no erro):
 
 ```dart
 final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
   CheckConnectUsecase({required super.datasource});
 
   @override
-  Future<ReturnSuccessOrError<String>> call(ParametersReturnResult parameters) async {
-    final result = await resultDatasource(parameters);
+  ProcessData<String, bool> get process => _process;
 
-    return switch (result) {
-      SuccessReturn<bool>() => result.result
-          ? const SuccessReturn(success: "Você está conectado")
-          : ErrorReturn(error: parameters.error.copyWith(message: "Você está offline")),
-      ErrorReturn<bool>() => ErrorReturn(error: result.result),
-    };
-  }
+  static ReturnSuccessOrError<String> _process(
+    bool online,
+    ParametersReturnResult parameters,
+  ) => online
+      ? const SuccessReturn(success: "Você está conectado")
+      : ErrorReturn(error: parameters.error.copyWith(message: "Você está offline"));
 }
 ```
 
-O `resultDatasource` é `@protected` — existe apenas para as subclasses e é a única ponte
-entre usecase e datasource, então as subclasses não conseguem contorná-lo.
+> O `process` **deve ser estático** (ou top-level): é ele que roda no isolate quando
+> `runInIsolate: true`, e uma função de instância capturaria `this` — arrastando o datasource
+> (e seus recursos nativos) para o isolate. Por isso recebe tudo por parâmetro. Se precisar de
+> campos específicos do parâmetro, faça o cast de `parameters` para o seu tipo concreto dentro
+> da função.
 
 #### b) Apenas a regra de negócio — `UsecaseBase<TypeUsecase>`
 
-Quando não há chamada externa:
+Quando não há chamada externa, implemente o `process` recebendo só os parâmetros:
 
 ```dart
 final class TwoPlusTwoUsecase extends UsecaseBase<int> {
+  const TwoPlusTwoUsecase({super.runInIsolate});
+
   @override
-  Future<ReturnSuccessOrError<int>> call(NoParams parameters) async {
-    return const SuccessReturn(success: 4);
-  }
+  ProcessPure<int> get process => _process;
+
+  static ReturnSuccessOrError<int> _process(ParametersReturnResult parameters) =>
+      const SuccessReturn(success: 4);
 }
 ```
 
@@ -241,9 +248,11 @@ final message = switch (data) {
 
 ### 7. Rodando em um isolate de segundo plano
 
-Ambas as classes base aceitam `runInIsolate: true` no construtor. Quando ligado, o `call`
-executa o `run` em um isolate de segundo plano via `Isolate.run`; quando desligado (padrão),
-roda direto. Para medir e logar o tempo decorrido (via `dart:developer`), ligue também
+Ambas as classes base aceitam `runInIsolate: true` no construtor. Quando ligado, apenas o
+`process` roda em um isolate de segundo plano via `Isolate.run`; quando desligado (padrão),
+roda direto. Em `UsecaseBaseCallData`, o **fetch do datasource roda sempre no isolate
+principal** — só o processamento (fase 3) vai para o isolate. Para medir e logar o tempo
+decorrido (via `dart:developer`, com sufixo `(Direct)`/`(Isolate)`), ligue também
 `monitorExecutionTime: true` — desligado por padrão, garantindo custo zero em produção:
 
 ```dart
@@ -251,9 +260,15 @@ final usecase = MeuUsecase(runInIsolate: true, monitorExecutionTime: true);
 final result = await usecase(parameters);
 ```
 
-> Tudo o que o `call` captura (o usecase e seu datasource) precisa ser *sendable* para o
-> outro isolate. Evite capturar objetos não-transferíveis (sockets abertos, handles de
-> plugin, etc.).
+> O `process` é estático, então ele **não** captura o datasource. O que cruza a fronteira do
+> isolate é apenas o dado bruto (entrada) e o resultado (saída) — ambos precisam ser
+> *sendable*. Por isso o datasource pode manter recursos não-transferíveis (sockets, conexões
+> de banco): eles ficam no isolate principal e nunca vão para o worker.
+>
+> **Quando ligar:** o `Isolate.run` tem custo fixo (spawn + serialização da entrada/saída),
+> que escala com o tamanho do dado. Vale para processamento **pesado** (parsing de listas
+> grandes, agregações); para transformações leves, o overhead supera o ganho — deixe
+> `runInIsolate: false`. Use `monitorExecutionTime` para comparar os dois caminhos.
 
 ### 8. Resultados sem valor — `Unit` / `Nil`
 
@@ -262,10 +277,14 @@ Para usecases que têm sucesso sem produzir valor, use os singletons compartilha
 
 ```dart
 final class LogoutUsecase extends UsecaseBase<Unit> {
+  const LogoutUsecase();
+
   @override
-  Future<ReturnSuccessOrError<Unit>> call(NoParams parameters) async {
+  ProcessPure<Unit> get process => _process;
+
+  static ReturnSuccessOrError<Unit> _process(ParametersReturnResult parameters) {
     // ... executa o efeito colateral ...
-    return SuccessReturn(success: unit);
+    return const SuccessReturn(success: unit);
   }
 }
 ```

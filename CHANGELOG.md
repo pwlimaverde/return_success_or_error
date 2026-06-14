@@ -1,3 +1,40 @@
+## [2.0.0] - 14/06/2026.
+
+Reformulação do fluxo de execução dos usecases: o fetch do datasource passa a ser
+totalmente orquestrado pela base, e o processamento (parsing/regra de negócio) é separado
+em uma função estática que pode rodar em isolate **sem arrastar o datasource** — viabilizando
+processar dados pesados em background sem travar o event loop/UI.
+
+**BREAKING CHANGES**
+1 - As subclasses não implementam mais `run(parameters)`. Agora implementam o getter
+    `process`, que aponta para uma função **estática**:
+    - `UsecaseBaseCallData`: `ProcessData<TypeUsecase, TypeDatasource>` —
+      `ReturnSuccessOrError<TypeUsecase> Function(TypeDatasource data, ParametersReturnResult parameters)`.
+      Recebe o dado **bruto já carregado** pelo datasource (sucesso desempacotado).
+    - `UsecaseBase`: `ProcessPure<TypeUsecase>` —
+      `ReturnSuccessOrError<TypeUsecase> Function(ParametersReturnResult parameters)`.
+    O `process` deve ser estático/top-level (não captura `this`); se precisar de campos do
+    parâmetro, faça o cast de `parameters` para o seu tipo concreto dentro da função.
+2 - O fluxo de `UsecaseBaseCallData` agora é orquestrado pela base: **fetch** do datasource
+    (no isolate principal) → **short-circuit** automático em caso de erro (o `process` nem é
+    chamado) → **process** do dado bruto (direto ou em isolate). O método `resultDatasource`
+    deixou de ser exposto às subclasses — a base faz o fetch internamente.
+3 - `runInIsolate` agora afeta **somente o `process`** (fase 3). O fetch do datasource roda
+    sempre no isolate principal, então datasources com recursos nativos (conexão de banco,
+    socket) funcionam normalmente — antes, todo o `run` (incluindo o datasource) ia para o
+    isolate, o que quebrava com recursos não-serializáveis.
+4 - `process` é **síncrono** (`ReturnSuccessOrError`, não `Future`): reforça que a fase de
+    processamento é CPU-bound pura. Toda chamada externa/assíncrona pertence ao datasource.
+
+**Melhorias**
+5 - Novos typedefs públicos `ProcessData` e `ProcessPure` documentam o contrato do `process`.
+6 - `monitorExecutionTime` agora loga `(Direct)` ou `(Isolate)` para facilitar o comparativo
+    entre os dois caminhos durante o desenvolvimento.
+7 - Novo exemplo `sales_report` (em `example/`): datasource devolve linhas cruas de venda e o
+    usecase processa o objeto `SalesReport` — em isolate quando configurado. Com testes
+    (`example/test/gerar_sales_report_usecase_test.dart`) cobrindo paridade direto×isolate,
+    short-circuit de erro e comparativo de tempo.
+
 ## [1.0.0] - 13/06/2026.
 
 Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44.

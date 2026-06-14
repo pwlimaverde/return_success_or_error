@@ -8,8 +8,9 @@ import 'package:test/test.dart';
 
 class ParametersSalvarHeader implements ParametersReturnResult {
   final String nome;
+  final bool sucesso;
 
-  ParametersSalvarHeader({required this.nome});
+  ParametersSalvarHeader({required this.nome, this.sucesso = true});
 
   @override
   AppError get error => const ErrorGeneric(message: "teste parrametros");
@@ -29,34 +30,17 @@ final class SendableBoolDatasource implements Datasource<bool> {
   Future<bool> call(ParametersReturnResult parameters) async => value;
 }
 
-/// Datasource que lança exceção para testar fluxo de erro no isolate.
+/// Datasource que lança exceção para testar o fluxo de erro do fetch.
 final class SendableExceptionDatasource implements Datasource<bool> {
   const SendableExceptionDatasource();
 
   @override
   Future<bool> call(ParametersReturnResult parameters) async {
-    throw Exception('erro no datasource do isolate');
+    throw Exception('erro no datasource');
   }
 }
 
-/// Usecase que **propaga** o erro enriquecido devolvido por `resultDatasource`
-/// (ao contrário de [TesteUsecaseCallData], que devolve `parameters.error` cru).
-final class TesteUsecasePropagaErro extends UsecaseBaseCallData<String, bool> {
-  TesteUsecasePropagaErro({required super.datasource, super.runInIsolate});
-
-  @override
-  Future<ReturnSuccessOrError<String>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    final teste = await resultDatasource(parameters);
-    switch (teste) {
-      case SuccessReturn<bool>():
-        return const SuccessReturn<String>(success: "ok");
-      case ErrorReturn<bool>():
-        return ErrorReturn<String>(error: teste.result);
-    }
-  }
-}
+// === Usecases de teste (process estático) ===
 
 final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   TesteUsecaseCallData({
@@ -66,42 +50,29 @@ final class TesteUsecaseCallData extends UsecaseBaseCallData<String, bool> {
   });
 
   @override
-  Future<ReturnSuccessOrError<String>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    final teste = await resultDatasource(parameters);
-    switch (teste) {
-      case SuccessReturn<bool>():
-        if (teste.result) {
-          return const SuccessReturn<String>(success: "Regra de negocio true");
-        } else {
-          return const SuccessReturn<String>(success: "Regra de negocio false");
-        }
+  ProcessData<String, bool> get process => _process;
 
-      case ErrorReturn<bool>():
-        return ErrorReturn<String>(error: parameters.error);
-    }
-  }
+  static ReturnSuccessOrError<String> _process(
+    bool data,
+    ParametersReturnResult parameters,
+  ) => data
+      ? const SuccessReturn<String>(success: "Regra de negocio true")
+      : const SuccessReturn<String>(success: "Regra de negocio false");
 }
 
 final class TesteUsecaseDirect extends UsecaseBase<String> {
-  final bool testeDependencia;
-
-  TesteUsecaseDirect({
-    required this.testeDependencia,
-    super.runInIsolate,
-    super.monitorExecutionTime,
-  });
+  const TesteUsecaseDirect({super.runInIsolate, super.monitorExecutionTime});
 
   @override
-  Future<ReturnSuccessOrError<String>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    if (testeDependencia) {
-      return SuccessReturn<String>(success: parameters.nome);
-    } else {
-      return ErrorReturn(error: parameters.error);
-    }
+  ProcessPure<String> get process => _process;
+
+  static ReturnSuccessOrError<String> _process(
+    ParametersReturnResult parameters,
+  ) {
+    final params = parameters as ParametersSalvarHeader;
+    return params.sucesso
+        ? SuccessReturn<String>(success: params.nome)
+        : ErrorReturn(error: params.error);
   }
 }
 
@@ -109,62 +80,79 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<Unit, bool> {
   TesteUsecaseCallDataVoid({required super.datasource, super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<Unit>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    final teste = await resultDatasource(parameters);
-    switch (teste) {
-      case SuccessReturn<bool>():
-        return const SuccessReturn<Unit>(success: unit);
-      case ErrorReturn<bool>():
-        return ErrorReturn<Unit>(error: parameters.error);
-    }
-  }
+  ProcessData<Unit, bool> get process => _process;
+
+  static ReturnSuccessOrError<Unit> _process(
+    bool data,
+    ParametersReturnResult parameters,
+  ) => const SuccessReturn<Unit>(success: unit);
 }
 
 final class TesteUsecaseDirectVoid extends UsecaseBase<Unit> {
-  TesteUsecaseDirectVoid({super.runInIsolate});
+  const TesteUsecaseDirectVoid({super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<Unit>> run(NoParams parameters) async {
-    return const SuccessReturn<Unit>(success: unit);
-  }
+  ProcessPure<Unit> get process => _process;
+
+  static ReturnSuccessOrError<Unit> _process(
+    ParametersReturnResult parameters,
+  ) => const SuccessReturn<Unit>(success: unit);
 }
 
 final class TesteUsecaseCallDataNull extends UsecaseBaseCallData<Nil, bool> {
   TesteUsecaseCallDataNull({required super.datasource, super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<Nil>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    final teste = await resultDatasource(parameters);
-    switch (teste) {
-      case SuccessReturn<bool>():
-        return const SuccessReturn<Nil>(success: nil);
-      case ErrorReturn<bool>():
-        return ErrorReturn<Nil>(error: parameters.error);
-    }
-  }
+  ProcessData<Nil, bool> get process => _process;
+
+  static ReturnSuccessOrError<Nil> _process(
+    bool data,
+    ParametersReturnResult parameters,
+  ) => const SuccessReturn<Nil>(success: nil);
 }
 
 final class TesteUsecaseDirectNull extends UsecaseBase<Nil> {
-  TesteUsecaseDirectNull({super.runInIsolate});
+  const TesteUsecaseDirectNull({super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<Nil>> run(NoParams parameters) async {
-    return const SuccessReturn<Nil>(success: nil);
+  ProcessPure<Nil> get process => _process;
+
+  static ReturnSuccessOrError<Nil> _process(
+    ParametersReturnResult parameters,
+  ) => const SuccessReturn<Nil>(success: nil);
+}
+
+/// Usecase cujo [process] lança exceção — testa o catch do [Isolate.run]
+/// (`Cod. IsolateCatch`).
+final class TesteUsecaseLancaExcecao extends UsecaseBase<String> {
+  const TesteUsecaseLancaExcecao({super.runInIsolate});
+
+  @override
+  ProcessPure<String> get process => _process;
+
+  static ReturnSuccessOrError<String> _process(
+    ParametersReturnResult parameters,
+  ) {
+    throw Exception('excecao direta no process');
   }
 }
 
-final class TesteUsecaseLancaExcecao extends UsecaseBase<String> {
-  TesteUsecaseLancaExcecao({super.runInIsolate});
+/// Conta quantas vezes o [process] foi executado — prova que o short-circuit no
+/// erro do datasource impede a chamada do process.
+int processCallCount = 0;
+
+final class TesteUsecaseContaProcess extends UsecaseBaseCallData<String, bool> {
+  TesteUsecaseContaProcess({required super.datasource});
 
   @override
-  Future<ReturnSuccessOrError<String>> run(
-    ParametersSalvarHeader parameters,
-  ) async {
-    throw Exception('excecao direta no run');
+  ProcessData<String, bool> get process => _process;
+
+  static ReturnSuccessOrError<String> _process(
+    bool data,
+    ParametersReturnResult parameters,
+  ) {
+    processCallCount++;
+    return const SuccessReturn<String>(success: "ok");
   }
 }
 
@@ -172,11 +160,8 @@ void main() {
   late Datasource<bool> datasource;
   final parameters = ParametersSalvarHeader(nome: 'Teste UsecaseBase');
   late TesteUsecaseCallData returnResultUsecaseCallData;
-  late TesteUsecaseDirect returnResultUsecaseBase;
   late TesteUsecaseCallDataVoid returnResultUsecaseCallDataVoid;
-  late TesteUsecaseDirectVoid returnResultUsecaseBaseVoid;
   late TesteUsecaseCallDataNull returnResultUsecaseCallDataNull;
-  late TesteUsecaseDirectNull returnResultUsecaseBaseNull;
 
   setUp(() {
     datasource = ReturnResultDatasourceMock();
@@ -187,239 +172,242 @@ void main() {
     returnResultUsecaseCallDataNull = TesteUsecaseCallDataNull(
       datasource: datasource,
     );
+    processCallCount = 0;
   });
 
-  test('Deve retornar um success com "Teste Void"', () async {
-    returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid();
-    final data = await returnResultUsecaseBaseVoid(
-      const NoParams(error: ErrorGeneric(message: "teste parrametros")),
-    );
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn<Unit>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+  group('UsecaseBase (process puro)', () {
+    test('Deve retornar um success com "Teste Void"', () async {
+      const usecase = TesteUsecaseDirectVoid();
+      final data = await usecase(
+        const NoParams(error: ErrorGeneric(message: "teste parrametros")),
+      );
+      switch (data) {
+        case SuccessReturn<Unit>():
+          expect(data.result, isA<Unit>());
+        case ErrorReturn<Unit>():
+          fail('Esperava SuccessReturn');
+      }
+    });
 
-  test('Deve retornar um success com "Teste Void" isolate', () async {
-    returnResultUsecaseBaseVoid = TesteUsecaseDirectVoid(runInIsolate: true);
-    final data = await returnResultUsecaseBaseVoid(
-      const NoParams(error: ErrorGeneric(message: "teste parrametros")),
-    );
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+    test('Deve retornar um success com "Teste Void" isolate', () async {
+      const usecase = TesteUsecaseDirectVoid(runInIsolate: true);
+      final data = await usecase(
+        const NoParams(error: ErrorGeneric(message: "teste parrametros")),
+      );
+      switch (data) {
+        case SuccessReturn<Unit>():
+          expect(data.result, isA<Unit>());
+        case ErrorReturn<Unit>():
+          fail('Esperava SuccessReturn');
+      }
+    });
 
-  test('Deve retornar um success com "Teste Null"', () async {
-    returnResultUsecaseBaseNull = TesteUsecaseDirectNull();
-    final data = await returnResultUsecaseBaseNull(
-      const NoParams(error: ErrorGeneric(message: "teste parrametros")),
-    );
-    switch (data) {
-      case SuccessReturn<Nil>():
-        expect(data.result, isA<Nil>());
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+    test('Deve retornar um success com "Teste Null"', () async {
+      const usecase = TesteUsecaseDirectNull();
+      final data = await usecase(
+        const NoParams(error: ErrorGeneric(message: "teste parrametros")),
+      );
+      switch (data) {
+        case SuccessReturn<Nil>():
+          expect(data.result, isA<Nil>());
+        case ErrorReturn<Nil>():
+          fail('Esperava SuccessReturn');
+      }
+    });
 
-  test('Deve retornar um success com "Teste Null" isolate', () async {
-    returnResultUsecaseBaseNull = TesteUsecaseDirectNull(runInIsolate: true);
-    final data = await returnResultUsecaseBaseNull(
-      const NoParams(error: ErrorGeneric(message: "teste parrametros")),
-    );
-    switch (data) {
-      case SuccessReturn<Nil>():
-        expect(data.result, isA<Nil>());
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+    test('Deve retornar um success com "Teste Null" isolate', () async {
+      const usecase = TesteUsecaseDirectNull(runInIsolate: true);
+      final data = await usecase(
+        const NoParams(error: ErrorGeneric(message: "teste parrametros")),
+      );
+      switch (data) {
+        case SuccessReturn<Nil>():
+          expect(data.result, isA<Nil>());
+        case ErrorReturn<Nil>():
+          fail('Esperava SuccessReturn');
+      }
+    });
 
-  test('Deve retornar um success com "Teste UsecaseBase"', () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: true);
-    final data = await returnResultUsecaseBase(parameters);
-    switch (data) {
-      case SuccessReturn():
-        expect(data.result, equals("Teste UsecaseBase"));
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test('Deve retornar um success com "Teste UsecaseBase" isolate', () async {
-    returnResultUsecaseBase = TesteUsecaseDirect(
-      testeDependencia: true,
-      runInIsolate: true,
-    );
-    final data = await returnResultUsecaseBase(parameters);
-    switch (data) {
-      case SuccessReturn():
-        expect(data.result, equals("Teste UsecaseBase"));
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test(
-    'Deve retornar um AppError com ErrorGeneric - Error General Feature',
-    () async {
-      returnResultUsecaseBase = TesteUsecaseDirect(testeDependencia: false);
-      final data = await returnResultUsecaseBase(parameters);
+    test('Deve retornar um success com "Teste UsecaseBase"', () async {
+      const usecase = TesteUsecaseDirect();
+      final data = await usecase(parameters);
       switch (data) {
         case SuccessReturn():
           expect(data.result, equals("Teste UsecaseBase"));
         case ErrorReturn():
+          fail('Esperava SuccessReturn');
+      }
+    });
+
+    test('Deve retornar um success com "Teste UsecaseBase" isolate', () async {
+      const usecase = TesteUsecaseDirect(runInIsolate: true);
+      final data = await usecase(parameters);
+      switch (data) {
+        case SuccessReturn():
+          expect(data.result, equals("Teste UsecaseBase"));
+        case ErrorReturn():
+          fail('Esperava SuccessReturn');
+      }
+    });
+
+    test('Deve retornar um AppError com ErrorGeneric', () async {
+      const usecase = TesteUsecaseDirect();
+      final data = await usecase(
+        ParametersSalvarHeader(nome: 'falha', sucesso: false),
+      );
+      switch (data) {
+        case SuccessReturn():
+          fail('Esperava ErrorReturn');
+        case ErrorReturn():
           expect(data.result, isA<ErrorGeneric>());
       }
-    },
-  );
+    });
 
-  test(
-    'Deve retornar um AppError com ErrorGeneric - Error General Feature isolate',
-    () async {
-      returnResultUsecaseBase = TesteUsecaseDirect(
-        testeDependencia: false,
+    test(
+      'process que lança em isolate vira ErrorReturn com Cod. IsolateCatch',
+      () async {
+        const usecase = TesteUsecaseLancaExcecao(runInIsolate: true);
+        final data = await usecase(parameters);
+        switch (data) {
+          case SuccessReturn<String>():
+            fail('Esperava ErrorReturn');
+          case ErrorReturn<String>():
+            expect(data.result, isA<ErrorGeneric>());
+            expect(data.result.message, contains('Cod. IsolateCatch'));
+            expect(data.result.message, contains('excecao direta no process'));
+        }
+      },
+    );
+  });
+
+  group('UsecaseBaseCallData (fetch + process)', () {
+    test('Deve retornar um success void data "true"', () async {
+      when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
+      final data = await returnResultUsecaseCallDataVoid(parameters);
+      switch (data) {
+        case SuccessReturn<Unit>():
+          expect(data.result, isA<Unit>());
+        case ErrorReturn<Unit>():
+          fail('Esperava SuccessReturn');
+      }
+    });
+
+    test('Deve retornar um success void data "true" isolate', () async {
+      final usecase = TesteUsecaseCallDataVoid(
+        datasource: const SendableBoolDatasource(true),
         runInIsolate: true,
       );
-      final data = await returnResultUsecaseBase(parameters);
+      final data = await usecase(parameters);
       switch (data) {
-        case SuccessReturn():
-          expect(data.result, equals("Teste UsecaseBase"));
-        case ErrorReturn():
+        case SuccessReturn<Unit>():
+          expect(data.result, isA<Unit>());
+        case ErrorReturn<Unit>():
+          fail('Esperava SuccessReturn');
+      }
+    });
+
+    test('Deve retornar um AppError com ErrorGeneric void', () async {
+      when(() => datasource(parameters)).thenThrow(Exception());
+      final data = await returnResultUsecaseCallDataVoid(parameters);
+      switch (data) {
+        case SuccessReturn<Unit>():
+          fail('Esperava ErrorReturn');
+        case ErrorReturn<Unit>():
           expect(data.result, isA<ErrorGeneric>());
       }
-    },
-  );
+    });
 
-  test('Deve retornar um success void data "true"', () async {
-    when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
-    final data = await returnResultUsecaseCallDataVoid(parameters);
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn<Unit>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+    test('Deve retornar um success null data "true"', () async {
+      when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
+      final data = await returnResultUsecaseCallDataNull(parameters);
+      switch (data) {
+        case SuccessReturn<Nil>():
+          expect(data.result, isA<Nil>());
+        case ErrorReturn<Nil>():
+          fail('Esperava SuccessReturn');
+      }
+    });
 
-  test('Deve retornar um success void data "true" isolate', () async {
-    final usecase = TesteUsecaseCallDataVoid(
-      datasource: const SendableBoolDatasource(true),
-      runInIsolate: true,
-    );
-    final data = await usecase(parameters);
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn<Unit>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
+    test('Deve retornar um AppError com ErrorGeneric null', () async {
+      when(() => datasource(parameters)).thenThrow(Exception());
+      final data = await returnResultUsecaseCallDataNull(parameters);
+      switch (data) {
+        case SuccessReturn<Nil>():
+          fail('Esperava ErrorReturn');
+        case ErrorReturn<Nil>():
+          expect(data.result, isA<ErrorGeneric>());
+      }
+    });
 
-  test('Deve retornar um success void data "false"', () async {
-    when(() => datasource(parameters)).thenAnswer((_) => Future.value(false));
-    final data = await returnResultUsecaseCallDataVoid(parameters);
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test('Deve retornar um AppError com ErrorGeneric void', () async {
-    when(() => datasource(parameters)).thenThrow(Exception());
-    final data = await returnResultUsecaseCallDataVoid(parameters);
-    switch (data) {
-      case SuccessReturn<Unit>():
-        expect(data.result, isA<Unit>());
-      case ErrorReturn<Unit>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test('Deve retornar um success null data "true"', () async {
-    when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
-    final data = await returnResultUsecaseCallDataNull(parameters);
-    switch (data) {
-      case SuccessReturn<Nil>():
-        expect(data.result, isA<Nil>());
-      case ErrorReturn<Nil>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test('Deve retornar um AppError com ErrorGeneric null', () async {
-    when(() => datasource(parameters)).thenThrow(Exception());
-    final data = await returnResultUsecaseCallDataNull(parameters);
-    switch (data) {
-      case SuccessReturn<Nil>():
-        expect(data.result, isA<Nil>());
-      case ErrorReturn<Nil>():
-        expect(data.result, isA<ErrorGeneric>());
-    }
-  });
-
-  test(
-    'Deve retornar um success com "Regra de negocio OK" data "true"',
-    () async {
+    test('Deve retornar um success com "Regra de negocio true"', () async {
       when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
       final data = await returnResultUsecaseCallData(parameters);
       switch (data) {
         case SuccessReturn():
           expect(data.result, equals("Regra de negocio true"));
         case ErrorReturn():
-          expect(data.result, isA<ErrorGeneric>());
+          fail('Esperava SuccessReturn');
       }
-    },
-  );
+    });
 
-  test(
-    'Deve retornar um success com "Regra de negocio OK" data "false"',
-    () async {
+    test('Deve retornar um success com "Regra de negocio false"', () async {
       when(() => datasource(parameters)).thenAnswer((_) => Future.value(false));
       final data = await returnResultUsecaseCallData(parameters);
       switch (data) {
         case SuccessReturn():
           expect(data.result, equals("Regra de negocio false"));
         case ErrorReturn():
-          expect(data.result, isA<ErrorGeneric>());
+          fail('Esperava SuccessReturn');
       }
-    },
-  );
+    });
 
-  test('Deve retornar um AppError quando o datasource lança exceção', () async {
-    when(() => datasource(parameters)).thenThrow(Exception());
-    final data = await returnResultUsecaseCallData(parameters);
-    switch (data) {
-      case SuccessReturn():
-        fail('Esperava ErrorReturn');
-      case ErrorReturn():
-        expect(data.result, isA<ErrorGeneric>());
-    }
+    test(
+      'Deve retornar um AppError quando o datasource lança exceção',
+      () async {
+        when(() => datasource(parameters)).thenThrow(Exception());
+        final data = await returnResultUsecaseCallData(parameters);
+        switch (data) {
+          case SuccessReturn():
+            fail('Esperava ErrorReturn');
+          case ErrorReturn():
+            expect(data.result, isA<ErrorGeneric>());
+        }
+      },
+    );
+
+    test('Erro do datasource é enriquecido com Cod. 02-1 preservando a '
+        'original', () async {
+      when(() => datasource(parameters)).thenThrow(Exception('boom'));
+      final data = await returnResultUsecaseCallData(parameters);
+
+      expect(data, isA<ErrorReturn<String>>());
+      final message = (data as ErrorReturn<String>).result.message;
+      expect(message, contains('teste parrametros')); // mensagem original
+      expect(message, contains('Cod. 02-1')); // código do catch
+      expect(message, contains('boom')); // contexto da exceção
+    });
+
+    test('Short-circuit: process NÃO é chamado quando o fetch falha', () async {
+      when(() => datasource(parameters)).thenThrow(Exception('falha no fetch'));
+      final usecase = TesteUsecaseContaProcess(datasource: datasource);
+
+      final data = await usecase(parameters);
+
+      expect(data, isA<ErrorReturn<String>>());
+      expect(processCallCount, equals(0));
+    });
+
+    test('process É chamado quando o fetch tem sucesso', () async {
+      when(() => datasource(parameters)).thenAnswer((_) => Future.value(true));
+      final usecase = TesteUsecaseContaProcess(datasource: datasource);
+
+      await usecase(parameters);
+
+      expect(processCallCount, equals(1));
+    });
   });
 
-  test('resultDatasource deve enriquecer a mensagem de erro com Cod. 02-1 '
-      'preservando a original', () async {
-    when(() => datasource(parameters)).thenThrow(Exception('boom'));
-    final usecase = TesteUsecasePropagaErro(datasource: datasource);
-
-    final data = await usecase(parameters);
-
-    expect(data, isA<ErrorReturn<String>>());
-    final message = (data as ErrorReturn<String>).result.message;
-    expect(message, contains('teste parrametros')); // mensagem original
-    expect(message, contains('Cod. 02-1')); // código do catch
-    expect(message, contains('boom')); // contexto da exceção
-  });
-
-  group('Usecase executando em Isolate (datasource sendable)', () {
+  group('Usecase processando o datasource em Isolate (sendable)', () {
     test('Deve retornar success processando o datasource em isolate', () async {
       final usecase = TesteUsecaseCallData(
         datasource: const SendableBoolDatasource(true),
@@ -456,9 +444,13 @@ void main() {
     );
 
     test(
-      'Deve retornar ErrorReturn com AppError contendo a mensagem de erro do isolate',
+      'Erro do datasource em isolate é enriquecido com Cod. 02-1 (fetch roda '
+      'fora do isolate)',
       () async {
-        final usecase = TesteUsecaseLancaExcecao(runInIsolate: true);
+        final usecase = TesteUsecaseCallData(
+          datasource: const SendableExceptionDatasource(),
+          runInIsolate: true,
+        );
 
         final data = await usecase(parameters);
 
@@ -467,8 +459,7 @@ void main() {
             fail('Esperava ErrorReturn');
           case ErrorReturn<String>():
             expect(data.result, isA<ErrorGeneric>());
-            expect(data.result.message, contains('Cod. IsolateCatch'));
-            expect(data.result.message, contains('excecao direta no run'));
+            expect(data.result.message, contains('Cod. 02-1'));
         }
       },
     );
@@ -476,19 +467,13 @@ void main() {
 
   group('monitorExecutionTime', () {
     test('desligado por padrão', () {
-      expect(
-        TesteUsecaseDirect(testeDependencia: true).monitorExecutionTime,
-        isFalse,
-      );
+      expect(const TesteUsecaseDirect().monitorExecutionTime, isFalse);
     });
 
     test(
       'com monitoramento ligado o resultado é idêntico (caminho direto)',
       () async {
-        final usecase = TesteUsecaseDirect(
-          testeDependencia: true,
-          monitorExecutionTime: true,
-        );
+        const usecase = TesteUsecaseDirect(monitorExecutionTime: true);
         final data = await usecase(parameters);
         switch (data) {
           case SuccessReturn<String>():

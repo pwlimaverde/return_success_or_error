@@ -4,26 +4,23 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 /// mensagem.
 ///
 /// Estende [UsecaseBaseCallData]: `String` é o tipo retornado pelo usecase e
-/// `bool` é o tipo cru do datasource. O datasource é encaminhado pelo construtor
-/// (`super.datasource`) e permanece privado — a subclasse apenas chama
-/// `resultDatasource` e faz `switch` sobre o resultado.
+/// `bool` é o tipo cru do datasource. A base faz o fetch do datasource e, em
+/// caso de sucesso, chama [process] com o `bool` já desempacotado — a subclasse
+/// só implementa a regra de negócio sobre o dado bruto.
 final class CheckConnectionUsecase extends UsecaseBaseCallData<String, bool> {
   CheckConnectionUsecase({required super.datasource, super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<String>> run(
-    ParametersReturnResult parameters,
-  ) async {
-    final result = await resultDatasource(parameters);
+  ProcessData<String, bool> get process => _process;
 
-    return switch (result) {
-      SuccessReturn<bool>() =>
-        result.result
-            ? const SuccessReturn(success: "You are connected")
-            : ErrorReturn(
-                error: parameters.error.copyWith(message: "You are offline"),
-              ),
-      ErrorReturn<bool>() => ErrorReturn(error: result.result),
-    };
-  }
+  /// Função estática (não captura `this`): recebe o `bool` já carregado pelo
+  /// datasource e devolve a mensagem ou um erro de negócio.
+  static ReturnSuccessOrError<String> _process(
+    bool online,
+    ParametersReturnResult parameters,
+  ) => online
+      ? const SuccessReturn(success: "You are connected")
+      : ErrorReturn(
+          error: parameters.error.copyWith(message: "You are offline"),
+        );
 }
