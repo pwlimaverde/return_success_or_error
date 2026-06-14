@@ -58,12 +58,14 @@ ErrorReturn<T> _errorWithCatch<T>(
 void _logTime(Object runner, int milliseconds, {required bool isIsolate}) {
   final message =
       "Execution Time ${runner.runtimeType} ${isIsolate ? '(Isolate)' : '(Direct)'}: ${milliseconds}ms";
-  // Exibe na saída padrão (console/CLI), útil para testes e depuração em terminal.
+
+  // Intencional: monitorExecutionTime é opt-in para depuração e o print é a
+  // única saída visível em `dart run` / `dart test`.
+  // ignore: avoid_print
   print("[return_success_or_error] $message");
-  log(
-    message,
-    name: "return_success_or_error",
-  );
+
+  // Também loga via dart:developer para quem estiver no DevTools/Observatory.
+  log(message, name: "return_success_or_error");
 }
 
 /// Executa [stage] diretamente ou em um [Isolate] de background conforme

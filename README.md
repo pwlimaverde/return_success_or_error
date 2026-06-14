@@ -12,6 +12,71 @@ must always be handled explicitly.
 > Pure Dart: it has **no Flutter dependency** and runs in any Dart project (CLI, server,
 > backend) as well as in Flutter apps.
 
+## The Problem
+
+In apps built with Clean Architecture, each feature follows the flow
+**datasource → usecase → UI**. Two recurring pain points emerge from this model:
+
+1. **Heavy processing blocks the UI.** When the usecase needs to parse large
+   payloads, aggregate thousands of rows, or transform complex data structures, the
+   work runs on the main thread (event loop). In Flutter, that means **dropped frames
+   and frozen interfaces** — the user sees the app "hanging" while the CPU is busy.
+
+2. **Datasources can't simply be moved to a background isolate.** A datasource often
+   holds native resources — database connections, sockets, platform channels — that are
+   **not serializable** and cannot cross the isolate boundary. Sending the entire
+   usecase (including its datasource) to `Isolate.run` breaks at runtime.
+
+3. **Errors leak between layers.** Without a standardized result type, exceptions
+   thrown by the datasource propagate up unhandled, mixing infrastructure failures
+   with business-logic errors and making the code fragile and hard to debug.
+
+### The solution
+
+`return_success_or_error` solves all three by design:
+
+- **Sealed result type** (`ReturnSuccessOrError<T>`) — every call returns either
+  `SuccessReturn<T>` or `ErrorReturn<T>`. The compiler forces exhaustive handling via
+  `switch`; no exception can silently leak.
+- **Fetch/process separation** — the base class orchestrates the datasource call
+  (fetch) on the **main isolate**, keeping native resources safe. Only the pure
+  processing function (`process`) can optionally run on a **background isolate** via
+  `runInIsolate: true`. Since `process` is a static function, it never captures `this`
+  nor the datasource — only the raw data and the result cross the isolate boundary.
+- **Automatic short-circuit** — if the fetch fails, the error is returned immediately
+  and the processing phase is never executed, avoiding unnecessary work.
+- **Feature-based organization** — the package naturally guides the separation of each
+  feature into well-defined layers (`datasources/`, `domain/model/`,
+  `domain/parameters/`, `domain/usecase/`). Each piece has a single responsibility: the
+  datasource handles only I/O, the model carries the processed data, the parameters
+  define the typed input, and the usecase contains exclusively the business rule — with
+  no coupling between them.
+
+#### Concrete example: Sales Report
+
+The `sales_report` example illustrates the full cycle. A datasource queries the
+database and returns **50 thousand raw sale rows** (fetch phase, async, on the main
+isolate). The usecase receives those already-loaded rows and aggregates total revenue,
+average ticket, and best-selling product into a `SalesReport` object (process phase,
+CPU-bound, optionally on a background isolate). The UI never freezes:
+
+```
+sales_report/
+  datasources/
+    fake_sales_datasource.dart        ← I/O: queries the database, returns List<Map>
+  domain/
+    model/
+      sales_report.dart               ← Processed object (immutable, sendable)
+    parameters/
+      sales_report_parameters.dart    ← Typed input (month, year, AppError)
+    usecase/
+      gerar_sales_report_usecase.dart ← Business rule: parsing + aggregation
+```
+
+With `runInIsolate: true`, the heavy processing runs on a background isolate and the
+UI stays fluid. With `monitorExecutionTime: true`, you can compare direct vs. isolate
+timing and decide which path pays off for each data volume.
+
 ## Why use it
 
 - **One return type for everything.** Every call resolves to `ReturnSuccessOrError<T>` —
@@ -21,8 +86,9 @@ must always be handled explicitly.
 - **Clear separation of concerns.** The business rule (usecase) is decoupled from the
   external call (datasource); the datasource is encapsulated and reached through a single
   bridge.
-- **Optional background processing.** Any usecase can run on a background isolate by
-  constructing it with `runInIsolate: true`, keeping the app responsive during heavy work.
+- **Optional background processing.** Any usecase can run its processing on a background
+  isolate by constructing it with `runInIsolate: true`, keeping the app responsive during
+  heavy work — while the datasource stays safely on the main isolate.
 
 ## Core concepts
 
@@ -44,7 +110,7 @@ must always be handled explicitly.
 
 ```yaml
 dependencies:
-  return_success_or_error: ^1.0.0
+  return_success_or_error: ^2.0.0
 ```
 
 ```dart
@@ -308,9 +374,17 @@ lib/
 ## Example
 
 The [`example/`](example/) directory contains a **pure Dart** (CLI) example demonstrating
-the package without Flutter: a `UsecaseBaseCallData` consuming a `Datasource` (success,
-business error and a captured exception) and a `UsecaseBase` running on a background isolate
-via `runInIsolate: true`. Run it with `dart run bin/example.dart` and the tests with `dart test`.
+the package without Flutter:
+
+- **`check_connection`** — a `UsecaseBaseCallData` consuming a `Datasource` (success,
+  business error and a captured exception).
+- **`fibonacci`** — a `UsecaseBase` running on a background isolate via `runInIsolate: true`.
+- **`sales_report`** — demonstrates the **fetch → process** flow: the datasource returns
+  50k raw sale rows (fetch phase, main isolate) and the `process` (static function) aggregates
+  them into a `SalesReport` object (processing phase, background isolate). Includes
+  `monitorExecutionTime` for comparing direct vs. isolate execution times.
+
+Run it with `dart run bin/example.dart` and the tests with `dart test`.
 
 ## Environment
 
