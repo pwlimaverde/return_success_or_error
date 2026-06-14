@@ -14,21 +14,26 @@ void main() {
     );
     final data = await usecase(params);
 
-    expect(data.isSuccess, isTrue);
-    expect(data.getOrNull, equals("You are connected"));
+    switch (data) {
+      case SuccessReturn<String>():
+        expect(data.result, equals("You are connected"));
+      case ErrorReturn<String>():
+        fail('Esperava SuccessReturn');
+    }
   });
 
-  test('offline -> error de negócio "You are offline"', () async {
+  test('offline -> erro de negócio "You are offline"', () async {
     final usecase = CheckConnectionUsecase(
       datasource: const FakeConnectivityDatasource(online: false),
     );
     final data = await usecase(params);
 
-    expect(data.isError, isTrue);
-    expect(
-      (data as ErrorReturn<String>).result.message,
-      equals("You are offline"),
-    );
+    switch (data) {
+      case SuccessReturn<String>():
+        fail('Esperava ErrorReturn');
+      case ErrorReturn<String>():
+        expect(data.result.message, equals("You are offline"));
+    }
   });
 
   test('exceção do datasource -> error enriquecido com Cod. 02-1', () async {
@@ -37,9 +42,27 @@ void main() {
     );
     final data = await usecase(params);
 
-    expect(data, isA<ErrorReturn<String>>());
-    final message = (data as ErrorReturn<String>).result.message;
-    expect(message, contains("Cod. 02-1"));
-    expect(message, contains("simulated network failure"));
+    switch (data) {
+      case SuccessReturn<String>():
+        fail('Esperava ErrorReturn');
+      case ErrorReturn<String>():
+        expect(data.result.message, contains("Cod. 02-1"));
+        expect(data.result.message, contains("simulated network failure"));
+    }
+  });
+
+  test('funcionamento em Isolate com runInIsolate: true', () async {
+    final usecase = CheckConnectionUsecase(
+      datasource: const FakeConnectivityDatasource(online: true),
+      runInIsolate: true,
+    );
+    final data = await usecase(params);
+
+    switch (data) {
+      case SuccessReturn<String>():
+        expect(data.result, equals("You are connected"));
+      case ErrorReturn<String>():
+        fail('Esperava SuccessReturn');
+    }
   });
 }

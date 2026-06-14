@@ -15,11 +15,10 @@ chamada externa (datasource) e permitindo isolar o processamento em uma thread (
 | Arquivo | Papel |
 |---------|-------|
 | `core/return_success_or_error.dart` | Tipo selado `ReturnSuccessOrError<R>` + `SuccessReturn`/`ErrorReturn`, helpers e singletons `Unit`/`Nil`. |
-| `bases/usecase_base.dart` | `UsecaseBase`, `UsecaseBaseCallData`, mixin `_UsecaseRunner` (`call`/`callIsolate`) e `resultDatasource`. |
+| `bases/usecase_base.dart` | `UsecaseBase`, `UsecaseBaseCallData`, mixin `_UsecaseRunner` (`call`, com flags `runInIsolate`/`monitorExecutionTime`) e `resultDatasource`. |
 | `interfaces/datasource.dart` | Contrato `Datasource<TypeDatasource>`. |
 | `interfaces/parameters.dart` | Interface `ParametersReturnResult` + `NoParams`. |
 | `interfaces/errors.dart` | Contrato imutável `AppError` + `ErrorGeneric`. |
-| `core/service.dart` | Singleton `Service` (bootstrap de DI/serviços). |
 
 Tudo é exportado por [lib/return_success_or_error.dart](../lib/return_success_or_error.dart).
 
@@ -53,7 +52,7 @@ switch (result) {                                  // (6) usecase mapeia D -> Ty
   │
   ▼
 ReturnSuccessOrError<TypeUsecase>                  // (7) resultado final
-  →  switch | fold | isSuccess | getOrNull | getOrElse
+  →  switch exaustivo (SuccessReturn / ErrorReturn)
 ```
 
 1. **`call` é posicional e `covariant`.** A assinatura na base é
@@ -75,42 +74,46 @@ ReturnSuccessOrError<TypeUsecase>                  // (7) resultado final
      `_datasourceCatchCode` e marca onde a falha foi capturada.
 6. O usecase faz `switch` exaustivo sobre o resultado do datasource (`TypeDatasource`) e o
    mapeia para o seu próprio tipo (`TypeUsecase`).
-7. O consumidor trata `ReturnSuccessOrError<TypeUsecase>` com `switch` ou helpers.
+7. O consumidor trata `ReturnSuccessOrError<TypeUsecase>` com `switch` exaustivo.
 
-### Caminho do `callIsolate`
+### Execução em `Isolate` (`runInIsolate`)
 
-`callIsolate` (no mixin `_UsecaseRunner`) roda o `call` acima em `Isolate.run`, mede o tempo
-com `Stopwatch` (aguardando o `await`) e loga via `dart:developer` **apenas em debug** (gate
-por idiom `assert`). Restrição: tudo capturado por `call` (o usecase e seu datasource) deve
+Com `runInIsolate: true` no construtor, o `call` delega o `run` a `Isolate.run` (via o helper
+privado `_execute`), convertendo qualquer falha do isolate em `ErrorReturn` com o código
+`Cod. IsolateCatch`. Restrição: tudo capturado por `run` (o usecase e seu datasource) deve
 ser *sendable*. Datasources que seguram recursos não-transferíveis (sockets, handles de
-plugin) não podem rodar por `callIsolate`.
+plugin) não podem rodar em isolate.
+
+### Medição de tempo (`monitorExecutionTime`)
+
+A medição é **opcional e desligada por padrão**. Só quando o construtor recebe
+`monitorExecutionTime: true` o `call` envolve a execução em um `Stopwatch` e loga o tempo via
+`dart:developer`. Quando `false` (padrão), não há `Stopwatch` nem `log` — custo zero em
+produção. A escolha é explícita do desenvolvedor: ligue apenas ao perfilar o usecase.
 
 ## Decisões de design
 
 - **Tipo selado em vez de `Either`/exceptions.** O `sealed class` faz o compilador exigir o
   tratamento dos dois casos; não há caminho "esquecido".
-- **Campos nas subclasses, não na base.** `SuccessReturn.result` (`R`) e `ErrorReturn.result`
-  (`AppError`) são campos `final` próprios — a base é sem estado. Evita os antigos campos
-  nullable + operador `!`. Os construtores nomeados (`success:`/`error:`) e o getter
-  `.result` foram preservados para não quebrar call sites.
+- **Cada caso guarda o próprio campo.** A base é sem estado (só o contrato `Object? get result`);
+  `SuccessReturn` guarda `_success` (`final`, tipo `R`) e `ErrorReturn` guarda `_error` (`final`,
+  `AppError`), ambos recebidos por **private named parameter** (Dart 3.12,
+  `const SuccessReturn({required this._success})`). Cada subclasse expõe um getter `result`
+  tipado (`R` em `SuccessReturn`, `AppError` em `ErrorReturn`). Sem nullability nem `!`: cada
+  caso só conhece o seu valor.
+- **Resultado imutável e comparável por valor.** O tipo selado e os dois casos são `@immutable`;
+  `SuccessReturn`/`ErrorReturn` implementam `==`/`hashCode` pelo valor que carregam, facilitando
+  asserts e comparações.
 - **Erro imutável.** `AppError` é `@immutable`; enriquecer = `copyWith`, nunca mutar. Isso
   evita efeitos colaterais ao propagar o mesmo erro por várias camadas.
 - **`ErrorGeneric` compara por valor** (`==`/`hashCode` por `message`) — previsível em
   asserts/comparações.
 - **`ParametersReturnResult` é interface pura.** Só `AppError get error;`. Implementadores
   usam `implements` e declaram seus próprios dados.
-- **`Unit`/`Nil` são singletons** (`factory` + instância privada) — identidade já garante
-  igualdade; representam `void` e `null` como resultados de sucesso.
+- **`Unit`/`Nil` são singletons** (construtor `const` + instância `const` `unit`/`nil`) —
+  a canonicalização do Dart garante identidade; representam `void` e `null` como resultados
+  de sucesso.
 - **Dependência única: `package:meta`** (para `@protected`/`@immutable`). Sem Flutter.
-
-## Helpers de `ReturnSuccessOrError`
-
-| Helper | Assinatura | Uso |
-|--------|-----------|-----|
-| `fold` | `T fold<T>({onSuccess, onError})` | Resolve os dois casos em um único valor. |
-| `isSuccess` / `isError` | `bool` | Checagem rápida do caso. |
-| `getOrNull` | `R?` | Valor em sucesso, `null` em erro. |
-| `getOrElse` | `R getOrElse(R Function(AppError))` | Valor em sucesso, fallback em erro. |
 
 ## Pontos de extensão para quem usa a lib
 
@@ -121,10 +124,9 @@ plugin) não podem rodar por `callIsolate`.
 
 ## Onde está testado
 
-- `test/src/core/return_success_or_error_test.dart` — `fold`/`isSuccess`/`getOrNull`/`getOrElse`,
+- `test/src/core/return_success_or_error_test.dart` — pattern matching, igualdade por valor,
   `toString`, singletons.
 - `test/src/bases/usecase_base_test.dart` — fluxo completo (sucesso/erro/void/nil),
-  enriquecimento `Cod. 02-1`, `callIsolate` (regra pura e com datasource *sendable*).
-- `test/src/core/service_test.dart` — singleton, `initDependencies`, `initServices`.
+  enriquecimento `Cod. 02-1`, execução em isolate (regra pura e com datasource *sendable*).
 - `test/src/interfaces/*` — `Datasource`, `AppError`/`ErrorGeneric` (igualdade), `NoParams`.
 - `example/test/*` — features do exemplo (Fibonacci, CheckConnection, datasource fake).

@@ -11,13 +11,13 @@ Future<void> main() async {
   await _fibonacci();
 }
 
-/// Demonstrates a usecase that consumes a datasource, in its three flows:
-/// success, business error (offline) and a thrown exception captured by
+/// Demonstra um usecase que consome um datasource, nos três fluxos:
+/// sucesso, erro de negócio (offline) e exceção capturada por
 /// `resultDatasource`.
 Future<void> _checkConnection() async {
   print("--- CheckConnection (UsecaseBaseCallData) ---");
 
-  // 1) Success — switch handling.
+  // 1) Sucesso
   final online = CheckConnectionUsecase(
     datasource: const FakeConnectivityDatasource(online: true),
   );
@@ -31,53 +31,53 @@ Future<void> _checkConnection() async {
       print("err -> ${r1.result.message}");
   }
 
-  // 2) Business error (offline) — fold handling.
+  // 2) Erro de negócio (offline)
   final offline = CheckConnectionUsecase(
     datasource: const FakeConnectivityDatasource(online: false),
   );
   final r2 = await offline(
     NoParams(error: const ErrorGeneric(message: "connection error")),
   );
-  print(
-    r2.fold(
-      onSuccess: (value) => "ok  -> $value",
-      onError: (error) => "err -> ${error.message}",
-    ),
-  );
+  switch (r2) {
+    case SuccessReturn<String>():
+      print("ok  -> ${r2.result}");
+    case ErrorReturn<String>():
+      print("err -> ${r2.result.message}");
+  }
 
-  // 3) Datasource throws — captured and enriched by resultDatasource.
+  // 3) Datasource lança exceção — capturada e enriquecida por resultDatasource.
   final failing = CheckConnectionUsecase(
     datasource: const FakeConnectivityDatasource(shouldThrow: true),
   );
   final r3 = await failing(
     NoParams(error: const ErrorGeneric(message: "connection error")),
   );
-  print(
-    r3.fold(
-      onSuccess: (value) => "ok  -> $value",
-      onError: (error) => "err -> ${error.message}",
-    ),
-  );
+  switch (r3) {
+    case SuccessReturn<String>():
+      print("ok  -> ${r3.result}");
+    case ErrorReturn<String>():
+      print("err -> ${r3.result.message}");
+  }
 
   print("");
 }
 
-/// Demonstrates a pure business-rule usecase running on a background isolate.
+/// Demonstra um usecase de regra de negócio pura rodando em isolate.
 Future<void> _fibonacci() async {
-  print("--- Fibonacci (UsecaseBase.callIsolate) ---");
+  print("--- Fibonacci (UsecaseBase com runInIsolate: true) ---");
 
-  final usecase = FibonacciUsecase();
-  final result = await usecase.callIsolate(
+  final usecase = const FibonacciUsecase(runInIsolate: true);
+  final result = await usecase(
     const FibonacciParameters(
       n: 30,
       error: ErrorGeneric(message: "fibonacci error"),
     ),
   );
 
-  print(
-    result.fold(
-      onSuccess: (value) => "ok  -> fib(30) = $value",
-      onError: (error) => "err -> ${error.message}",
-    ),
-  );
+  switch (result) {
+    case SuccessReturn<int>():
+      print("ok  -> fib(30) = ${result.result}");
+    case ErrorReturn<int>():
+      print("err -> ${result.result.message}");
+  }
 }

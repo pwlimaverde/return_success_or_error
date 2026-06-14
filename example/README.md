@@ -9,9 +9,9 @@ Exemplo **Dart puro** (sem Flutter) demonstrando o uso essencial do pacote
 - **`UsecaseBaseCallData`** consumindo um `Datasource` — feature `check_connection`,
   nos três fluxos: sucesso, erro de negócio (offline) e exceção capturada por
   `resultDatasource`.
-- **`UsecaseBase`** (regra de negócio pura) rodando em isolate via **`callIsolate`** —
+- **`UsecaseBase`** (regra de negócio pura) rodando em isolate via **`runInIsolate: true`** —
   feature `fibonacci`.
-- Tratamento do resultado com **`switch` exaustivo** e com o helper **`fold`**.
+- Tratamento do resultado com **`switch` exaustivo** (pattern matching).
 - `ParametersReturnResult` customizado, `NoParams` e `AppError`/`ErrorGeneric` imutável.
 
 ## Estrutura (Clean Architecture)

@@ -20,25 +20,33 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
     `UsecaseBaseCallData` (necessário para manter o `_datasource` privado).
 6 - Removido `RuntimeMilliseconds` (e seu export): era API pública órfã, sem uso na lib nem
     nos exemplos (`callIsolate` mede com `Stopwatch` próprio).
-7 - `Service.initDependences` renomeado para `Service.initDependencies` (correção de typo).
+7 - Removido o `Service` (e seu export): singleton de bootstrap fora do escopo do pacote —
+    não usava nenhum tipo da lib e seus métodos eram invólucros triviais (`await fn()` e
+    `Future.wait`). O registro de DI e a inicialização de serviços voltam a ser
+    responsabilidade do app consumidor.
 8 - `ParametersReturnResult` agora é **interface pura**: expõe apenas `AppError get error`
     (removidos o campo e o construtor inertes). Implementadores continuam usando `implements`
     e declarando o próprio `error`.
 
 **Correções**
-9 - `callIsolate` corrigido: a medição de tempo aguarda o `Isolate.run` concluir (antes
-    media sempre `0ms`); usa `Stopwatch` e loga via `dart:developer` apenas em debug
-    (removido o `print` de produção).
+9 - Execução em isolate corrigida: quando a medição está ligada
+    (`monitorExecutionTime: true`), o tempo aguarda o `Isolate.run` concluir (antes media
+    sempre `0ms`); usa `Stopwatch` e loga via `dart:developer` (removido o `print` de produção).
 
 **Melhorias**
-10 - Novos helpers em `ReturnSuccessOrError`: `fold`, `isSuccess`, `isError`, `getOrNull` e
-    `getOrElse` (fallback não-nulo a partir do `AppError`).
+10 - `ReturnSuccessOrError` expõe `Object? get result` como contrato obrigatório: toda
+    subclasse deve implementar `result`. O tipo é refinado covariantemente em cada caso
+    (`R` em `SuccessReturn`, `AppError` em `ErrorReturn`). Helpers como `fold`, `isSuccess`,
+    `isError`, `getOrNull` e `getOrElse` foram removidos em favor do switch exaustivo.
 11 - `ReturnSuccessOrError` redesenhado: o valor passou a ser um campo da subclasse
-    (`SuccessReturn.result` / `ErrorReturn.result`), eliminando os campos nullable e o
-    operador `!` da classe base. Construtores (`success:`/`error:`) e `.result` preservados.
+    (`SuccessReturn._success` / `ErrorReturn._error` via private named parameters),
+    eliminando os campos nullable e o operador `!` da classe base.
+    Construtores (`success:`/`error:`) e `.result` preservados.
 12 - `ErrorGeneric` agora compara por valor (`==`/`hashCode`), facilitando asserts e
     comparações de erro.
-13 - Lógica duplicada de `callIsolate` extraída para um mixin compartilhado.
+13 - Lógica de execução (escolha entre isolate e execução direta + medição de tempo opcional)
+    centralizada no mixin compartilhado `_UsecaseRunner`, eliminando a duplicação entre as
+    duas classes base.
 14 - Adicionado `analysis_options.yaml` (`package:lints`) com regras estritas; lib e testes
     sem issues de análise.
 15 - Adicionada a dependência `meta` (para `@protected`).
@@ -49,7 +57,7 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
 18 - Exemplos refeitos: os 3 apps Flutter (`get`/`flutter_getit`/`flutter_modular`) foram
     substituídos por um único exemplo **Dart puro** (CLI) em `example/`, coerente com a lib
     agora ser Dart puro.
-19 - Cobertura de testes ampliada: `Service` (singleton, `initDependencies`, `initServices`),
+19 - Cobertura de testes ampliada:
     `NoParams` (erro default/custom), `toString` de `SuccessReturn`/`ErrorReturn`/`Unit`/`Nil`,
     enriquecimento de erro com `Cod. 02-1` em `resultDatasource` e `callIsolate` em
     `UsecaseBaseCallData` com datasource *sendable*. O exemplo também tem testes (`example/test/`).
@@ -58,6 +66,16 @@ Primeira versão estável. Modernização completa para Dart 3.12 / Flutter 3.44
     implementações com estado mutável.
 21 - Código formatado com `dart format` (estilo Dart 3.12) e documentação reescrita em
     detalhe (READMEs com fluxo e guia de uso passo a passo; `doc_dev/arquitetura_e_fluxo.md`).
+22 - `AppError`: removido o `toString` da interface (era código morto — `ErrorGeneric` usa
+    `implements`, que não herda comportamento, só o contrato). O dartdoc agora deixa explícito
+    que `==`/`hashCode`/`toString` não são herdados e devem ser implementados no erro custom
+    quando se quer igualdade por valor ou um `toString` legível. `ErrorGeneric.toString` passou
+    a usar `runtimeType` (`"$runtimeType - $message"`).
+23 - `NoParams`: construtor passou a ser `const` (`const NoParams({AppError? error})`),
+    consistente com `@immutable` e com `ErrorGeneric`/`Unit`/`Nil`. Agora `const NoParams()` é
+    canonicalizado e pode ser usado em contexto `const`. O dartdoc de `ParametersReturnResult`
+    foi ampliado deixando explícito que o contrato obrigatório (`AppError get error`) garante
+    que toda chamada carrega um erro tipado, sem fallback genérico vazando entre camadas.
 
 ## [0.19.0] - 25/04/2024. 
 1 - Refatoração de callIsolate.

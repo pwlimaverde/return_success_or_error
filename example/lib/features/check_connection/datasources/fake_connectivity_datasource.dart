@@ -1,16 +1,17 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-/// Simulates an external connectivity check (stands in for a real plugin/API).
+/// Simula uma verificação externa de conectividade (faz as vezes de um
+/// plugin/API real).
 ///
-/// Implements [Datasource]: returns the raw `bool` on success, or `throw`s the
-/// [AppError] carried by the parameters on failure — exactly what the usecase's
-/// `resultDatasource` expects.
+/// Implementa [Datasource]: retorna o `bool` cru em caso de sucesso ou faz
+/// `throw` no [AppError] carregado pelos parâmetros em caso de falha —
+/// exatamente o que o `resultDatasource` do usecase espera.
 final class FakeConnectivityDatasource implements Datasource<bool> {
   final bool _online;
   final bool _shouldThrow;
 
-  // Private named parameters (Dart 3.12): callers use `online`/`shouldThrow`,
-  // while the fields stay private.
+  // Private named parameters (Dart 3.12): o chamador usa `online`/`shouldThrow`,
+  // enquanto os campos permanecem privados.
   const FakeConnectivityDatasource({
     this._online = true,
     this._shouldThrow = false,

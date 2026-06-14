@@ -17,12 +17,12 @@ de modo que sucesso e erro precisam sempre ser tratados explicitamente.
 - **Um único tipo de retorno para tudo.** Toda chamada resolve em `ReturnSuccessOrError<T>` —
   ou `SuccessReturn<T>` ou `ErrorReturn<T>`. Nenhuma exceção vazando entre camadas.
 - **Erros não podem ser ignorados.** Por ser um tipo *selado*, o compilador obriga você a
-  tratar os dois casos (um `switch` exaustivo, ou um dos helpers).
+  tratar os dois casos via um `switch` exaustivo.
 - **Separação clara de responsabilidades.** A regra de negócio (usecase) é desacoplada da
   chamada externa (datasource); o datasource fica encapsulado e é acessado por uma única
   ponte.
-- **Processamento em segundo plano opcional.** Qualquer usecase pode rodar em um isolate via
-  `callIsolate`, mantendo o app fluido durante processamentos pesados.
+- **Processamento em segundo plano opcional.** Qualquer usecase pode rodar em um isolate
+  construindo-o com `runInIsolate: true`, mantendo o app fluido durante processamentos pesados.
 
 ## Conceitos centrais
 
@@ -39,7 +39,6 @@ de modo que sucesso e erro precisam sempre ser tratados explicitamente.
 | `NoParams` | `ParametersReturnResult` pronto para chamadas sem parâmetros extras. |
 | `Unit` / `unit` | Representa `void` como resultado. |
 | `Nil` / `nil` | Representa `null` como resultado. |
-| `Service` | Singleton para padronizar registro de DI e inicialização paralela de serviços. |
 
 ## Instalação
 
@@ -71,7 +70,7 @@ UsecaseBaseCallData.call ──► resultDatasource(parameters)   // a única po
   ◄───────────────────────────────┘
 switch (result) { SuccessReturn / ErrorReturn }   // tratamento exaustivo no usecase
   ▼
-ReturnSuccessOrError<T>   →   switch / fold / isSuccess / getOrNull / getOrElse
+ReturnSuccessOrError<T>   →   switch (pattern matching exaustivo)
 ```
 
 Pontos-chave:
@@ -81,8 +80,8 @@ Pontos-chave:
 - O datasource sinaliza falha **lançando** `parameters.error`; o `resultDatasource` captura
   e devolve um `ErrorReturn` cuja mensagem é **enriquecida** (via `copyWith`) com o contexto
   do catch — o tipo original do erro é preservado.
-- O `callIsolate` roda o mesmo `call` em um isolate de segundo plano (veja
-  [Rodando em um isolate](#rodando-em-um-isolate-de-segundo-plano)).
+- Com `runInIsolate: true` no construtor, o mesmo `call` roda em um isolate de segundo plano
+  (veja [Rodando em um isolate](#rodando-em-um-isolate-de-segundo-plano)).
 
 ## Uso, passo a passo
 
@@ -112,6 +111,12 @@ final class ApiError implements AppError {
       ApiError(message: message ?? this.message, statusCode: statusCode);
 }
 ```
+
+> Como `AppError` é uma interface usada com `implements`, ela só obriga `message` e
+> `copyWith` — não há herança de comportamento. Igualdade por valor (`==`/`hashCode`) e um
+> `toString` legível **não** vêm de graça: sobrescreva-os no seu erro custom quando quiser
+> compará-lo por valor (útil em testes) ou imprimi-lo de forma amigável, como o `ErrorGeneric`
+> faz.
 
 ### 2. Defina os parâmetros — `ParametersReturnResult` / `NoParams`
 
@@ -225,28 +230,25 @@ switch (data) {
 }
 ```
 
-Ou use os helpers nativos quando precisa de um único valor:
+Você também pode usar patterns de desestruturação do Dart 3 para uma sintaxe mais concisa:
 
 ```dart
-// resolve os dois casos em um único valor
-final message = data.fold(
-  onSuccess: (value) => 'OK: $value',
-  onError: (error) => 'Falha: ${error.message}',
-);
-
-data.isSuccess;                       // bool
-data.isError;                         // bool
-data.getOrNull;                       // T? (null em caso de erro)
-data.getOrElse((error) => 'padrão');  // T (fallback em caso de erro)
+final message = switch (data) {
+  SuccessReturn(:final result) => 'OK: $result',
+  ErrorReturn(:final result) => 'Falha: ${result.message}',
+};
 ```
 
 ### 7. Rodando em um isolate de segundo plano
 
-Ambas as classes base expõem `callIsolate(parameters)`, que executa o `call` em um isolate
-de segundo plano via `Isolate.run` e loga o tempo decorrido em builds de debug:
+Ambas as classes base aceitam `runInIsolate: true` no construtor. Quando ligado, o `call`
+executa o `run` em um isolate de segundo plano via `Isolate.run`; quando desligado (padrão),
+roda direto. Para medir e logar o tempo decorrido (via `dart:developer`), ligue também
+`monitorExecutionTime: true` — desligado por padrão, garantindo custo zero em produção:
 
 ```dart
-final result = await usecase.callIsolate(parameters);
+final usecase = MeuUsecase(runInIsolate: true, monitorExecutionTime: true);
+final result = await usecase(parameters);
 ```
 
 > Tudo o que o `call` captura (o usecase e seu datasource) precisa ser *sendable* para o
@@ -265,21 +267,6 @@ final class LogoutUsecase extends UsecaseBase<Unit> {
     // ... executa o efeito colateral ...
     return SuccessReturn(success: unit);
   }
-}
-```
-
-### 9. Bootstrap com `Service`
-
-`Service.to` é um singleton que padroniza a inicialização do app: registra dependências e
-sobe serviços em paralelo.
-
-```dart
-Future<void> startServices() async {
-  await Service.to.initDependencies(() async => registerDependencies());
-  await Service.to.initServices([
-    aquecerCache(),
-    abrirBancoDeDados(),
-  ]);
 }
 ```
 
@@ -303,8 +290,8 @@ lib/
 
 O diretório [`example/`](example/) contém um exemplo **Dart puro** (CLI) demonstrando o
 pacote sem Flutter: um `UsecaseBaseCallData` consumindo um `Datasource` (sucesso, erro de
-negócio e exceção capturada) e um `UsecaseBase` rodando em isolate via `callIsolate`. Rode
-com `dart run bin/example.dart` e os testes com `dart test`.
+negócio e exceção capturada) e um `UsecaseBase` rodando em isolate via `runInIsolate: true`.
+Rode com `dart run bin/example.dart` e os testes com `dart test`.
 
 ## Ambiente
 

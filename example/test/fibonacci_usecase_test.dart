@@ -12,28 +12,62 @@ void main() {
   );
 
   test('fib(0) = 0 e fib(1) = 1', () async {
-    expect((await usecase(params(0))).getOrNull, equals(0));
-    expect((await usecase(params(1))).getOrNull, equals(1));
+    final r0 = await usecase(params(0));
+    final r1 = await usecase(params(1));
+
+    switch (r0) {
+      case SuccessReturn<int>():
+        expect(r0.result, equals(0));
+      case ErrorReturn<int>():
+        fail('Esperava SuccessReturn para fib(0)');
+    }
+
+    switch (r1) {
+      case SuccessReturn<int>():
+        expect(r1.result, equals(1));
+      case ErrorReturn<int>():
+        fail('Esperava SuccessReturn para fib(1)');
+    }
   });
 
   test('fib(10) = 55', () async {
     final data = await usecase(params(10));
-    expect(data.isSuccess, isTrue);
-    expect(data.getOrNull, equals(55));
+    switch (data) {
+      case SuccessReturn<int>():
+        expect(data.result, equals(55));
+      case ErrorReturn<int>():
+        fail('Esperava SuccessReturn');
+    }
   });
 
   test('fib(30) = 832040', () async {
-    expect((await usecase(params(30))).getOrNull, equals(832040));
+    final data = await usecase(params(30));
+    switch (data) {
+      case SuccessReturn<int>():
+        expect(data.result, equals(832040));
+      case ErrorReturn<int>():
+        fail('Esperava SuccessReturn');
+    }
   });
 
   test('n negativo retorna ErrorReturn', () async {
     final data = await usecase(params(-1));
-    expect(data.isError, isTrue);
-    expect((data as ErrorReturn<int>).result.message, equals("n must be >= 0"));
+    switch (data) {
+      case SuccessReturn<int>():
+        fail('Esperava ErrorReturn');
+      case ErrorReturn<int>():
+        expect(data.result.message, equals("n must be >= 0"));
+    }
   });
 
-  test('callIsolate produz o mesmo resultado', () async {
-    final data = await usecase.callIsolate(params(20));
-    expect(data.getOrNull, equals(6765));
+  test('executando com runInIsolate: true produz o mesmo resultado', () async {
+    const isolateUsecase = FibonacciUsecase(runInIsolate: true);
+    final data = await isolateUsecase(params(20));
+    switch (data) {
+      case SuccessReturn<int>():
+        expect(data.result, equals(6765));
+      case ErrorReturn<int>():
+        fail('Esperava SuccessReturn');
+    }
   });
 }

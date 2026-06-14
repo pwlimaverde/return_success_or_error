@@ -1,28 +1,42 @@
 import 'package:meta/meta.dart';
 
-/// Immutable error contract. Implements [Exception] and exposes a [message].
+/// Contrato de erro imutável. Implementa [Exception] e expõe uma [message].
 ///
-/// Implementations must be immutable: to enrich an error (for example, to
-/// append context while it bubbles up through the layers), use [copyWith] to
-/// produce a new instance instead of mutating the existing one. Marked
-/// `@immutable`, so the analyzer flags any implementation that holds mutable
-/// state.
+/// É o tipo padronizado de erro de todo o pacote: qualquer falha resolve em um
+/// [AppError], carregado pelos parâmetros e devolvido dentro de um `ErrorReturn`.
+///
+/// As implementações devem ser imutáveis: para enriquecer um erro (por exemplo,
+/// anexar contexto enquanto ele sobe pelas camadas), use [copyWith] para
+/// produzir uma nova instância em vez de mutar a existente. A interface é
+/// anotada com `@immutable`, então o analyzer sinaliza qualquer implementação
+/// que guarde estado mutável.
+///
+/// Por ser uma interface consumida com `implements`, ela só consegue obrigar o
+/// contrato abstrato — [message] e [copyWith]. Ela **não** entrega nenhum
+/// comportamento padrão: igualdade por valor (`==`/`hashCode`) e um `toString`
+/// amigável **não** são herdados, então todo implementador cai nas versões
+/// baseadas em identidade de [Object], a menos que as sobrescreva por conta
+/// própria (como o [ErrorGeneric] faz). Sobrescreva-as no seu erro custom quando
+/// quiser igualdade por valor (útil em asserts de teste) ou um `toString`
+/// legível.
 @immutable
 abstract interface class AppError implements Exception {
-  /// Human readable description of the error.
+  /// Descrição do erro, legível por humanos.
   String get message;
 
-  /// Returns a copy of this error, optionally replacing the [message].
+  /// Retorna uma cópia deste erro, opcionalmente substituindo a [message].
+  ///
+  /// É o mecanismo de enriquecimento: como o `copyWith` é polimórfico, o tipo
+  /// concreto do erro é preservado (um `ApiError` continua `ApiError`).
   AppError copyWith({String? message});
-
-  @override
-  String toString() => "Error - $message";
 }
 
-/// Default concrete [AppError] implementation.
+/// Implementação concreta padrão de [AppError].
 ///
-/// Compares by value: two [ErrorGeneric] with the same [message] are equal,
-/// which keeps assertions and error comparisons predictable.
+/// Pronta para uso quando não há necessidade de um erro de domínio específico.
+/// Compara por valor: dois [ErrorGeneric] com a mesma [message] são iguais, o
+/// que mantém asserts e comparações de erro previsíveis. O `toString` usa o
+/// [runtimeType] e a [message] (`"$runtimeType - $message"`).
 @immutable
 final class ErrorGeneric implements AppError {
   @override
@@ -43,5 +57,5 @@ final class ErrorGeneric implements AppError {
   int get hashCode => message.hashCode;
 
   @override
-  String toString() => "ErrorGeneric - $message";
+  String toString() => "$runtimeType - $message";
 }

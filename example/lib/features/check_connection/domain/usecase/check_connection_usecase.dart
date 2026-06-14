@@ -1,16 +1,17 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-/// Business rule that consumes a `Datasource<bool>` and maps it to a message.
+/// Regra de negócio que consome um `Datasource<bool>` e o mapeia para uma
+/// mensagem.
 ///
-/// Extends [UsecaseBaseCallData]: `String` is what the usecase returns, `bool`
-/// is the raw datasource type. The datasource is forwarded through the
-/// constructor (`super.datasource`) and stays private — the subclass only calls
-/// `resultDatasource` and `switch`es over the result.
+/// Estende [UsecaseBaseCallData]: `String` é o tipo retornado pelo usecase e
+/// `bool` é o tipo cru do datasource. O datasource é encaminhado pelo construtor
+/// (`super.datasource`) e permanece privado — a subclasse apenas chama
+/// `resultDatasource` e faz `switch` sobre o resultado.
 final class CheckConnectionUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectionUsecase({required super.datasource});
+  CheckConnectionUsecase({required super.datasource, super.runInIsolate});
 
   @override
-  Future<ReturnSuccessOrError<String>> call(
+  Future<ReturnSuccessOrError<String>> run(
     ParametersReturnResult parameters,
   ) async {
     final result = await resultDatasource(parameters);

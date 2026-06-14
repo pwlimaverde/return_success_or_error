@@ -1,35 +1,37 @@
 library;
 
-/// Base classes for the feature's business rule.
+/// Classes base para a regra de negócio de uma feature.
 ///
-/// [UsecaseBase] runs a pure business rule; [UsecaseBaseCallData] consumes a
-/// [Datasource] and bridges to it through `resultDatasource`.
+/// [UsecaseBase] executa uma regra de negócio pura (sem chamada externa);
+/// [UsecaseBaseCallData] consome um [Datasource] e faz a ponte com ele através
+/// do método `resultDatasource` (a única ponte entre usecase e datasource).
 export 'src/bases/usecase_base.dart';
 
-/// The sealed result type and its cases.
+/// O tipo de resultado selado e seus dois casos.
 ///
-/// [ReturnSuccessOrError] stores either a [SuccessReturn] (the success value) or
-/// an [ErrorReturn] (an [AppError]). Also exposes the `Unit`/`Nil` singletons.
+/// [ReturnSuccessOrError] guarda ou um [SuccessReturn] (o valor de sucesso) ou
+/// um [ErrorReturn] (um [AppError]). Por ser selado, força o tratamento
+/// exaustivo via `switch`. Também expõe os singletons `Unit`/`Nil`, que
+/// representam, respectivamente, `void` e `null` como resultado de sucesso.
 export 'src/core/return_success_or_error.dart';
 
-/// Auxiliary singleton that standardizes the initialization of basic services
-/// and their dependencies.
-export 'src/core/service.dart';
-
-/// The external-call abstraction.
+/// A abstração da chamada externa.
 ///
-/// A [Datasource] queries the external call and must return the predefined data
-/// type, or `throw` the [AppError] carried by the parameters (an [Exception]).
+/// Um [Datasource] executa a chamada externa e deve retornar o tipo de dado
+/// predefinido, ou então `throw` no [AppError] carregado pelos parâmetros (um
+/// [Exception]) em caso de falha.
 export 'src/interfaces/datasource.dart';
 
-/// The immutable error contract and its default implementation.
+/// O contrato de erro imutável e sua implementação padrão.
 ///
-/// Implementations of [AppError] expose a `message` getter and produce enriched
-/// copies through `copyWith` (errors are immutable).
+/// Implementações de [AppError] expõem o getter `message` e produzem cópias
+/// enriquecidas via `copyWith` (os erros são imutáveis: nunca se muta, sempre se
+/// copia). [ErrorGeneric] é a implementação concreta pronta para uso.
 export 'src/interfaces/errors.dart';
 
-/// The call-parameters abstraction.
+/// A abstração dos parâmetros da chamada.
 ///
-/// Implementations of [ParametersReturnResult] carry the data required by the
-/// datasource and must expose the [AppError] returned on failure.
+/// Implementações de [ParametersReturnResult] carregam os dados exigidos pelo
+/// datasource e são obrigadas a expor o [AppError] retornado em caso de falha.
+/// [NoParams] é a implementação pronta para chamadas sem dados extras.
 export 'src/interfaces/parameters.dart';

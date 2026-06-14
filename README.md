@@ -17,12 +17,12 @@ must always be handled explicitly.
 - **One return type for everything.** Every call resolves to `ReturnSuccessOrError<T>` —
   either `SuccessReturn<T>` or `ErrorReturn<T>`. No exceptions leaking across layers.
 - **Errors can't be ignored.** Because the result is a *sealed* type, the compiler forces
-  you to handle both cases (an exhaustive `switch`, or one of the helpers).
+  you to handle both cases via an exhaustive `switch`.
 - **Clear separation of concerns.** The business rule (usecase) is decoupled from the
   external call (datasource); the datasource is encapsulated and reached through a single
   bridge.
-- **Optional background processing.** Any usecase can run on a background isolate via
-  `callIsolate`, keeping the app responsive during heavy work.
+- **Optional background processing.** Any usecase can run on a background isolate by
+  constructing it with `runInIsolate: true`, keeping the app responsive during heavy work.
 
 ## Core concepts
 
@@ -39,7 +39,6 @@ must always be handled explicitly.
 | `NoParams` | Ready-made `ParametersReturnResult` for calls without extra parameters. |
 | `Unit` / `unit` | Represents `void` as a result. |
 | `Nil` / `nil` | Represents `null` as a result. |
-| `Service` | Singleton helper to standardize DI registration and parallel service startup. |
 
 ## Installation
 
@@ -71,7 +70,7 @@ UsecaseBaseCallData.call ──► resultDatasource(parameters)   // the single 
   ◄───────────────────────────────┘
 switch (result) { SuccessReturn / ErrorReturn }   // exhaustive handling in the usecase
   ▼
-ReturnSuccessOrError<T>   →   switch / fold / isSuccess / getOrNull / getOrElse
+ReturnSuccessOrError<T>   →   switch (exhaustive pattern matching)
 ```
 
 Key points:
@@ -81,8 +80,8 @@ Key points:
 - The datasource signals failure by **throwing** `parameters.error`; `resultDatasource`
   catches it and returns an `ErrorReturn` whose message is **enriched** (via `copyWith`)
   with the catch context — the original error type is preserved.
-- `callIsolate` runs the same `call` on a background isolate (see
-  [Running on a background isolate](#running-on-a-background-isolate)).
+- With `runInIsolate: true` in the constructor, the same `call` runs on a background isolate
+  (see [Running on a background isolate](#running-on-a-background-isolate)).
 
 ## Usage, step by step
 
@@ -112,6 +111,12 @@ final class ApiError implements AppError {
       ApiError(message: message ?? this.message, statusCode: statusCode);
 }
 ```
+
+> Since `AppError` is an interface used with `implements`, it only enforces `message` and
+> `copyWith` — there is no behavior inheritance. Value equality (`==`/`hashCode`) and a
+> readable `toString` do **not** come for free: override them in your custom error when you
+> want to compare it by value (handy in tests) or print it in a friendly way, like
+> `ErrorGeneric` does.
 
 ### 2. Define the parameters — `ParametersReturnResult` / `NoParams`
 
@@ -225,28 +230,25 @@ switch (data) {
 }
 ```
 
-Or use the built-in helpers when you only need one value:
+You can also use Dart 3 destructuring patterns for a more concise syntax:
 
 ```dart
-// fold both cases into a single value
-final message = data.fold(
-  onSuccess: (value) => 'OK: $value',
-  onError: (error) => 'Fail: ${error.message}',
-);
-
-data.isSuccess;                       // bool
-data.isError;                         // bool
-data.getOrNull;                       // T? (null on error)
-data.getOrElse((error) => 'default'); // T (fallback on error)
+final message = switch (data) {
+  SuccessReturn(:final result) => 'OK: $result',
+  ErrorReturn(:final result) => 'Fail: ${result.message}',
+};
 ```
 
 ### 7. Running on a background isolate
 
-Both base classes expose `callIsolate(parameters)`, which runs `call` on a background
-isolate via `Isolate.run` and logs the elapsed time in debug builds:
+Both base classes accept `runInIsolate: true` in the constructor. When enabled, `call` runs
+`run` on a background isolate via `Isolate.run`; when disabled (the default), it runs inline.
+To measure and log the elapsed time (via `dart:developer`), also enable
+`monitorExecutionTime: true` — off by default, keeping production cost at zero:
 
 ```dart
-final result = await usecase.callIsolate(parameters);
+final usecase = MyUsecase(runInIsolate: true, monitorExecutionTime: true);
+final result = await usecase(parameters);
 ```
 
 > Everything captured by `call` (the usecase and its datasource) must be *sendable* to the
@@ -264,21 +266,6 @@ final class LogoutUsecase extends UsecaseBase<Unit> {
     // ... perform side effect ...
     return SuccessReturn(success: unit);
   }
-}
-```
-
-### 9. Bootstrap with `Service`
-
-`Service.to` is a singleton that standardizes app startup: register dependencies and start
-services in parallel.
-
-```dart
-Future<void> startServices() async {
-  await Service.to.initDependencies(() async => registerDependencies());
-  await Service.to.initServices([
-    warmUpCache(),
-    openDatabase(),
-  ]);
 }
 ```
 
@@ -303,7 +290,7 @@ lib/
 The [`example/`](example/) directory contains a **pure Dart** (CLI) example demonstrating
 the package without Flutter: a `UsecaseBaseCallData` consuming a `Datasource` (success,
 business error and a captured exception) and a `UsecaseBase` running on a background isolate
-via `callIsolate`. Run it with `dart run bin/example.dart` and the tests with `dart test`.
+via `runInIsolate: true`. Run it with `dart run bin/example.dart` and the tests with `dart test`.
 
 ## Environment
 

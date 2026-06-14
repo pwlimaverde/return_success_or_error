@@ -40,7 +40,7 @@ void main() {
 
   group('NoParams', () {
     test('sem error usa um ErrorGeneric default', () {
-      final params = NoParams();
+      const params = NoParams();
 
       expect(params, isA<ParametersReturnResult>());
       expect(params.error, isA<ErrorGeneric>());
@@ -51,9 +51,16 @@ void main() {
     });
 
     test('com error usa o fornecido', () {
-      final params = NoParams(error: const ErrorGeneric(message: "meu erro"));
+      const params = NoParams(error: ErrorGeneric(message: "meu erro"));
 
       expect(params.error.message, equals("meu erro"));
+    });
+
+    test('é const: instâncias const são canonicalizadas', () {
+      const a = NoParams();
+      const b = NoParams();
+
+      expect(identical(a, b), isTrue);
     });
   });
 }

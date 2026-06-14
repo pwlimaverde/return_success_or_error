@@ -5,33 +5,42 @@ void main() {
   group('SuccessReturn', () {
     const ReturnSuccessOrError<int> result = SuccessReturn(success: 42);
 
-    test('expõe o valor via result', () {
-      expect((result as SuccessReturn<int>).result, equals(42));
+    test('expõe o valor via result no pattern matching', () {
+      switch (result) {
+        case SuccessReturn<int>():
+          expect(result.result, equals(42));
+        case ErrorReturn<int>():
+          fail('Esperava SuccessReturn');
+      }
     });
 
-    test('isSuccess/isError', () {
-      expect(result.isSuccess, isTrue);
-      expect(result.isError, isFalse);
-    });
-
-    test('getOrNull retorna o valor', () {
-      expect(result.getOrNull, equals(42));
-    });
-
-    test('getOrElse retorna o valor (ignora orElse)', () {
-      expect(result.getOrElse((error) => -1), equals(42));
-    });
-
-    test('fold chama onSuccess', () {
-      final out = result.fold(
-        onSuccess: (value) => "ok:$value",
-        onError: (error) => "fail:${error.message}",
-      );
-      expect(out, equals("ok:42"));
+    test('result via contrato da base retorna Object?', () {
+      // Acessando via tipo base — retorna Object?
+      expect(result.result, equals(42));
     });
 
     test('toString', () {
       expect(result.toString(), equals("Success: 42"));
+    });
+
+    test('igualdade por valor', () {
+      expect(
+        const SuccessReturn(success: 42),
+        equals(const SuccessReturn(success: 42)),
+      );
+      expect(
+        const SuccessReturn(success: 42).hashCode,
+        equals(const SuccessReturn(success: 42).hashCode),
+      );
+      expect(
+        const SuccessReturn(success: 42),
+        isNot(equals(const SuccessReturn(success: 99))),
+      );
+      // Discrimina por tipo do resultado, não só pelo caso.
+      expect(
+        const SuccessReturn(success: 42),
+        isNot(equals(const SuccessReturn(success: '42'))),
+      );
     });
   });
 
@@ -40,40 +49,49 @@ void main() {
       error: ErrorGeneric(message: "falhou"),
     );
 
-    test('expõe o erro via result', () {
-      expect((result as ErrorReturn<int>).result.message, equals("falhou"));
+    test('expõe o erro via result no pattern matching', () {
+      switch (result) {
+        case SuccessReturn<int>():
+          fail('Esperava ErrorReturn');
+        case ErrorReturn<int>():
+          expect(result.result.message, equals("falhou"));
+      }
     });
 
-    test('isSuccess/isError', () {
-      expect(result.isSuccess, isFalse);
-      expect(result.isError, isTrue);
-    });
-
-    test('getOrNull retorna null', () {
-      expect(result.getOrNull, isNull);
-    });
-
-    test('getOrElse retorna o fallback de orElse', () {
-      expect(result.getOrElse((error) => error.message.length), equals(6));
-    });
-
-    test('fold chama onError', () {
-      final out = result.fold(
-        onSuccess: (value) => "ok:$value",
-        onError: (error) => "fail:${error.message}",
-      );
-      expect(out, equals("fail:falhou"));
+    test('result via contrato da base retorna Object?', () {
+      expect(result.result, isA<AppError>());
     });
 
     test('toString', () {
       expect(result.toString(), equals("Error: ErrorGeneric - falhou"));
     });
+
+    test('igualdade por valor', () {
+      expect(
+        const ErrorReturn<int>(error: ErrorGeneric(message: "falhou")),
+        equals(const ErrorReturn<int>(error: ErrorGeneric(message: "falhou"))),
+      );
+      expect(
+        const ErrorReturn<int>(error: ErrorGeneric(message: "falhou")).hashCode,
+        equals(
+          const ErrorReturn<int>(
+            error: ErrorGeneric(message: "falhou"),
+          ).hashCode,
+        ),
+      );
+      expect(
+        const ErrorReturn<int>(error: ErrorGeneric(message: "falhou")),
+        isNot(
+          equals(const ErrorReturn<int>(error: ErrorGeneric(message: "outro"))),
+        ),
+      );
+    });
   });
 
   group('Unit/Nil', () {
-    test('são singletons', () {
-      expect(identical(unit, Unit()), isTrue);
-      expect(identical(nil, Nil()), isTrue);
+    test('const constructor produz instâncias idênticas', () {
+      expect(identical(unit, const Unit()), isTrue);
+      expect(identical(nil, const Nil()), isTrue);
     });
 
     test('toString', () {
