@@ -41,10 +41,12 @@ void main() {
       final direto = GerarSalesReportUsecase(
         datasource: const FakeSalesDatasource(linhas: 5000),
         runInIsolate: false,
+        monitorExecutionTime: true,
       );
       final isolado = GerarSalesReportUsecase(
         datasource: const FakeSalesDatasource(linhas: 5000),
         runInIsolate: true,
+        monitorExecutionTime: true,
       );
 
       final rDireto = await direto(params);

@@ -89,7 +89,10 @@ final class TesteUsecaseCallDataVoid extends UsecaseBaseCallData<Unit, bool> {
 }
 
 final class TesteUsecaseDirectVoid extends UsecaseBase<Unit> {
-  const TesteUsecaseDirectVoid({super.runInIsolate});
+  const TesteUsecaseDirectVoid({
+    super.runInIsolate,
+    super.monitorExecutionTime,
+  });
 
   @override
   ProcessPure<Unit> get process => _process;
@@ -190,7 +193,10 @@ void main() {
     });
 
     test('Deve retornar um success com "Teste Void" isolate', () async {
-      const usecase = TesteUsecaseDirectVoid(runInIsolate: true);
+      const usecase = TesteUsecaseDirectVoid(
+        runInIsolate: true,
+        monitorExecutionTime: true,
+      );
       final data = await usecase(
         const NoParams(error: ErrorGeneric(message: "teste parrametros")),
       );

@@ -56,8 +56,12 @@ ErrorReturn<T> _errorWithCatch<T>(
 );
 
 void _logTime(Object runner, int milliseconds, {required bool isIsolate}) {
+  final message =
+      "Execution Time ${runner.runtimeType} ${isIsolate ? '(Isolate)' : '(Direct)'}: ${milliseconds}ms";
+  // Exibe na saída padrão (console/CLI), útil para testes e depuração em terminal.
+  print("[return_success_or_error] $message");
   log(
-    "Execution Time ${runner.runtimeType} ${isIsolate ? '(Isolate)' : '(Direct)'}: ${milliseconds}ms",
+    message,
     name: "return_success_or_error",
   );
 }
