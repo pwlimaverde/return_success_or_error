@@ -1,73 +1,91 @@
+import 'package:meta/meta.dart';
+
 import '../../return_success_or_error.dart';
 
+/// Tipo selado que encapsula o resultado de uma operação como sucesso ou erro.
+///
+/// A recuperação do dado é feita exclusivamente via pattern matching (switch):
+/// ```dart
+/// switch (result) {
+///   case SuccessReturn(:final result): // valor de sucesso
+///   case ErrorReturn(:final result):   // AppError padronizado
+/// }
+/// ```
+@immutable
 sealed class ReturnSuccessOrError<R> {
-  final AppError? _error;
-  final R? _success;
-  const ReturnSuccessOrError({
-    R? success,
-    AppError? error,
-  })  : _success = success,
-        _error = error;
+  const ReturnSuccessOrError();
+
+  /// Contrato obrigatório: toda subclasse deve expor seu resultado.
+  ///
+  /// O tipo concreto é refinado covariantemente em cada subclasse
+  /// ([R] em [SuccessReturn], [AppError] em [ErrorReturn]).
+  Object? get result;
 }
 
-///Responsible for storing the returned data when successful.
+/// Armazena o dado retornado em caso de sucesso.
+@immutable
 final class SuccessReturn<R> extends ReturnSuccessOrError<R> {
-  const SuccessReturn({
-    required R super.success,
-  });
+  final R _success;
 
-  R get result => _success!;
+  const SuccessReturn({required this._success});
 
   @override
-  String toString() {
-    return "Success: $result";
-  }
+  R get result => _success;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SuccessReturn<R> && other._success == _success;
+
+  @override
+  int get hashCode => _success.hashCode;
+
+  @override
+  String toString() => 'Success: $result';
 }
 
-///Responsible for storing the returned data when error.
+/// Armazena o erro padronizado retornado em caso de falha.
+@immutable
 final class ErrorReturn<R> extends ReturnSuccessOrError<R> {
-  const ErrorReturn({
-    required AppError super.error,
-  });
+  final AppError _error;
 
-  AppError get result => _error!;
+  const ErrorReturn({required this._error});
 
   @override
-  String toString() {
-    return "Error: $result";
-  }
+  AppError get result => _error;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ErrorReturn<R> && other._error == _error;
+
+  @override
+  int get hashCode => _error.hashCode;
+
+  @override
+  String toString() => 'Error: $result';
 }
 
-/// Representation of void as a result
+/// Representação de void como resultado.
+@immutable
 final class Unit {
-  static final Unit _instance = Unit._();
-  
-  factory Unit() => _instance;
-  
-  Unit._();
-  
+  const Unit();
+
   @override
-  String toString() {
-    return 'Unit{} - void';
-  }
+  String toString() => 'Unit{} - void';
 }
 
-/// Getter for loading the Unit instance
-Unit get unit => Unit();
+/// Instância singleton de [Unit].
+const unit = Unit();
 
-/// Representation of null as a result
+/// Representação de null como resultado.
+@immutable
 final class Nil {
-  static final Nil _instance = Nil._();
-  
-  factory Nil() => _instance;
-  
-  Nil._();
-  
+  const Nil();
+
   @override
-  String toString() {
-    return 'Nil{} - null';
-  }
+  String toString() => 'Nil{} - null';
 }
 
-/// Getter for loading the Nil instance
-Nil get nil => Nil();
+/// Instância singleton de [Nil].
+const nil = Nil();

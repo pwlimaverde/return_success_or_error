@@ -4,232 +4,297 @@
 
 [Leia esta página em português](https://github.com/pwlimaverde/return_success_or_error/blob/master/README-pt.md)
 
-Abstração de Usecase retornando sucesso ou erro de uma chamada feita pelo datasource
+Um pacote **Dart** puro que abstrai e simplifica usecases, datasources, parâmetros e
+tratamento de erros seguindo os princípios de Clean Architecture difundidos pelo Uncle Bob.
+O resultado de qualquer chamada é encapsulado em um tipo selado `ReturnSuccessOrError<T>`,
+de modo que sucesso e erro precisam sempre ser tratados explicitamente.
 
-----
+> Dart puro: **não depende de Flutter** e roda em qualquer projeto Dart (CLI, servidor,
+> backend), além de apps Flutter.
 
-Package criado com intuito de abstrair e simplificar os usecases, repositorios, datasouces e parametros, difundidos pelo tio Bob. Onde o resultado do datasource é retornado e os erros tratados de forma simples.
+## Por que usar
 
-Exemplo de chamada à partir de um banco de dados:
+- **Um único tipo de retorno para tudo.** Toda chamada resolve em `ReturnSuccessOrError<T>` —
+  ou `SuccessReturn<T>` ou `ErrorReturn<T>`. Nenhuma exceção vazando entre camadas.
+- **Erros não podem ser ignorados.** Por ser um tipo *selado*, o compilador obriga você a
+  tratar os dois casos via um `switch` exaustivo.
+- **Separação clara de responsabilidades.** A regra de negócio (usecase) é desacoplada da
+  chamada externa (datasource); o datasource fica encapsulado e é acessado por uma única
+  ponte.
+- **Processamento em segundo plano opcional.** Qualquer usecase pode rodar em um isolate
+  construindo-o com `runInIsolate: true`, mantendo o app fluido durante processamentos pesados.
 
-Datasourse:
-A classe responsavel pela consulta, nesse caso ```ConnectivityDatasource```, precisa implementar a abstração do datasource ```Datasource<Tipo>```, que por sua vez precisa declarar o ```Tipo``` do dado a ser retornado para chegar ao resultado. ex: ```Datasource<bool>```. A classe ```ParametersReturnResult``` é uma abstração para carregar os parameters necesssários para fazer a chamada externa, ex:
+## Conceitos centrais
+
+| Tipo | Papel |
+|------|-------|
+| `ReturnSuccessOrError<T>` | Tipo de resultado selado: ou `SuccessReturn<T>` ou `ErrorReturn<T>`. |
+| `SuccessReturn<T>` | Armazena o valor de sucesso, acessado por `.result` (tipo `T`). |
+| `ErrorReturn<T>` | Armazena a falha, acessada por `.result` (tipo `AppError`). |
+| `UsecaseBase<T>` | Regra de negócio pura, sem chamada externa. |
+| `UsecaseBaseCallData<T, D>` | Regra de negócio que consome um `Datasource<D>` e retorna `T`. |
+| `Datasource<D>` | Abstração da chamada externa; retorna `D` ou lança `parameters.error`. |
+| `ParametersReturnResult` | Carrega os dados da chamada; deve expor um `AppError error`. |
+| `AppError` / `ErrorGeneric` | Contrato de erro imutável / implementação padrão. |
+| `NoParams` | `ParametersReturnResult` pronto para chamadas sem parâmetros extras. |
+| `Unit` / `unit` | Representa `void` como resultado. |
+| `Nil` / `nil` | Representa `null` como resultado. |
+
+## Instalação
+
+```yaml
+dependencies:
+  return_success_or_error: ^1.0.0
 ```
-class ParametersSalvarHeader implements ParametersReturnResult {
-  final String doc;
-  final String nome;
-  final int prioridade;
-  final Map corHeader;
-  final String user;
 
-  ParametersSalvarHeader({
-    required this.doc,
-    required this.nome,
-    required this.prioridade,
-    required this.corHeader,
-    required this.user,
-  });
-
-   @override
-  ParametersBasic get basic => ParametersBasic(
-        error: ErrorGeneric(message: "teste parrametros"),
-        showRuntimeMilliseconds: true,
-        nameFeature: "Teste parametros",
-        isIsolate: true,
-      );
-}
+```dart
+import 'package:return_success_or_error/return_success_or_error.dart';
 ```
-Ao implementar a classe ```ParametersReturnResult```, precisa sorescrever o ```ParametersBasic```, que é o responsável pelos parametros básicos necessárrios. Nessa classe é armazenado os dados que serão consultados.
 
-Implementa-se a chamada externa ```Datasource<Tipo>``` tipando com o dado desejado ex: ```Datasource<Stream<UserModel>>```, ex:
+## Como o fluxo funciona
+
+Uma feature flui do usecase, opcionalmente por um datasource, de volta a um
+`ReturnSuccessOrError`:
+
 ```
-class ConnectivityDatasource
-    implements Datasource<({bool conect, String typeConect})> {
-  final Connectivity connectivity;
-  ConnectivityDatasource({required this.connectivity});
+chamador
+  │  usecase(parameters)                  // call(parameters) — posicional
+  ▼
+UsecaseBaseCallData.call ──► resultDatasource(parameters)   // a única ponte
+                                  │   try { _datasource(parameters) }   // privado
+                                  ▼
+                             Datasource.call ──► throw parameters.error   (falha)
+                                  │                 └► valor cru D         (sucesso)
+                                  ▼
+                       SuccessReturn<D> | ErrorReturn<D>   (erro enriquecido via copyWith)
+  ◄───────────────────────────────┘
+switch (result) { SuccessReturn / ErrorReturn }   // tratamento exaustivo no usecase
+  ▼
+ReturnSuccessOrError<T>   →   switch (pattern matching exaustivo)
+```
 
-  Future<bool> get isOnline async {
-    var result = await connectivity.checkConnectivity();
-    return result == ConnectivityResult.wifi ||
-        result == ConnectivityResult.mobile ||
-        result == ConnectivityResult.ethernet;
-  }
+Pontos-chave:
 
-  Future<String> get type async {
-    var result = await connectivity.checkConnectivity();
-    switch (result) {
-      case ConnectivityResult.wifi:
-        return "Conect wifi";
-      case ConnectivityResult.mobile:
-        return "Conect mobile";
-      case ConnectivityResult.ethernet:
-        return "Conect ethernet";
-      default:
-        return "Conect none";
-    }
-  }
+- O usecase **nunca** toca o datasource diretamente. Ele chama `resultDatasource`, o único
+  lugar onde o datasource (privado) é invocado.
+- O datasource sinaliza falha **lançando** `parameters.error`; o `resultDatasource` captura
+  e devolve um `ErrorReturn` cuja mensagem é **enriquecida** (via `copyWith`) com o contexto
+  do catch — o tipo original do erro é preservado.
+- Com `runInIsolate: true` no construtor, o mesmo `call` roda em um isolate de segundo plano
+  (veja [Rodando em um isolate](#rodando-em-um-isolate-de-segundo-plano)).
+
+## Uso, passo a passo
+
+### 1. Defina o erro — `AppError` / `ErrorGeneric`
+
+`AppError` é o contrato de erro **imutável** (implementa `Exception`). Use o `ErrorGeneric`
+padrão, ou implemente o seu. Para adicionar contexto enquanto o erro sobe pelas camadas,
+nunca mute — crie uma cópia com `copyWith`:
+
+```dart
+const error = ErrorGeneric(message: "Erro de conexão");
+final enriquecido = error.copyWith(message: "Erro de conexão - timeout");
+```
+
+Um erro customizado mantém o mesmo contrato:
+
+```dart
+final class ApiError implements AppError {
+  @override
+  final String message;
+  final int statusCode;
+
+  const ApiError({required this.message, required this.statusCode});
 
   @override
-  Future<({bool conect, String typeConect})> call(
-      {required ParametersReturnResult parameters}) async {
+  ApiError copyWith({String? message}) =>
+      ApiError(message: message ?? this.message, statusCode: statusCode);
+}
+```
+
+> Como `AppError` é uma interface usada com `implements`, ela só obriga `message` e
+> `copyWith` — não há herança de comportamento. Igualdade por valor (`==`/`hashCode`) e um
+> `toString` legível **não** vêm de graça: sobrescreva-os no seu erro custom quando quiser
+> compará-lo por valor (útil em testes) ou imprimi-lo de forma amigável, como o `ErrorGeneric`
+> faz.
+
+### 2. Defina os parâmetros — `ParametersReturnResult` / `NoParams`
+
+`ParametersReturnResult` é uma interface pura: a única exigência é expor o `AppError`
+retornado em caso de falha. Adicione os dados que a chamada precisar:
+
+```dart
+final class ParametrosFibonacci implements ParametersReturnResult {
+  final int n;
+  @override
+  final AppError error;
+
+  const ParametrosFibonacci({required this.n, required this.error});
+}
+```
+
+Quando a chamada não precisa de dados extras, use `NoParams`:
+
+```dart
+final params = NoParams(error: const ErrorGeneric(message: "Erro de conexão"));
+```
+
+### 3. Defina o datasource — `Datasource<D>`
+
+Tipe-o com o dado cru que ele retorna. Envolva a lógica em um `try/catch` e faça `throw
+parameters.error` em caso de falha (o `resultDatasource` do usecase captura):
+
+```dart
+final class ConnectivityDatasource implements Datasource<bool> {
+  final Connectivity _connectivity;
+
+  const ConnectivityDatasource(this._connectivity);
+
+  @override
+  Future<bool> call(ParametersReturnResult parameters) async {
     try {
-      final resultConect = await isOnline;
-      final resultType = await type;
-      return (conect: resultConect, typeConect: resultType);
+      final result = await _connectivity.checkConnectivity();
+      return !result.contains(ConnectivityResult.none);
     } catch (e) {
-      throw parameters.error..message = "$e";
+      throw parameters.error.copyWith(message: "$e");
     }
   }
 }
 ```
 
-O resultado da função ```UsecaseBase<TypeUsecase>``` ou ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` é um: ```ReturnSuccessOrError<TypeUsecase>``` que armazena os 2 resultados possíveis: ```SuccessReturn<TypeUsecase>``` que por sua vez armazena o sucesso da chamada; ```ErrorReturn<TypeUsecase>``` que por sua vez armazena o erro da chamada:
+### 4. Defina o usecase
 
-Exemplo de recuperação da informação contida no ```ReturnSuccessOrError<TypeUsecase>```:
+#### a) Com datasource externo — `UsecaseBaseCallData<TypeUsecase, TypeDatasource>`
 
-```final result = await value.result```
-A partir do ```ReturnSuccessOrError<TypeUsecase>``` poderar ser verificado se o retorno foi sucesso ou erro, apenas verificando o swith case.
+`TypeUsecase` é o que o usecase retorna; `TypeDatasource` é o tipo cru do datasource. O
+datasource é encaminhado pelo construtor com um **super parameter**
+(`{required super.datasource}`) e mantido **privado** na classe base — a subclasse nunca o
+acessa diretamente, só chama `resultDatasource(parameters)`:
 
-Exemplo de verificação:
-
-```
-switch (result) {
-      case SuccessReturn<TypeUsecase>():
-        ...
-      case ErrorReturn<TypeUsecase>():
-        ...
-    }
-```
-
-
-Usecase com chamada externa de Datasource:
-Extende a regra de negócio ```Usecase``` com ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` tipando o ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` com o dado desejado ex: ```UsecaseBaseCallData<String, ({bool conect, String typeConect})>```. Onde o primeiro tipo é o retorno que será feito pelo usecase, e o segundo é o tipo do dado que será retornado do datasource.
-```
-final class ChecarConeccaoUsecase
-    extends UsecaseBaseCallData<String, ({bool conect, String typeConect})> {
-  ChecarConeccaoUsecase({required super.datasource});
+```dart
+final class CheckConnectUsecase extends UsecaseBaseCallData<String, bool> {
+  CheckConnectUsecase({required super.datasource});
 
   @override
-  Future<ReturnSuccessOrError<String>> call(
-      {required ParametersReturnResult parameters}) async {
-    final resultDatacource = await resultDatasource(
-      parameters: parameters,
-      datasource: super.datasource,
-    );
+  Future<ReturnSuccessOrError<String>> call(ParametersReturnResult parameters) async {
+    final result = await resultDatasource(parameters);
 
-    switch (resultDatacource) {
-      case SuccessReturn<({bool conect, String typeConect})>():
-        if (resultDatacource.result.conect) {
-          return SuccessReturn(
-            success:
-                "You are conect - Type: ${resultDatacource.result.typeConect}",
-          );
-        } else {
-          return ErrorReturn(
-              error: parameters.error..message = "You are offline");
-        }
-      case ErrorReturn<({bool conect, String typeConect})>():
-        return ErrorReturn(
-            error: ErrorGeneric(message: "Error check Connectivity"));
-    }
+    return switch (result) {
+      SuccessReturn<bool>() => result.result
+          ? const SuccessReturn(success: "Você está conectado")
+          : ErrorReturn(error: parameters.error.copyWith(message: "Você está offline")),
+      ErrorReturn<bool>() => ErrorReturn(error: result.result),
+    };
   }
 }
 ```
-A função ```resultDatasource(parameters: parameters, datasource: super.datasource)``` rertora os dados do datasouce e após isso os dados são tratados diretamente no usecase para que se transformem no tipo final esperdo.
 
-Instanciando a Class Usecase extendida da ```UsecaseBaseCallData<TypeUsecase, TypeDatasource>``` e extratindo o resultado:
-```
-final checarConeccaoUsecase = ChecarConeccaoUsecase(
-    datasource: ConnectivityDatasource(
-      connectivity: Connectivity(),
-    ),
-  );
+O `resultDatasource` é `@protected` — existe apenas para as subclasses e é a única ponte
+entre usecase e datasource, então as subclasses não conseguem contorná-lo.
 
-  void _checkConnection() async {
-    final data = await checarConeccaoUsecase(
-      parameters: NoParams(
-        basic: ParametersBasic(
-          error: ErrorGeneric(
-            message: "Conect error",
-          ),
-          nameFeature: "Check Conect",
-          showRuntimeMilliseconds: true,
-          isIsolate: true,
-        ),
-      ),
-    );
+#### b) Apenas a regra de negócio — `UsecaseBase<TypeUsecase>`
 
-    switch (data) {
-      case SuccessReturn<String>():
-        _resultChecarConeccao = data.result;
-        setState(() {});
+Quando não há chamada externa:
 
-      case ErrorReturn<String>():
-        _resultChecarConeccao = data.result.message;
-        setState(() {});
-    }
-  }
-```
-
-Usecase apenas com a regra de negócio:
-Extende a regra de negócio sem chamadas externas do datasouce ```Usecase``` com ```UsecaseBase<TypeUsecase>``` tipando o ```UsecaseBase<TypeUsecase>``` com o dado desejado ex: ```UsecaseBase<String>```. Onde é tipado com o retorno que será feito pelo usecase.
-
-```
-final class ChecarTypeConeccaoUsecase extends UsecaseBase<String> {
-  final Connectivity connectivity;
-
-  ChecarTypeConeccaoUsecase({required this.connectivity});
-
-  Future<String> get type async {
-    var result = await connectivity.checkConnectivity();
-    switch (result) {
-      case ConnectivityResult.wifi:
-        return "Conect wifi";
-      case ConnectivityResult.mobile:
-        return "Conect mobile";
-      case ConnectivityResult.ethernet:
-        return "Conect ethernet";
-      default:
-        return "Conect none";
-    }
-  }
-
+```dart
+final class TwoPlusTwoUsecase extends UsecaseBase<int> {
   @override
-  Future<ReturnSuccessOrError<String>> call(
-      {required ParametersReturnResult parameters}) async {
-    if (await type == "Conect none") {
-      return ErrorReturn(
-        error: ErrorGeneric(message: "You are Offline!"),
-      );
-    } else {
-      return SuccessReturn(
-        success: await type,
-      );
-    }
+  Future<ReturnSuccessOrError<int>> call(NoParams parameters) async {
+    return const SuccessReturn(success: 4);
   }
 }
 ```
 
-A classe "ParametersReturnResult". Espera receber os parametros gerais necessários para a chamada do Usecase, juntamente com os parametros obrigatórios ParametersBasic:
-```showRuntimeMilliseconds``` responsável por mostar o tempo que levou para executar a chamada em milesegundos;
-```nameFeature``` responsável pela identificação da feature;
-```AppError``` responsável pelo tratamento do Erro;
+### 5. Chame o usecase
 
+Instancie-o e invoque-o com `call` (parâmetros posicionais):
 
-Exemplo de hierarquia de uma feature:
-Chegar conexção - Checa se o dispositivo está conectado a internet e retorna um bool:
+```dart
+final usecase = CheckConnectUsecase(datasource: ConnectivityDatasource(Connectivity()));
+
+final data = await usecase(
+  NoParams(error: const ErrorGeneric(message: "Erro de conexão")),
+);
+```
+
+### 6. Trate o resultado
+
+`ReturnSuccessOrError<T>` é selado, então a forma mais explícita é um `switch` exaustivo:
+
+```dart
+switch (data) {
+  case SuccessReturn<String>():
+    print(data.result);          // valor de sucesso (String)
+  case ErrorReturn<String>():
+    print(data.result.message);  // AppError
+}
+```
+
+Você também pode usar patterns de desestruturação do Dart 3 para uma sintaxe mais concisa:
+
+```dart
+final message = switch (data) {
+  SuccessReturn(:final result) => 'OK: $result',
+  ErrorReturn(:final result) => 'Falha: ${result.message}',
+};
+```
+
+### 7. Rodando em um isolate de segundo plano
+
+Ambas as classes base aceitam `runInIsolate: true` no construtor. Quando ligado, o `call`
+executa o `run` em um isolate de segundo plano via `Isolate.run`; quando desligado (padrão),
+roda direto. Para medir e logar o tempo decorrido (via `dart:developer`), ligue também
+`monitorExecutionTime: true` — desligado por padrão, garantindo custo zero em produção:
+
+```dart
+final usecase = MeuUsecase(runInIsolate: true, monitorExecutionTime: true);
+final result = await usecase(parameters);
+```
+
+> Tudo o que o `call` captura (o usecase e seu datasource) precisa ser *sendable* para o
+> outro isolate. Evite capturar objetos não-transferíveis (sockets abertos, handles de
+> plugin, etc.).
+
+### 8. Resultados sem valor — `Unit` / `Nil`
+
+Para usecases que têm sucesso sem produzir valor, use os singletons compartilhados `unit`
+(representa `void`) ou `nil` (representa `null`):
+
+```dart
+final class LogoutUsecase extends UsecaseBase<Unit> {
+  @override
+  Future<ReturnSuccessOrError<Unit>> call(NoParams parameters) async {
+    // ... executa o efeito colateral ...
+    return SuccessReturn(success: unit);
+  }
+}
+```
+
+## Hierarquia de feature sugerida
 
 ```
-hierarquia:
-lib:
-    features:
-        check_connection:
-            datasouces:
-                connectivity_datasource.dart
-            domain:
-                usecase:
-                  checar_coneccao_usecase.dart
-    main.dart
-
+lib/
+  features/
+    check_connection/
+      datasources/
+        connectivity_datasource.dart
+      domain/
+        parameters/
+          check_connection_parameters.dart
+        usecase/
+          check_connection_usecase.dart
+  main.dart
 ```
-----
+
+## Exemplo
+
+O diretório [`example/`](example/) contém um exemplo **Dart puro** (CLI) demonstrando o
+pacote sem Flutter: um `UsecaseBaseCallData` consumindo um `Datasource` (sucesso, erro de
+negócio e exceção capturada) e um `UsecaseBase` rodando em isolate via `runInIsolate: true`.
+Rode com `dart run bin/example.dart` e os testes com `dart test`.
+
+## Ambiente
+
+- Dart SDK `^3.12.0` (usa recursos do Dart 3: sealed classes, pattern matching, class
+  modifiers e private named parameters do Dart 3.12).
+- Depende apenas de `package:meta` (para `@protected`/`@immutable`) — sem Flutter.
