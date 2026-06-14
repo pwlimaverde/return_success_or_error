@@ -81,5 +81,17 @@
             "type": "dart",
             "flutterMode": "release"
         },
+        {
+            "name": "Debug Current Test File",
+            "request": "launch",
+            "type": "dart",
+            "program": "${file}"
+        },
+        {
+            "name": "Debug Usecase Base Tests",
+            "request": "launch",
+            "type": "dart",
+            "program": "test/src/bases/usecase_base_test.dart"
+        }
     ]
 }
