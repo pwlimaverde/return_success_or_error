@@ -1,6 +1,6 @@
 name: return_success_or_error
 description: Usecase abstraction returning success or error, with the error type closed per feature for exhaustive handling.
-version: 3.0.0
+version: 3.0.1
 homepage: https://github.com/pwlimaverde/return_success_or_error
 repository: https://github.com/pwlimaverde/return_success_or_error
 issue_tracker: https://github.com/pwlimaverde/return_success_or_error/issues
