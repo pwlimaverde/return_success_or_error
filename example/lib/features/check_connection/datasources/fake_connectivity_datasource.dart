@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:return_success_or_error/return_success_or_error.dart';
 
 /// Simula uma verificação externa de conectividade (faz as vezes de um
 /// plugin/API real).
 ///
-/// Implementa [Datasource]: retorna o `bool` cru em caso de sucesso ou faz
-/// `throw` no [AppError] carregado pelos parâmetros em caso de falha —
-/// exatamente o que o `resultDatasource` do usecase espera.
-final class FakeConnectivityDatasource implements Datasource<bool> {
+/// É a camada **burra**: devolve o `bool` cru ou **deixa a exceção técnica
+/// subir**. Repare que não há `try/catch` nem qualquer menção a erro de
+/// domínio — traduzir é papel do repositório.
+final class FakeConnectivityDatasource implements Datasource<bool, NoParams> {
   final bool _online;
   final bool _shouldThrow;
 
@@ -18,10 +20,10 @@ final class FakeConnectivityDatasource implements Datasource<bool> {
   });
 
   @override
-  Future<bool> call(ParametersReturnResult parameters) async {
+  Future<bool> call(NoParams parameters) async {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     if (_shouldThrow) {
-      throw parameters.error.copyWith(message: "simulated network failure");
+      throw TimeoutException('simulated network failure');
     }
     return _online;
   }

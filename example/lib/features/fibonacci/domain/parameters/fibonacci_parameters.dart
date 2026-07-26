@@ -1,12 +1,11 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-/// Parâmetros do [FibonacciUsecase]: a posição `n` a calcular e o [AppError]
-/// retornado em caso de falha.
-final class FibonacciParameters implements ParametersReturnResult {
+/// Parâmetros do `FibonacciUsecase`: **apenas dados**.
+///
+/// Na v2 todo parâmetro era obrigado a carregar um `AppError`; agora o erro é
+/// decidido por camada e os parâmetros voltam a ser só entrada.
+final class FibonacciParameters extends Parameters {
   final int n;
 
-  @override
-  final AppError error;
-
-  const FibonacciParameters({required this.n, required this.error});
+  const FibonacciParameters({required this.n});
 }

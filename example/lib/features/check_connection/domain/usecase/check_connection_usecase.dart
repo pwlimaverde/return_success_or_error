@@ -1,26 +1,32 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
-/// Regra de negócio que consome um `Datasource<bool>` e o mapeia para uma
-/// mensagem.
+import '../errors/connection_errors.dart';
+
+/// Regra de negócio que consome o repositório de conexão e mapeia o `bool` cru
+/// para uma mensagem.
 ///
-/// Estende [UsecaseBaseCallData]: `String` é o tipo retornado pelo usecase e
-/// `bool` é o tipo cru do datasource. A base faz o fetch do datasource e, em
-/// caso de sucesso, chama [process] com o `bool` já desempacotado — a subclasse
-/// só implementa a regra de negócio sobre o dado bruto.
-final class CheckConnectionUsecase extends UsecaseBaseCallData<String, bool> {
-  CheckConnectionUsecase({required super.datasource, super.runInIsolate});
+/// Os quatro parâmetros de tipo são, nesta ordem: o valor produzido (`String`),
+/// o dado bruto da fonte (`bool`), os parâmetros (`NoParams`) e o conjunto
+/// fechado de erros ([ConnectionError]).
+final class CheckConnectionUsecase
+    extends UsecaseBaseCallData<String, bool, NoParams, ConnectionError> {
+  const CheckConnectionUsecase({required super.repository});
 
   @override
-  ProcessData<String, bool> get process => _process;
+  ProcessData<String, bool, NoParams, ConnectionError> get process => _process;
 
-  /// Função estática (não captura `this`): recebe o `bool` já carregado pelo
-  /// datasource e devolve a mensagem ou um erro de negócio.
-  static ReturnSuccessOrError<String> _process(
+  /// Só o **inesperado** passa por aqui: um bug no `process`. Falhas técnicas da
+  /// fonte já foram traduzidas pelo `mapError` do repositório.
+  @override
+  ConnectionError onUnexpected(Object exception, StackTrace stackTrace) =>
+      ConnectionUnexpected('Falha ao processar a conexão: $exception');
+
+  /// Função estática (não captura `this`): recebe o `bool` já carregado e
+  /// devolve a mensagem ou o erro **de negócio** da feature.
+  static ReturnSuccessOrError<String, ConnectionError> _process(
     bool online,
-    ParametersReturnResult parameters,
+    NoParams parameters,
   ) => online
-      ? const SuccessReturn(success: "You are connected")
-      : ErrorReturn(
-          error: parameters.error.copyWith(message: "You are offline"),
-        );
+      ? const Success('You are connected')
+      : const Failure(ConnectionOffline('You are offline'));
 }

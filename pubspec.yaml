@@ -1,8 +1,9 @@
 name: return_success_or_error
-description: Usecase abstraction returning success or error from a call made by the data source.
-version: 2.0.0
+description: Usecase abstraction returning success or error, with the error type closed per feature for exhaustive handling.
+version: 3.0.0
 homepage: https://github.com/pwlimaverde/return_success_or_error
 repository: https://github.com/pwlimaverde/return_success_or_error
+issue_tracker: https://github.com/pwlimaverde/return_success_or_error/issues
 topics:
   - clean-architecture
   - usecase

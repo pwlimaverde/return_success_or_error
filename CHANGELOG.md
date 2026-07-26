@@ -1,3 +1,96 @@
+## [3.0.0] - 26/07/2026.
+
+Reformulação do **tratamento de erro** e da **padronização do projeto**, alinhando o pacote
+à evolução da versão C# homônima. O erro deixa de ser um tipo único e aberto e passa a ser
+**parametrizado e fechado por feature**, com uma camada de fronteira dedicada a traduzir
+falhas técnicas. O resultado: o compilador passa a cobrar o tratamento de *cada* erro
+possível, e nenhuma exceção atravessa as camadas em silêncio.
+
+**BREAKING CHANGES**
+
+1 - `ReturnSuccessOrError<T>` agora é `ReturnSuccessOrError<TValue, TError>`. O erro é
+    **parametrizado**: cada feature declara os erros que pode produzir em uma hierarquia
+    `sealed` e a usa como `TError`, tornando o `switch` exaustivo **nos dois níveis**
+    (sucesso/falha e, dentro da falha, cada erro previsto) — sem braço `default`.
+    `TError` não tem bound: pode ser qualquer tipo.
+2 - Os casos do resultado foram renomeados, alinhando à versão C#:
+    `SuccessReturn(success: v)` → `Success(v)`, com o valor em `.value`;
+    `ErrorReturn(error: e)` → `Failure(e)`, com o erro em `.error`.
+    O getter genérico `Object? get result` da base foi removido.
+3 - **Nova camada `Repository`** (`Datasource → Repository → Usecase`). O
+    `RepositoryBase<TData, TParams, TError>` é a fronteira (*anti-corruption layer*):
+    chama o datasource e traduz a exceção técnica via `mapError` — **abstrato**, o
+    repositório é obrigado a mapear toda exceção para um erro previsto. O
+    `UsecaseBaseCallData` passa a depender de `Repository` (DIP), recebido como
+    `{required super.repository}` em vez de `datasource:`.
+4 - `Datasource` agora é **burro**: `Datasource<TData, TParams>` devolve o dado bruto ou
+    **deixa a exceção técnica subir**. O antigo `throw parameters.error` deixou de existir
+    — o datasource não conhece mais o erro de domínio.
+5 - **O erro saiu dos parâmetros.** `ParametersReturnResult` (que obrigava todo parâmetro a
+    expor um `AppError`) foi substituído por `Parameters`, um `abstract base class` que
+    carrega **só dados**. `NoParams` perdeu o parâmetro `error` e ganhou o singleton
+    `noParams`.
+6 - **Removido o enriquecimento automático de mensagem.** Os códigos `Cod. 02-1` (catch do
+    datasource) e `Cod. IsolateCatch` (catch do isolate) não existem mais: eles existiam
+    para o catch genérico que foi substituído por `mapError`/`onUnexpected`. Como
+    consequência, `AppError.copyWith` saiu do contrato.
+7 - `AppError` deixou de ser `abstract interface class` e virou `abstract base class` com
+    `final String message`, construtor `const` posicional, `toString`
+    (`"$runtimeType - $message"`) e igualdade por valor **herdados** — antes, quem usava
+    `implements` não herdava comportamento nenhum. Erros com campos adicionais devem
+    sobrescrever `==`/`hashCode`. `ErrorGeneric` passou a ser `ErrorGeneric("mensagem")`
+    (posicional) e herda tudo da base.
+8 - Novo `onUnexpected(Object exception, StackTrace stackTrace)` **abstrato** nas bases de
+    usecase: uma exceção inesperada do `process` é convertida em um erro da feature. Vale
+    para **os dois** caminhos (direto e isolate) — antes, só o caminho do isolate capturava,
+    e o resultado era uma cópia do erro dos parâmetros.
+9 - Os `process` recebem os **parâmetros já tipados** (`TParams`), eliminando o
+    `parameters as MeusParametros` de dentro da função. As assinaturas passaram a ser
+    `ProcessPure<TValue, TParams, TError>` e
+    `ProcessData<TValue, TData, TParams, TError>`.
+10 - `UsecaseBase<T>` agora é `UsecaseBase<TValue, TParams, TError>` e
+    `UsecaseBaseCallData<T, D>` agora é
+    `UsecaseBaseCallData<TValue, TData, TParams, TError>` (mesma ordem da versão C#).
+
+**Melhorias**
+
+11 - **O `StackTrace` é preservado.** `mapError(exception, stackTrace, parameters)` e
+    `onUnexpected(exception, stackTrace)` recebem o stack trace junto da exceção. Em Dart, ao
+    contrário do C#, o stack trace não viaja dentro da exceção — uma fronteira que só
+    repassasse o objeto de erro destruiria a informação de origem antes de ela chegar ao
+    consumidor. Ignorar o parâmetro é normal; ele existe para quem precisa reportar a falha
+    (Sentry, Crashlytics, log estruturado).
+12 - **O `call` nunca propaga exceção**, nem quando um `Repository` implementado à mão quebra
+    o contrato e lança em vez de devolver `Failure`: a fase de fetch também é protegida e cai
+    no `onUnexpected`. Quem estende `RepositoryBase` nunca chega nesse caminho.
+13 - O isolate de processamento recebe `debugName` com o tipo do caso de uso, aparecendo
+    identificado no DevTools em vez de anônimo.
+14 - Nova `UsecaseExecutorBase<TValue, TError>`: base compartilhada pelos dois usecases,
+    concentrando `runInIsolate`, `monitorExecutionTime`, `onUnexpected` e a medição —
+    elimina a duplicação entre as duas bases.
+15 - A medição de tempo agora é entregue ao hook `onExecutionTimeMeasured(Duration)`,
+    sobrescrevível para plugar logger/métricas. O `print` de dentro da biblioteca foi
+    removido; o padrão escreve via `dart:developer`.
+16 - **Estrutura de pastas padronizada** com a versão C#: `lib/src/{core,errors,parameters,
+    datasources,repositories,usecases}` (antes `lib/src/{bases,interfaces,core}`).
+    `Unit` e `Nil` foram extraídos para arquivos próprios, e seus `toString` passaram a ser
+    `"Unit - void"` / `"Nil - null"`.
+17 - `Success`/`Failure` comparam por valor e são `@immutable`, o que simplifica asserts de
+    teste (`expect(result, const Success<int, MyError>(42))`).
+18 - Suíte de testes reescrita e ampliada (61 testes), cobrindo: tradução via `mapError`
+    (incluindo braço `default`, o contexto dos parâmetros e o stack trace), curto-circuito
+    sem chamar o `process`, preservação do caso concreto do erro, `onUnexpected` nos dois
+    caminhos, `Repository` fora do contrato, paridade direto×isolate, o hook de medição
+    (chamado e não chamado) e a exaustividade do `switch` sobre o conjunto fechado de erros.
+19 - Exemplo refeito nas três camadas, com um conjunto `sealed` de erros por feature,
+    repositórios com `mapError` e o hook de medição sobrescrito. As três features
+    (`check_connection`, `fibonacci`, `sales_report`) exercitam os quatro caminhos: sucesso,
+    erro de negócio (do `process`), erro técnico (do `mapError`) e bug convertido pelo
+    `onUnexpected`.
+20 - READMEs reescritos, com seção de migração v2 → v3.
+21 - `.pubignore` mantém a documentação de desenvolvimento (`doc_dev/`, `CLAUDE.md`) fora do
+    pacote publicado.
+
 ## [2.0.0] - 14/06/2026.
 
 Reformulação do fluxo de execução dos usecases: o fetch do datasource passa a ser
