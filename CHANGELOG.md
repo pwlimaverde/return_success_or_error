@@ -76,12 +76,17 @@ possível, e nenhuma exceção atravessa as camadas em silêncio.
     `Unit` e `Nil` foram extraídos para arquivos próprios, e seus `toString` passaram a ser
     `"Unit - void"` / `"Nil - null"`.
 17 - `Success`/`Failure` comparam por valor e são `@immutable`, o que simplifica asserts de
-    teste (`expect(result, const Success<int, MyError>(42))`).
-18 - Suíte de testes reescrita e ampliada (61 testes), cobrindo: tradução via `mapError`
+    teste (`expect(result, const Success<int, MyError>(42))`). A comparação **ignora os
+    argumentos de tipo**: testá-los seria assimétrico (violando o contrato de `Object.==`),
+    porque genéricos são covariantes em Dart — `Success<String, MeuErro>` é um
+    `Success<String, dynamic>`, mas não o inverso. Na prática isso faz
+    `expect(result, Success('x'))` funcionar, que é onde o `TError` não tem como ser inferido.
+18 - Suíte de testes reescrita e ampliada (65 testes), cobrindo: tradução via `mapError`
     (incluindo braço `default`, o contexto dos parâmetros e o stack trace), curto-circuito
     sem chamar o `process`, preservação do caso concreto do erro, `onUnexpected` nos dois
     caminhos, `Repository` fora do contrato, paridade direto×isolate, o hook de medição
-    (chamado e não chamado) e a exaustividade do `switch` sobre o conjunto fechado de erros.
+    (chamado e não chamado), a simetria do `==` e a exaustividade do `switch` sobre o
+    conjunto fechado de erros.
 19 - Exemplo refeito nas três camadas, com um conjunto `sealed` de erros por feature,
     repositórios com `mapError` e o hook de medição sobrescrito. As três features
     (`check_connection`, `fibonacci`, `sales_report`) exercitam os quatro caminhos: sucesso,

@@ -361,6 +361,11 @@ If a `SalesMalformedData` is added to the `sealed` set tomorrow, **this code sto
 compiling** until the new case is handled. That is the difference between handling "the
 error" and handling *the errors*.
 
+> **In tests:** `Success` and `Failure` compare **by value**, so the assert is direct —
+> `expect(result, Success(report))` or `expect(result, Failure(EmptyPeriod('...')))`. The
+> comparison does not look at the type arguments, so you don't have to annotate them in the
+> literal.
+
 ### 7. Running on a background isolate
 
 Both bases accept `runInIsolate: true`. When enabled, only `process` runs on an isolate

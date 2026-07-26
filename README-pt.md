@@ -365,6 +365,10 @@ Se amanhã um `SalesMalformedData` for acrescentado ao `sealed`, **este código 
 compilar** até que o caso novo seja tratado. É essa a diferença entre "tratar o erro" e
 tratar *os* erros.
 
+> **Nos testes:** `Success` e `Failure` comparam **por valor**, então o assert é direto —
+> `expect(result, Success(relatorio))` ou `expect(result, Failure(EmptyPeriod('...')))`. A
+> comparação não olha os argumentos de tipo, então não é preciso anotá-los no literal.
+
 ### 7. Rodando em um isolate de segundo plano
 
 Ambas as bases aceitam `runInIsolate: true`. Quando ligado, apenas o `process` roda em um

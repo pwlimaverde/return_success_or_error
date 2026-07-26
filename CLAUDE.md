@@ -70,7 +70,13 @@ Consequência: o curto-circuito **reconstrói** o caso (`Failure(error)`), pois
 
 A recuperação do valor é só por pattern matching — não há `fold`/`getOrNull`/`match`
 (decisão deliberada: o `switch` é a forma idiomática e exaustiva em Dart). O tipo e seus
-casos são `@immutable` e comparam por valor. `Unit`/`unit` (`core/unit.dart`) representa
+casos são `@immutable` e comparam por valor.
+
+⚠️ **O `==` de `Success`/`Failure` testa `other is Success<Object?, Object?>` — nunca troque
+por `other is Success<TValue, TError>`.** Genéricos são covariantes em Dart, então testar os
+argumentos de tipo torna a comparação **assimétrica** (`a == b` ≠ `b == a`), violando o
+contrato de `Object.==`. Há testes de regressão em
+`test/src/core/return_success_or_error_test.dart` cobrindo os dois sentidos. `Unit`/`unit` (`core/unit.dart`) representa
 `void` e `Nil`/`nil` (`core/nil.dart`) representa `null` como resultado válido.
 
 ### Erros ([lib/src/errors/](lib/src/errors/))

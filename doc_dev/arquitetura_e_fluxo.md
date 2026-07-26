@@ -159,6 +159,15 @@ console por conta própria.
 - **Resultado imutável e comparável por valor.** `@immutable` no selado e nos dois casos, com
   `==`/`hashCode` pelo valor carregado — asserts de teste diretos
   (`expect(result, const Success<int, MyError>(42))`).
+- **A igualdade ignora os argumentos de tipo — de propósito.** `Success.==` testa
+  `other is Success<Object?, Object?>`, não `other is Success<TValue, TError>`. Testar os type
+  args seria **assimétrico**, violando o contrato de `Object.==` (`a == b` ⇔ `b == a`): como
+  genéricos são covariantes em Dart, `Success<String, MeuErro>` *é* um
+  `Success<String, dynamic>`, mas não o inverso — a comparação daria `true` em um sentido e
+  `false` no outro. E `<String, dynamic>` não é hipotético: é exatamente o que a inferência
+  produz em `expect(result, Success('x'))`, já que o `TError` não aparece em nenhum argumento
+  do construtor. Como `TError` é *phantom* em `Success` (e `TValue` em `Failure`), compará-lo
+  não agregava informação, só surpresa. Coberto por testes de regressão nos dois sentidos.
 - **`UsecaseExecutorBase` compartilhada.** Concentra flags, medição, `processStage` e
   `onUnexpected`, eliminando a duplicação entre as duas bases (o mesmo papel da
   `UsecaseExecutorBase` do C#).
@@ -200,18 +209,22 @@ Divergências **deliberadas**, por idioma da linguagem:
 - `test/test_fixtures.dart` — o conjunto `sealed` de erros compartilhado (`TestError`) e os
   parâmetros de teste.
 - `test/src/core/return_success_or_error_test.dart` — casos, igualdade por valor, `toString`,
-  consumo exaustivo nos dois níveis, `Unit`/`Nil`.
+  consumo exaustivo nos dois níveis, `Unit`/`Nil` e a **simetria do `==`** (regressão: a
+  comparação precisa dar o mesmo resultado nos dois sentidos, inclusive quando um dos lados
+  tem `dynamic` no argumento de tipo).
 - `test/src/errors/app_error_test.dart` — comportamento herdado (`message`/`toString`/`==`),
   tipos distintos com a mesma mensagem, subclasse com campo extra.
 - `test/src/parameters/parameters_test.dart` — parâmetros só com dados, `noParams`.
 - `test/src/datasources/datasource_test.dart` — dado bruto e propagação da exceção crua.
 - `test/src/repositories/repository_base_test.dart` — `mapError` (caso traduzido, braço
-  `default`, contexto dos parâmetros) e a garantia de que nenhuma exceção escapa.
+  `default`, contexto dos parâmetros, **stack trace entregue**) e a garantia de que nenhuma
+  exceção escapa.
 - `test/src/usecases/usecase_base_test.dart` — regra pura, erro de negócio, `onUnexpected`
   nos dois caminhos, paridade direto×isolate, `Unit`/`Nil`.
 - `test/src/usecases/usecase_base_call_data_test.dart` — fetch + process, curto-circuito
   (com contagem de execuções do `process`), preservação do caso concreto, integração das três
-  camadas.
+  camadas e o **`Repository` fora do contrato** (que lança em vez de devolver `Failure`:
+  vira `onUnexpected`, nos dois modos).
 - `test/src/usecases/usecase_executor_base_test.dart` — o hook de medição (chamado, não
-  chamado, e no caminho isolate).
+  chamado, e no caminho isolate) e o **stack trace entregue ao `onUnexpected`**.
 - `example/test/*` — as três features do exemplo.
