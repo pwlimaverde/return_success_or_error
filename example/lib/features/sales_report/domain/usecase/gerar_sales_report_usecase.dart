@@ -1,36 +1,66 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
+import '../errors/sales_report_errors.dart';
 import '../model/sales_report.dart';
+import '../parameters/sales_report_parameters.dart';
 
-/// Gera um [SalesReport] a partir das linhas cruas devolvidas pelo datasource.
+/// Gera um [SalesReport] a partir das linhas cruas devolvidas pelo repositório.
 ///
-/// Estende [UsecaseBaseCallData]: `SalesReport` é o tipo final do usecase e
-/// `List<Map<String, dynamic>>` é o tipo cru do datasource. A base faz o fetch
-/// (no isolate principal) e, em caso de sucesso, chama [process] com as linhas
-/// já carregadas. Construa com `runInIsolate: true` para que o parsing/agregação
-/// pesado rode em um isolate de background, deixando o event loop (e a UI)
-/// livre.
+/// A base faz o fetch (no isolate principal) e, em caso de sucesso, chama o
+/// [process] com as linhas já carregadas. Construa com `runInIsolate: true` para
+/// que o parsing/agregação pesado rode em um isolate de background, deixando o
+/// event loop (e a UI) livre.
 final class GerarSalesReportUsecase
-    extends UsecaseBaseCallData<SalesReport, List<Map<String, dynamic>>> {
-  GerarSalesReportUsecase({
-    required super.datasource,
+    extends
+        UsecaseBaseCallData<
+          SalesReport,
+          List<Map<String, dynamic>>,
+          SalesReportParameters,
+          SalesReportError
+        > {
+  const GerarSalesReportUsecase({
+    required super.repository,
     super.runInIsolate,
     super.monitorExecutionTime,
   });
 
   @override
-  ProcessData<SalesReport, List<Map<String, dynamic>>> get process => _process;
+  ProcessData<
+    SalesReport,
+    List<Map<String, dynamic>>,
+    SalesReportParameters,
+    SalesReportError
+  >
+  get process => _process;
 
-  /// Função **estática** (não captura `this` nem o datasource): faz o parsing e
+  @override
+  SalesReportError onUnexpected(Object exception, StackTrace stackTrace) =>
+      SalesUnexpected('Falha ao processar o relatório: $exception');
+
+  /// Demonstra o hook de observabilidade: a implementação padrão escreve via
+  /// `dart:developer` (visível no DevTools); aqui o tempo vai para o console,
+  /// que é o que este exemplo de CLI precisa. Em um app real, este é o ponto de
+  /// integração com o seu logger ou coletor de métricas.
+  @override
+  void onExecutionTimeMeasured(Duration elapsed) {
+    final modo = runInIsolate ? 'Isolate' : 'Direct';
+    print('       [$modo] ${elapsed.inMilliseconds}ms');
+  }
+
+  /// Função **estática** (não captura `this` nem o repositório): faz o parsing e
   /// a agregação das linhas cruas. É esta função que roda no isolate quando
   /// `runInIsolate: true`.
-  static ReturnSuccessOrError<SalesReport> _process(
+  static ReturnSuccessOrError<SalesReport, SalesReportError> _process(
     List<Map<String, dynamic>> linhas,
-    ParametersReturnResult parameters,
+    SalesReportParameters parameters,
   ) {
     if (linhas.isEmpty) {
-      return ErrorReturn(
-        error: parameters.error.copyWith(message: "Sem vendas no período"),
+      return Failure(
+        EmptyPeriod(
+          'Sem vendas no período',
+          mes: parameters.mes,
+          ano: parameters.ano,
+        ),
       );
     }
 
@@ -55,8 +85,8 @@ final class GerarSalesReportUsecase
         .reduce((a, b) => a.value >= b.value ? a : b)
         .key;
 
-    return SuccessReturn(
-      success: SalesReport(
+    return Success(
+      SalesReport(
         totalItens: itens,
         faturamentoTotal: faturamento,
         ticketMedio: faturamento / linhas.length,

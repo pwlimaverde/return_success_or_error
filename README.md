@@ -4,105 +4,101 @@
 
 [Leia esta página em português](https://github.com/pwlimaverde/return_success_or_error/blob/master/README-pt.md)
 
-A pure **Dart** package that abstracts and simplifies usecases, datasources, parameters and
-error handling following the Clean Architecture principles popularized by Uncle Bob. The
-result of every call is wrapped in a sealed `ReturnSuccessOrError<T>`, so success and error
-must always be handled explicitly.
+A pure **Dart** package that abstracts and simplifies usecases, datasources, repositories,
+parameters and error handling, following the Clean Architecture principles popularized by
+Uncle Bob. The outcome of any call is wrapped in a sealed
+`ReturnSuccessOrError<TValue, TError>`, so success and error must always be handled
+explicitly — **and every possible error, by name**.
 
-> Pure Dart: it has **no Flutter dependency** and runs in any Dart project (CLI, server,
-> backend) as well as in Flutter apps.
+> Pure Dart: it does **not depend on Flutter** and runs in any Dart project (CLI, server,
+> backend), as well as in Flutter apps.
 
 ## The Problem
 
-In apps built with Clean Architecture, each feature follows the flow
-**datasource → usecase → UI**. Two recurring pain points emerge from this model:
+In apps built with Clean Architecture, every feature follows the flow
+**datasource → usecase → UI**. Four pains keep coming out of that model:
 
-1. **Heavy processing blocks the UI.** When the usecase needs to parse large
-   payloads, aggregate thousands of rows, or transform complex data structures, the
-   work runs on the main thread (event loop). In Flutter, that means **dropped frames
-   and frozen interfaces** — the user sees the app "hanging" while the CPU is busy.
+1. **Heavy processing blocks the UI.** When the usecase has to parse large payloads,
+   aggregate thousands of rows or transform complex structures, the work runs on the main
+   thread (event loop). In Flutter that means **dropped frames and frozen interfaces**.
 
-2. **Datasources can't simply be moved to a background isolate.** A datasource often
-   holds native resources — database connections, sockets, platform channels — that are
-   **not serializable** and cannot cross the isolate boundary. Sending the entire
-   usecase (including its datasource) to `Isolate.run` breaks at runtime.
+2. **Datasources can't simply be moved to a background isolate.** A datasource often holds
+   native resources — database connections, sockets, platform channels — that are **not
+   serializable** and cannot cross the isolate boundary.
 
-3. **Errors leak between layers.** Without a standardized result type, exceptions
-   thrown by the datasource propagate up unhandled, mixing infrastructure failures
-   with business-logic errors and making the code fragile and hard to debug.
+3. **Errors leak across layers.** Without a standardized result type, exceptions thrown by
+   the datasource propagate unhandled, mixing infrastructure failures with business rule
+   errors.
+
+4. **"Handling the error" degenerates into handling *one* generic error.** Even with a
+   result type, if the failure is always the same open class, the compiler has no way of
+   knowing *which* errors a given call produces. Handling becomes scattered `if (e is X)`
+   checks, or a `catch` that swallows everything — and when a new error appears, nothing
+   warns you that it is unhandled.
 
 ### The solution
 
-`return_success_or_error` solves all three by design:
+- **Parameterized error, closed per feature** — `ReturnSuccessOrError<TValue, TError>`.
+  Each feature declares the errors it can produce in a `sealed` hierarchy and uses it as
+  `TError`. The `switch` becomes exhaustive **at both levels** (success/failure and, inside
+  the failure, every anticipated error) — **with no `default` branch**. Adding a new error
+  to the feature breaks compilation of every consumer that doesn't handle it: the compiler
+  enforces handling, not the code review.
+- **Three layers with an explicit boundary** — `Datasource → Repository → Usecase`. The
+  datasource is dumb (returns data or throws); `RepositoryBase` is the anti-corruption
+  layer that translates every technical exception into a domain error through `mapError`
+  (**abstract**: the compiler requires the mapping); the usecase depends on the
+  `Repository`, never on the concrete source.
+- **Nothing blows up silently** — if `process` throws an unexpected exception (a bug), it
+  is converted by `onUnexpected` (also abstract) into an anticipated error of the feature.
+  The usecase **never** propagates an exception to the caller.
+- **Fetch/process separation** — the base orchestrates the fetch on the **main isolate**,
+  keeping native resources safe. Only `process` (a static, CPU-bound function) may run on a
+  **background isolate** via `runInIsolate: true`.
+- **Automatic short-circuit** — if the fetch fails, the error is returned right away and
+  the processing phase never runs.
 
-- **Sealed result type** (`ReturnSuccessOrError<T>`) — every call returns either
-  `SuccessReturn<T>` or `ErrorReturn<T>`. The compiler forces exhaustive handling via
-  `switch`; no exception can silently leak.
-- **Fetch/process separation** — the base class orchestrates the datasource call
-  (fetch) on the **main isolate**, keeping native resources safe. Only the pure
-  processing function (`process`) can optionally run on a **background isolate** via
-  `runInIsolate: true`. Since `process` is a static function, it never captures `this`
-  nor the datasource — only the raw data and the result cross the isolate boundary.
-- **Automatic short-circuit** — if the fetch fails, the error is returned immediately
-  and the processing phase is never executed, avoiding unnecessary work.
-- **Feature-based organization** — the package naturally guides the separation of each
-  feature into well-defined layers (`datasources/`, `domain/model/`,
-  `domain/parameters/`, `domain/usecase/`). Each piece has a single responsibility: the
-  datasource handles only I/O, the model carries the processed data, the parameters
-  define the typed input, and the usecase contains exclusively the business rule — with
-  no coupling between them.
+#### A concrete example: Sales Report
 
-#### Concrete example: Sales Report
-
-The `sales_report` example illustrates the full cycle. A datasource queries the
-database and returns **50 thousand raw sale rows** (fetch phase, async, on the main
-isolate). The usecase receives those already-loaded rows and aggregates total revenue,
-average ticket, and best-selling product into a `SalesReport` object (process phase,
-CPU-bound, optionally on a background isolate). The UI never freezes:
+The `sales_report` example shows the full cycle. A datasource queries the database and
+returns **50k raw sales rows** (fetch phase, asynchronous, on the main isolate). The
+repository translates a database timeout into `SalesSourceUnavailable`. The usecase takes
+the already loaded rows and aggregates revenue, average ticket and best-selling product
+into a `SalesReport` (process phase, CPU-bound, optionally on an isolate):
 
 ```
 sales_report/
   datasources/
     fake_sales_datasource.dart        ← I/O: queries the database, returns List<Map>
+  repositories/
+    sales_repository.dart             ← Boundary: mapError translates the technical exception
   domain/
+    errors/
+      sales_report_errors.dart        ← CLOSED set of errors (sealed)
     model/
       sales_report.dart               ← Processed object (immutable, sendable)
     parameters/
-      sales_report_parameters.dart    ← Typed input (month, year, AppError)
+      sales_report_parameters.dart    ← Typed input (month, year) — data only
     usecase/
-      gerar_sales_report_usecase.dart ← Business rule: parsing + aggregation
+      gerar_sales_report_usecase.dart ← Business rule: parse + aggregation
 ```
-
-With `runInIsolate: true`, the heavy processing runs on a background isolate and the
-UI stays fluid. With `monitorExecutionTime: true`, you can compare direct vs. isolate
-timing and decide which path pays off for each data volume.
-
-## Why use it
-
-- **One return type for everything.** Every call resolves to `ReturnSuccessOrError<T>` —
-  either `SuccessReturn<T>` or `ErrorReturn<T>`. No exceptions leaking across layers.
-- **Errors can't be ignored.** Because the result is a *sealed* type, the compiler forces
-  you to handle both cases via an exhaustive `switch`.
-- **Clear separation of concerns.** The business rule (usecase) is decoupled from the
-  external call (datasource); the datasource is encapsulated and reached through a single
-  bridge.
-- **Optional background processing.** Any usecase can run its processing on a background
-  isolate by constructing it with `runInIsolate: true`, keeping the app responsive during
-  heavy work — while the datasource stays safely on the main isolate.
 
 ## Core concepts
 
 | Type | Role |
 |------|------|
-| `ReturnSuccessOrError<T>` | Sealed result type: either `SuccessReturn<T>` or `ErrorReturn<T>`. |
-| `SuccessReturn<T>` | Holds the success value, accessed via `.result` (type `T`). |
-| `ErrorReturn<T>` | Holds the failure, accessed via `.result` (type `AppError`). |
-| `UsecaseBase<T>` | Pure business rule, without any external call. |
-| `UsecaseBaseCallData<T, D>` | Business rule that consumes a `Datasource<D>` and returns `T`. |
-| `Datasource<D>` | Abstraction for the external call; returns `D` or throws `parameters.error`. |
-| `ParametersReturnResult` | Carries the call data; must expose an `AppError error`. |
-| `AppError` / `ErrorGeneric` | Immutable error contract / default implementation. |
-| `NoParams` | Ready-made `ParametersReturnResult` for calls without extra parameters. |
+| `ReturnSuccessOrError<TValue, TError>` | Sealed result type: either `Success` or `Failure`. |
+| `Success<TValue, TError>` | Holds the success value, read through `.value`. |
+| `Failure<TValue, TError>` | Holds the failure, read through `.error` (type `TError`). |
+| `Datasource<TData, TParams>` | External call; returns `TData` or **throws** the technical exception. |
+| `Repository<TData, TParams, TError>` | Data layer contract; returns an already handled result. |
+| `RepositoryBase<TData, TParams, TError>` | Ready-made boundary: calls the source and translates via `mapError`. |
+| `UsecaseBase<TValue, TParams, TError>` | Pure business rule, no data source. |
+| `UsecaseBaseCallData<TValue, TData, TParams, TError>` | Business rule over the repository data. |
+| `Parameters` | The call data — **and data only**. |
+| `NoParams` / `noParams` | Empty parameters. |
+| `AppError` | Optional base for errors: provides `message`, `toString` and value equality. |
+| `ErrorGeneric` | Ready-made concrete case for the "unexpected". |
 | `Unit` / `unit` | Represents `void` as a result. |
 | `Nil` / `nil` | Represents `null` as a result. |
 
@@ -110,7 +106,7 @@ timing and decide which path pays off for each data volume.
 
 ```yaml
 dependencies:
-  return_success_or_error: ^2.0.0
+  return_success_or_error: ^3.0.0
 ```
 
 ```dart
@@ -119,285 +115,286 @@ import 'package:return_success_or_error/return_success_or_error.dart';
 
 ## How the flow works
 
-A feature flows from the usecase, optionally through a datasource, back into a
-`ReturnSuccessOrError`:
-
 ```
 caller
-  │  usecase(parameters)                  // call(parameters) — positional
+  │  usecase(parameters)                       // call(parameters) — positional
   ▼
 UsecaseBaseCallData.call
-  │  PHASE 1 — fetch: _datasource(parameters)  // private, on the main isolate
-  │              └► throw parameters.error  (failure)  →  ErrorReturn<D> (Cod. 02-1)
-  │              └► raw value D            (success)  →  SuccessReturn<D>
+  │  (measures total time, if monitorExecutionTime)
+  │
+  │  PHASE 1 — fetch: repository(parameters)        // on the main isolate
+  │              │
+  │              └► RepositoryBase.call
+  │                   ├► datasource(parameters)  → raw data    → Success<TData, TError>
+  │                   └► technical exception     → mapError()  → Failure<TData, TError>
+  │              └► (safety net: if the Repository throws → onUnexpected)
   ▼
-  │  PHASE 2 — short-circuit: if ErrorReturn, return the error (process is NOT called)
+  │  PHASE 2 — short-circuit: on Failure, return the error (process is NOT called)
   ▼
-  │  PHASE 3 — process(D, parameters)          // static function, direct or in isolate
+  │  PHASE 3 — process(data, parameters)            // static function, direct or on isolate
+  │              └► unexpected exception        → onUnexpected() → Failure
   ▼
-ReturnSuccessOrError<T>   →   switch (exhaustive pattern matching)
+ReturnSuccessOrError<TValue, TError>   →   switch, exhaustive at both levels
 ```
 
 Key points:
 
-- The base **orchestrates everything**: it calls the datasource, short-circuits on error, and
-  only then calls `process` with the **raw, already-loaded** data. The subclass implements
-  only the `process` getter (a static function) — it never touches the (private) datasource.
-- The datasource signals failure by **throwing** `parameters.error`; the base catches it and
-  returns an `ErrorReturn` whose message is **enriched** (via `copyWith`) with the catch
-  context (`Cod. 02-1`) — the original error type is preserved.
-- The fetch (phase 1) always runs on the **main isolate**, so datasources holding native
-  resources (database connection, socket) work normally. With `runInIsolate: true`, only
-  `process` (phase 3) runs on a background isolate — see
-  [Running on a background isolate](#running-on-a-background-isolate).
+- **No exception crosses the boundary.** The repository translates the technical ones
+  (`mapError`); the executor converts the unexpected ones (`onUnexpected`). Both are
+  **abstract**: since there is no universal error the base could fabricate, the feature
+  decides — and the compiler enforces it.
+- **The caller never gets a `throw`.** Both phases are protected: the processing one
+  always, and the fetch one as a safety net for a hand-written `Repository` that breaks the
+  contract (anything extending `RepositoryBase` never gets there).
+- **The stack trace is not lost.** In Dart it doesn't travel inside the exception, so
+  `mapError` and `onUnexpected` receive it explicitly — ignore it in simple mappings, use it
+  when you need to report the failure (Sentry, Crashlytics, structured logging).
+- The fetch (phase 1) **always runs on the main isolate**, so datasources holding native
+  resources work normally. With `runInIsolate: true`, only `process` (phase 3) goes to the
+  isolate.
+- The usecase subclass provides only `process` (a static function) and `onUnexpected` — it
+  never touches the repository (which stays private).
 
-## Usage, step by step
+## Step-by-step usage
 
-### 1. Define the error — `AppError` / `ErrorGeneric`
+### 1. Declare the feature's closed set of errors
 
-`AppError` is the **immutable** error contract (it implements `Exception`). Use the default
-`ErrorGeneric`, or implement your own. To add context as the error bubbles up, never mutate
-it — create a copy with `copyWith`:
-
-```dart
-const error = ErrorGeneric(message: "Connection error");
-final enriched = error.copyWith(message: "Connection error - timeout");
-```
-
-A custom error keeps the same contract:
+This is where the guarantee lives. A `sealed` hierarchy lists every error the feature can
+produce; extending `AppError` gives you `message`, `toString` and value equality for free:
 
 ```dart
-final class ApiError implements AppError {
-  @override
-  final String message;
-  final int statusCode;
+sealed class SalesReportError extends AppError {
+  const SalesReportError(super.message);
+}
 
-  const ApiError({required this.message, required this.statusCode});
+/// Technical error translated by the repository.
+final class SalesSourceUnavailable extends SalesReportError {
+  const SalesSourceUnavailable(super.message);
+}
 
-  @override
-  ApiError copyWith({String? message}) =>
-      ApiError(message: message ?? this.message, statusCode: statusCode);
+/// Business error, produced by process.
+final class EmptyPeriod extends SalesReportError {
+  const EmptyPeriod(super.message);
+}
+
+/// The unexpected one — target of onUnexpected and of mapError's default branch.
+final class SalesUnexpected extends SalesReportError {
+  const SalesUnexpected(super.message);
 }
 ```
 
-> Since `AppError` is an interface used with `implements`, it only enforces `message` and
-> `copyWith` — there is no behavior inheritance. Value equality (`==`/`hashCode`) and a
-> readable `toString` do **not** come for free: override them in your custom error when you
-> want to compare it by value (handy in tests) or print it in a friendly way, like
-> `ErrorGeneric` does.
+> Extending `AppError` is **convenience, not obligation**: `TError` has no bound and can be
+> any type (an enum, a record, your own class). If your subclass adds fields, override
+> `==`/`hashCode` to include them — the inherited equality only compares the type and the
+> `message`.
 
-### 2. Define the parameters — `ParametersReturnResult` / `NoParams`
+### 2. Define the parameters — `Parameters` / `noParams`
 
-`ParametersReturnResult` is a pure interface: the only requirement is to expose the `AppError` returned on failure. Add whatever data your API/database call or processing needs:
+`Parameters` carries **data only**. Keep it immutable: the same parameters may cross an
+isolate boundary.
 
 ```dart
-final class SalesReportParameters implements ParametersReturnResult {
+final class SalesReportParameters extends Parameters {
   final int mes;
   final int ano;
 
-  @override
-  final AppError error;
-
-  const SalesReportParameters({
-    required this.mes,
-    required this.ano,
-    required this.error,
-  });
+  const SalesReportParameters({required this.mes, required this.ano});
 }
 ```
 
-When the call does not need extra data, you can use the `NoParams` helper provided by the library:
+When the call needs no input, use the `noParams` singleton (of type `NoParams`).
+
+### 3. Define the datasource — `Datasource<TData, TParams>`
+
+The dumb layer: it returns the raw data **or lets the exception bubble up**. No
+`try/catch`, no domain knowledge.
 
 ```dart
-final params = NoParams(error: const ErrorGeneric(message: "Unexpected error"));
-```
-
-### 3. Define the datasource — `Datasource<D>`
-
-Type it with the raw data it returns (for example, `List<Map<String, dynamic>>` from the database or raw JSON). Wrap the logic in a `try/catch` and `throw parameters.error` on failure (the usecase's fetch phase automatically captures it and triggers short-circuit):
-
-```dart
-final class FakeSalesDatasource implements Datasource<List<Map<String, dynamic>>> {
+final class FakeSalesDatasource
+    implements Datasource<List<Map<String, dynamic>>, SalesReportParameters> {
   const FakeSalesDatasource();
 
   @override
-  Future<List<Map<String, dynamic>>> call(covariant SalesReportParameters parameters) async {
-    try {
-      // Simulates database query (async I/O that doesn't block the UI)
-      await Future.delayed(const Duration(milliseconds: 100));
-      return [
-        {'produto': 'Produto A', 'quantidade': 10, 'valor_unitario': 50.0},
-        {'produto': 'Produto B', 'quantidade': 5, 'valor_unitario': 100.0},
-      ];
-    } catch (e) {
-      throw parameters.error.copyWith(message: "$e");
-    }
+  Future<List<Map<String, dynamic>>> call(SalesReportParameters parameters) async {
+    // Async I/O. On failure the exception bubbles up raw — the repository translates it.
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    return [
+      {'produto': 'Product A', 'quantidade': 10, 'valor_unitario': 50.0},
+      {'produto': 'Product B', 'quantidade': 5, 'valor_unitario': 100.0},
+    ];
   }
 }
 ```
 
-### 4. Define the usecase
+### 4. Define the repository — `RepositoryBase` and `mapError`
 
-#### a) With an external datasource — `UsecaseBaseCallData<TypeUsecase, TypeDatasource>`
-
-`TypeUsecase` is the type of the processed domain object returned by the usecase; `TypeDatasource` is the raw type returned by the datasource. The datasource is forwarded through the constructor with a **super parameter** (`{required super.datasource}`) and kept **private** in the base class.
-
-The subclass only implements the `process` getter, pointing to a **static** function that receives the raw data already loaded (the base handles the fetch and the short-circuit on fetch error):
+The boundary. It takes the source through `{required super.datasource}` (which stays
+private) and implements `mapError`, translating **every** exception into an anticipated
+error:
 
 ```dart
-final class GerarSalesReportUsecase
-    extends UsecaseBaseCallData<SalesReport, List<Map<String, dynamic>>> {
-  GerarSalesReportUsecase({
-    required super.datasource,
+final class SalesRepository extends RepositoryBase<
+    List<Map<String, dynamic>>, SalesReportParameters, SalesReportError> {
+  const SalesRepository({required super.datasource});
+
+  @override
+  SalesReportError mapError(
+    Object exception,
+    StackTrace stackTrace,
+    SalesReportParameters parameters,
+  ) => switch (exception) {
+    TimeoutException() => SalesSourceUnavailable(
+        'Source unavailable for ${parameters.mes}/${parameters.ano}',
+      ),
+    _ => SalesUnexpected('Unexpected failure: $exception'),
+  };
+}
+```
+
+From here on the domain only sees `Success | Failure` — no infrastructure exception
+crosses this line.
+
+> The `stackTrace` comes along because, in Dart, it **does not travel inside the
+> exception**: if the boundary dropped it in the `catch`, the origin of the failure would be
+> gone. Ignoring it is fine in simple mappings; this is where reporting to your error
+> collector belongs.
+
+### 5. Define the usecase
+
+#### a) With a data source — `UsecaseBaseCallData<TValue, TData, TParams, TError>`
+
+The four type parameters are, in order: the produced value, the raw data from the source,
+the parameters and the error set. The subclass provides `process` (a **static** function)
+and `onUnexpected`:
+
+```dart
+final class GerarSalesReportUsecase extends UsecaseBaseCallData<
+    SalesReport, List<Map<String, dynamic>>, SalesReportParameters, SalesReportError> {
+  const GerarSalesReportUsecase({
+    required super.repository,
     super.runInIsolate,
     super.monitorExecutionTime,
   });
 
   @override
-  ProcessData<SalesReport, List<Map<String, dynamic>>> get process => _process;
+  ProcessData<SalesReport, List<Map<String, dynamic>>, SalesReportParameters,
+      SalesReportError> get process => _process;
 
-  // Static function: essential not to capture "this" so it can run in an Isolate.
-  static ReturnSuccessOrError<SalesReport> _process(
-    List<Map<String, dynamic>> linhas,
-    ParametersReturnResult parameters,
+  @override
+  SalesReportError onUnexpected(Object exception, StackTrace stackTrace) =>
+      SalesUnexpected('Failed to process the report: $exception');
+
+  // Static function: essential so it doesn't capture "this" and can run on the Isolate.
+  static ReturnSuccessOrError<SalesReport, SalesReportError> _process(
+    List<Map<String, dynamic>> rows,
+    SalesReportParameters parameters, // already typed: no cast
   ) {
-    if (linhas.isEmpty) {
-      return ErrorReturn(
-        error: parameters.error.copyWith(message: "No sales in this period"),
-      );
+    if (rows.isEmpty) {
+      return const Failure(EmptyPeriod('No sales in the period'));
     }
 
-    var faturamento = 0.0;
-    var itens = 0;
-    for (final row in linhas) {
-      final quantidade = row['quantidade'] as int;
-      faturamento += quantidade * (row['valor_unitario'] as double);
-      itens += quantidade;
+    var revenue = 0.0;
+    var items = 0;
+    for (final row in rows) {
+      final quantity = row['quantidade'] as int;
+      revenue += quantity * (row['valor_unitario'] as double);
+      items += quantity;
     }
 
-    return SuccessReturn(
-      success: SalesReport(
-        totalItens: itens,
-        faturamentoTotal: faturamento,
-      ),
-    );
+    return Success(SalesReport(totalItens: items, faturamentoTotal: revenue));
   }
 }
 ```
 
-> `process` **must be static** (or top-level): it is what runs in the background isolate when `runInIsolate: true`. An instance function would implicitly capture `this` — dragging the entire datasource (and its native resources like DB drivers or network connections) into the isolate, causing runtime or compilation errors. If you need specific fields from the parameters, cast `parameters` to your concrete type inside `_process`.
+> `process` **must be static** (or top-level): it is what runs on the isolate when
+> `runInIsolate: true`. An instance method would implicitly capture `this` — dragging the
+> repository and the source (with their native resources) into the isolate.
 
-#### b) Business rule only — `UsecaseBase<TypeUsecase>`
+#### b) Business rule only — `UsecaseBase<TValue, TParams, TError>`
 
-When there is no external call, extend `UsecaseBase` and implement `process` taking just the parameters. For example, calculating sales commission based on total sales revenue:
+When there is no I/O, `process` receives just the parameters:
 
 ```dart
-final class CalcularComissaoParameters implements ParametersReturnResult {
-  final double valorTotal;
-  @override
-  final AppError error;
-
-  const CalcularComissaoParameters({required this.valorTotal, required this.error});
-}
-
-final class CalcularComissaoUsecase extends UsecaseBase<double> {
+final class CalcularComissaoUsecase
+    extends UsecaseBase<double, ComissaoParameters, ComissaoError> {
   const CalcularComissaoUsecase({super.runInIsolate});
 
   @override
-  ProcessPure<double> get process => _process;
+  ProcessPure<double, ComissaoParameters, ComissaoError> get process => _process;
 
-  static ReturnSuccessOrError<double> _process(ParametersReturnResult parameters) {
-    final params = parameters as CalcularComissaoParameters;
-    return SuccessReturn(success: params.valorTotal * 0.05); // 5% commission
-  }
+  @override
+  ComissaoError onUnexpected(Object exception, StackTrace stackTrace) => ComissaoUnexpected('$exception');
+
+  static ReturnSuccessOrError<double, ComissaoError> _process(
+    ComissaoParameters parameters,
+  ) => parameters.valorTotal < 0
+      ? const Failure(ValorInvalido('total value cannot be negative'))
+      : Success(parameters.valorTotal * 0.05);
 }
 ```
 
-### 5. Call the usecase
-
-Instantiate it and invoke it passing the concrete parameters:
+### 6. Call the usecase and handle the result
 
 ```dart
-final usecase = GerarSalesReportUsecase(
-  datasource: const FakeSalesDatasource(),
-  runInIsolate: true, // Heavy processing will run in a background Isolate!
+const usecase = GerarSalesReportUsecase(
+  repository: SalesRepository(datasource: FakeSalesDatasource()),
+  runInIsolate: true, // heavy processing runs on a background isolate
 );
 
-final data = await usecase(
-  SalesReportParameters(
-    mes: 6,
-    ano: 2026,
-    error: const ErrorGeneric(message: "Failed to generate sales report"),
-  ),
-);
+final result = await usecase(const SalesReportParameters(mes: 6, ano: 2026));
 ```
 
-### 6. Handle the result
-
-`ReturnSuccessOrError<T>` is a sealed class, ensuring you handle all scenarios exhaustively using a `switch`:
+The `switch` is exhaustive **at both levels** — and takes no `default` branch:
 
 ```dart
-switch (data) {
-  case SuccessReturn<SalesReport>():
-    print("Revenue: ${data.result.faturamentoTotal}"); // success value (SalesReport)
-  case ErrorReturn<SalesReport>():
-    print(data.result.message);                         // AppError
-}
-```
-
-You can also use Dart 3 destructuring patterns for a more concise syntax:
-
-```dart
-final message = switch (data) {
-  SuccessReturn(:final result) => 'Success! Revenue: ${result.faturamentoTotal}',
-  ErrorReturn(:final result) => 'Failure: ${result.message}',
+final message = switch (result) {
+  Success(:final value) => 'Revenue: ${value.faturamentoTotal}',
+  Failure(:final error) => switch (error) {
+    SalesSourceUnavailable() => 'Source unavailable: ${error.message}',
+    EmptyPeriod() => 'No sales in the period',
+    SalesUnexpected() => 'Unexpected error: ${error.message}',
+  },
 };
 ```
 
+If a `SalesMalformedData` is added to the `sealed` set tomorrow, **this code stops
+compiling** until the new case is handled. That is the difference between handling "the
+error" and handling *the errors*.
+
 ### 7. Running on a background isolate
 
-Both base classes accept `runInIsolate: true` in the constructor. When enabled, only
-`process` runs on a background isolate via `Isolate.run`; when disabled (the default), it runs
-inline. In `UsecaseBaseCallData`, the **datasource fetch always runs on the main isolate** —
-only the processing (phase 3) goes to the isolate. To measure and log the elapsed time (via
-`dart:developer`, with a `(Direct)`/`(Isolate)` suffix), also enable
-`monitorExecutionTime: true` — off by default, keeping production cost at zero:
+Both bases accept `runInIsolate: true`. When enabled, only `process` runs on an isolate
+via `Isolate.run`; the fetch stays on the main isolate.
+
+> **When to enable it:** `Isolate.run` has a fixed cost (spawn + input/output
+> serialization) that scales with the data size. It pays off for **heavy** processing
+> (parsing large lists, aggregations); for light transformations the overhead outweighs the
+> gain. Use `monitorExecutionTime` to compare both paths.
+
+### 8. Observability — `monitorExecutionTime` and the hook
+
+With `monitorExecutionTime: true`, the total time is measured and handed to the
+`onExecutionTimeMeasured` hook. The default implementation writes through `dart:developer`
+(visible in DevTools); override it to plug in your logger or metrics collector — the
+library imposes no logging dependency:
 
 ```dart
-final usecase = GerarSalesReportUsecase(
-  datasource: const FakeSalesDatasource(),
-  runInIsolate: true,
-  monitorExecutionTime: true,
-);
-final result = await usecase(parameters);
+@override
+void onExecutionTimeMeasured(Duration elapsed) =>
+    myLogger.info('$runtimeType took ${elapsed.inMilliseconds}ms');
 ```
 
-> Since `process` is static, it does **not** capture the datasource. Only the raw data (input)
-> and the result (output) cross the isolate boundary — both must be *sendable*. That's why the
-> datasource can hold non-sendable resources (sockets, database connections): they stay on the
-> main isolate and never go to the worker.
->
-> **When to enable:** `Isolate.run` has a fixed cost (spawn + serializing the input/output),
-> which scales with the data size. It pays off for **heavy** processing (parsing large lists,
-> aggregations); for light transforms the overhead outweighs the gain — keep
-> `runInIsolate: false`. Use `monitorExecutionTime` to compare both paths.
+Disabled by default: zero cost in production.
 
-### 8. Results without a value — `Unit` / `Nil`
+### 9. Results without a value — `Unit` / `Nil`
 
-For usecases that succeed without producing a value, use the shared singletons `unit`
-(stands for `void`) or `nil` (stands for `null`):
+For usecases that succeed without producing a value, use the `unit` (represents `void`) or
+`nil` (represents `null`) singletons:
 
 ```dart
-final class LogoutUsecase extends UsecaseBase<Unit> {
-  const LogoutUsecase();
-
-  @override
-  ProcessPure<Unit> get process => _process;
-
-  static ReturnSuccessOrError<Unit> _process(ParametersReturnResult parameters) {
-    // ... perform side effect ...
-    return const SuccessReturn(success: unit);
-  }
+static ReturnSuccessOrError<Unit, LogoutError> _process(NoParams parameters) {
+  // ... run the side effect ...
+  return const Success(unit);
 }
 ```
 
@@ -409,7 +406,11 @@ lib/
     sales_report/
       datasources/
         fake_sales_datasource.dart
+      repositories/
+        sales_repository.dart
       domain/
+        errors/
+          sales_report_errors.dart
         model/
           sales_report.dart
         parameters/
@@ -419,23 +420,44 @@ lib/
   main.dart
 ```
 
+## Migrating from v2 to v3
+
+| v2 | v3 |
+|----|----|
+| `ReturnSuccessOrError<T>` | `ReturnSuccessOrError<TValue, TError>` |
+| `SuccessReturn(success: v)` / `.result` | `Success(v)` / `.value` |
+| `ErrorReturn(error: e)` / `.result` | `Failure(e)` / `.error` |
+| `ParametersReturnResult` (required to expose `AppError error`) | `Parameters` (data only) |
+| `NoParams(error: ...)` | `noParams` |
+| `AppError` interface with `copyWith` | `AppError` base class with `message`, `toString`, `==` |
+| `ErrorGeneric(message: "x")` | `ErrorGeneric("x")` |
+| Datasource does `throw parameters.error` | Datasource lets the technical exception bubble up |
+| Base appends `"Cod. 02-1"` to the message | `RepositoryBase.mapError` translates (mandatory) |
+| Exception in process becomes `"Cod. IsolateCatch"` (isolate only) | `onUnexpected` translates (mandatory, both modes) |
+| `UsecaseBaseCallData(datasource: ...)` | `UsecaseBaseCallData(repository: ...)` |
+| `process` receives `ParametersReturnResult` (requires a cast) | `process` receives a typed `TParams` |
+| `monitorExecutionTime` logs with `print` + `log` | `onExecutionTimeMeasured(Duration)` hook |
+
+Suggested route: (1) create the feature's `sealed` error set; (2) take the `error` out of
+the parameters; (3) extract the datasource's `try/catch` into a `RepositoryBase.mapError`;
+(4) swap `datasource:` for `repository:` in the usecase and implement `onUnexpected`;
+(5) update the consumer's `switch` to `Success`/`Failure` and cover every error.
+
 ## Example
 
-The [`example/`](example/) directory contains a **pure Dart** (CLI) example demonstrating
-the package without Flutter:
+The [`example/`](example/) directory holds a **pure Dart** (CLI) example:
 
-- **`check_connection`** — a `UsecaseBaseCallData` consuming a `Datasource` (success,
-  business error and a captured exception).
-- **`fibonacci`** — a `UsecaseBase` running on a background isolate via `runInIsolate: true`.
-- **`sales_report`** — demonstrates the **fetch → process** flow: the datasource returns
-  50k raw sale rows (fetch phase, main isolate) and the `process` (static function) aggregates
-  them into a `SalesReport` object (processing phase, background isolate). Includes
-  `monitorExecutionTime` for comparing direct vs. isolate execution times.
+- **`check_connection`** — the three complete layers, with a business error
+  (`ConnectionOffline`, from `process`) and a technical one (`ConnectionUnavailable`, from
+  `mapError`).
+- **`fibonacci`** — a pure `UsecaseBase` running on an isolate, with typed parameters.
+- **`sales_report`** — the **fetch → short-circuit → process** flow over 50k rows, four
+  possible errors and an overridden `onExecutionTimeMeasured` hook.
 
 Run it with `dart run bin/example.dart` and the tests with `dart test`.
 
 ## Environment
 
 - Dart SDK `^3.12.0` (uses Dart 3 features: sealed classes, pattern matching, class
-  modifiers, and Dart 3.12 private named parameters).
+  modifiers and Dart 3.12 private named parameters).
 - Depends only on `package:meta` (for `@protected`/`@immutable`) — no Flutter.

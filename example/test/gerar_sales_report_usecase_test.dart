@@ -1,129 +1,137 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 import 'package:return_success_or_error_example/features/sales_report/datasources/fake_sales_datasource.dart';
+import 'package:return_success_or_error_example/features/sales_report/domain/errors/sales_report_errors.dart';
 import 'package:return_success_or_error_example/features/sales_report/domain/model/sales_report.dart';
 import 'package:return_success_or_error_example/features/sales_report/domain/parameters/sales_report_parameters.dart';
 import 'package:return_success_or_error_example/features/sales_report/domain/usecase/gerar_sales_report_usecase.dart';
+import 'package:return_success_or_error_example/features/sales_report/repositories/sales_repository.dart';
 import 'package:test/test.dart';
 
+const parameters = SalesReportParameters(mes: 6, ano: 2026);
+
+GerarSalesReportUsecase usecaseCom(
+  FakeSalesDatasource datasource, {
+  bool runInIsolate = false,
+}) => GerarSalesReportUsecase(
+  repository: SalesRepository(datasource: datasource),
+  runInIsolate: runInIsolate,
+);
+
+SalesReport esperaSucesso(
+  ReturnSuccessOrError<SalesReport, SalesReportError> result,
+) => switch (result) {
+  Success(:final value) => value,
+  Failure(:final error) => fail('Esperava Success, veio $error'),
+};
+
 void main() {
-  const params = SalesReportParameters(
-    mes: 6,
-    ano: 2026,
-    error: ErrorGeneric(message: "Falha ao gerar relatório de vendas"),
-  );
-
-  test(
-    'processa as linhas cruas no objeto SalesReport (caminho direto)',
-    () async {
-      final usecase = GerarSalesReportUsecase(
-        datasource: const FakeSalesDatasource(linhas: 1000),
+  group('GerarSalesReportUsecase', () {
+    test('Deve processar as linhas cruas em um SalesReport', () async {
+      final report = esperaSucesso(
+        await usecaseCom(const FakeSalesDatasource(linhas: 1000))(parameters),
       );
 
-      final data = await usecase(params);
+      expect(report.totalItens, greaterThan(0));
+      expect(report.faturamentoTotal, greaterThan(0));
+      expect(report.ticketMedio, greaterThan(0));
+      expect(report.produtoMaisVendido, startsWith('Produto '));
+    });
 
-      switch (data) {
-        case SuccessReturn<SalesReport>():
-          final report = data.result;
-          // 1000 linhas, quantidade = (i % 5) + 1  → soma conhecida.
-          expect(report.totalItens, equals(3000));
-          expect(report.faturamentoTotal, greaterThan(0));
-          expect(report.ticketMedio, equals(report.faturamentoTotal / 1000));
-          expect(report.produtoMaisVendido, startsWith('Produto '));
-        case ErrorReturn<SalesReport>():
-          fail('Esperava SuccessReturn, veio: ${data.result.message}');
+    test(
+      'Deve produzir o mesmo relatório no isolate e no caminho direto',
+      () async {
+        final direto = esperaSucesso(
+          await usecaseCom(const FakeSalesDatasource(linhas: 5000))(parameters),
+        );
+        final isolado = esperaSucesso(
+          await usecaseCom(
+            const FakeSalesDatasource(linhas: 5000),
+            runInIsolate: true,
+          )(parameters),
+        );
+
+        expect(isolado.totalItens, equals(direto.totalItens));
+        expect(isolado.faturamentoTotal, equals(direto.faturamentoTotal));
+        expect(isolado.produtoMaisVendido, equals(direto.produtoMaisVendido));
+      },
+    );
+
+    test('Deve retornar EmptyPeriod quando não há vendas no período', () async {
+      final result = await usecaseCom(const FakeSalesDatasource(linhas: 0))(
+        parameters,
+      );
+
+      switch (result) {
+        case Success():
+          fail('Esperava Failure');
+        case Failure(:final error):
+          // Erro de NEGÓCIO, com o contexto do período no próprio erro.
+          expect(error, isA<EmptyPeriod>());
+          expect((error as EmptyPeriod).mes, equals(6));
+          expect(error.ano, equals(2026));
       }
-    },
-  );
+    });
 
-  test(
-    'o caminho isolate produz o MESMO resultado do caminho direto',
-    () async {
-      final direto = GerarSalesReportUsecase(
-        datasource: const FakeSalesDatasource(linhas: 5000),
-        runInIsolate: false,
-        monitorExecutionTime: true,
-      );
-      final isolado = GerarSalesReportUsecase(
-        datasource: const FakeSalesDatasource(linhas: 5000),
-        runInIsolate: true,
-        monitorExecutionTime: true,
-      );
+    test(
+      'Falha da fonte vira SalesSourceUnavailable e curto-circuita',
+      () async {
+        final result = await usecaseCom(
+          const FakeSalesDatasource(shouldThrow: true),
+        )(parameters);
 
-      final rDireto = await direto(params);
-      final rIsolado = await isolado(params);
-
-      final a = switch (rDireto) {
-        SuccessReturn<SalesReport>() => rDireto.result,
-        ErrorReturn<SalesReport>() => fail('direto: ${rDireto.result.message}'),
-      };
-      final b = switch (rIsolado) {
-        SuccessReturn<SalesReport>() => rIsolado.result,
-        ErrorReturn<SalesReport>() => fail(
-          'isolado: ${rIsolado.result.message}',
-        ),
-      };
-
-      expect(a.totalItens, equals(b.totalItens));
-      expect(a.faturamentoTotal, equals(b.faturamentoTotal));
-      expect(a.ticketMedio, equals(b.ticketMedio));
-      expect(a.produtoMaisVendido, equals(b.produtoMaisVendido));
-    },
-  );
-
-  test('falha do datasource é enriquecida com Cod. 02-1 (fetch fora do '
-      'isolate)', () async {
-    final usecase = GerarSalesReportUsecase(
-      datasource: const FakeSalesDatasource(shouldThrow: true),
-      runInIsolate: true,
+        switch (result) {
+          case Success():
+            fail('Esperava Failure');
+          case Failure(:final error):
+            expect(error, isA<SalesSourceUnavailable>());
+            expect(error.message, contains('6/2026'));
+        }
+      },
     );
 
-    final data = await usecase(params);
+    test('Bug no process vira SalesUnexpected via onUnexpected', () async {
+      // O fetch tem sucesso, mas os dados vêm com o tipo errado: o cast dentro
+      // do process explode. Nada propaga ao chamador.
+      final result = await usecaseCom(
+        const FakeSalesDatasource(linhas: 10, linhasCorrompidas: true),
+      )(parameters);
 
-    switch (data) {
-      case SuccessReturn<SalesReport>():
-        fail('Esperava ErrorReturn');
-      case ErrorReturn<SalesReport>():
-        expect(data.result.message, contains('Cod. 02-1'));
-        expect(data.result.message, contains('simulated database failure'));
-    }
-  });
+      switch (result) {
+        case Success():
+          fail('Esperava Failure');
+        case Failure(:final error):
+          expect(error, isA<SalesUnexpected>());
+      }
+    });
 
-  test('período sem vendas retorna erro de negócio', () async {
-    final usecase = GerarSalesReportUsecase(
-      datasource: const FakeSalesDatasource(linhas: 0),
-    );
-
-    final data = await usecase(params);
-
-    switch (data) {
-      case SuccessReturn<SalesReport>():
-        fail('Esperava ErrorReturn');
-      case ErrorReturn<SalesReport>():
-        expect(data.result.message, contains('Sem vendas no período'));
-    }
-  });
-
-  test(
-    'comparativo de tempo com monitorExecutionTime (direto vs isolate)',
-    () async {
-      // Loga "Execution Time ... (Direct): Xms" e "... (Isolate): Yms" via
-      // dart:developer — útil para avaliar qual caminho compensa por volume.
-      final direto = GerarSalesReportUsecase(
-        datasource: const FakeSalesDatasource(linhas: 50000),
-        runInIsolate: false,
-        monitorExecutionTime: true,
-      );
-      final isolado = GerarSalesReportUsecase(
-        datasource: const FakeSalesDatasource(linhas: 50000),
+    test('Bug no process também não propaga em isolate', () async {
+      final result = await usecaseCom(
+        const FakeSalesDatasource(linhas: 10, linhasCorrompidas: true),
         runInIsolate: true,
-        monitorExecutionTime: true,
-      );
+      )(parameters);
 
-      final rDireto = await direto(params);
-      final rIsolado = await isolado(params);
+      expect(result, isA<Failure<SalesReport, SalesReportError>>());
+    });
 
-      expect(rDireto, isA<SuccessReturn<SalesReport>>());
-      expect(rIsolado, isA<SuccessReturn<SalesReport>>());
-    },
-  );
+    test(
+      'O consumo cobre todos os erros da feature sem braço default',
+      () async {
+        final result = await usecaseCom(const FakeSalesDatasource(linhas: 0))(
+          parameters,
+        );
+
+        final descricao = switch (result) {
+          Success() => 'ok',
+          Failure(:final error) => switch (error) {
+            SalesSourceUnavailable() => 'indisponivel',
+            SalesMalformedData() => 'invalido',
+            EmptyPeriod() => 'vazio',
+            SalesUnexpected() => 'inesperado',
+          },
+        };
+
+        expect(descricao, equals('vazio'));
+      },
+    );
+  });
 }

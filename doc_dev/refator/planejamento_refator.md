@@ -1,5 +1,9 @@
 # Planejamento de Refatoração — `return_success_or_error`
 
+> **⚠️ Documento histórico.** Descreve a API da v1.0.0/v2.0.0 e foi superado pela v3.0.0
+> (erro parametrizado, camada `Repository`, `Parameters` só com dados). Para o estado atual,
+> veja [../arquitetura_e_fluxo.md](../arquitetura_e_fluxo.md). Mantido apenas como registro.
+>
 > Documento de trabalho criado em **13/06/2026** (branch `release/1.0.0`).
 > Objetivo: revisar arquivo a arquivo e o fluxo de ponta a ponta, registrar o que cada
 > componente faz, como se conecta ao fluxo e quais oportunidades de melhoria existem.

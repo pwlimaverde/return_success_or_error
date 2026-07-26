@@ -1,0 +1,19 @@
+# Quando existe, o .pubignore SUBSTITUI o .gitignore para decidir o conteúdo do
+# pacote publicado — por isso as exclusões de build também precisam estar aqui.
+
+# Artefatos de build/ferramenta
+.dart_tool/
+.pub/
+.pub-cache/
+build/
+**/doc/api/
+*.log
+
+# Editores
+.idea/
+*.iml
+.vscode/
+
+# Documentação de desenvolvimento — fica no repositório, fora do pacote.
+doc_dev/
+CLAUDE.md

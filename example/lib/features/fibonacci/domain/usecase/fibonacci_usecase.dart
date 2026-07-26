@@ -1,31 +1,32 @@
 import 'package:return_success_or_error/return_success_or_error.dart';
 
+import '../errors/fibonacci_errors.dart';
 import '../parameters/fibonacci_parameters.dart';
 
 /// Regra de negócio pura (sem chamada externa): calcula o n-ésimo número de
 /// Fibonacci.
 ///
-/// Estende [UsecaseBase] por não envolver nenhum datasource. A subclasse
-/// implementa o getter [process] apontando para uma função **estática** — assim
-/// o cálculo pode rodar em um isolate (`runInIsolate: true`) sem capturar a
-/// instância do usecase.
-final class FibonacciUsecase extends UsecaseBase<int> {
-  const FibonacciUsecase({super.runInIsolate});
+/// Estende [UsecaseBase] por não envolver nenhuma fonte de dados. O `process` é
+/// uma função **estática**, então o cálculo pode rodar em um isolate
+/// (`runInIsolate: true`) sem capturar a instância do usecase.
+final class FibonacciUsecase
+    extends UsecaseBase<int, FibonacciParameters, FibonacciError> {
+  const FibonacciUsecase({super.runInIsolate, super.monitorExecutionTime});
 
   @override
-  ProcessPure<int> get process => _process;
+  ProcessPure<int, FibonacciParameters, FibonacciError> get process => _process;
 
-  /// Função estática: recebe os parâmetros (com cast para o tipo concreto) e
-  /// devolve o resultado. Não acessa campos da instância.
-  static ReturnSuccessOrError<int> _process(ParametersReturnResult parameters) {
-    final params = parameters as FibonacciParameters;
-    if (params.n < 0) {
-      return ErrorReturn(
-        error: params.error.copyWith(message: "n must be >= 0"),
-      );
-    }
-    return SuccessReturn(success: _fib(params.n));
-  }
+  @override
+  FibonacciError onUnexpected(Object exception, StackTrace stackTrace) =>
+      FibonacciUnexpected('Falha ao calcular Fibonacci: $exception');
+
+  /// Recebe os parâmetros **já tipados** — na v2 era preciso fazer
+  /// `parameters as FibonacciParameters` aqui dentro.
+  static ReturnSuccessOrError<int, FibonacciError> _process(
+    FibonacciParameters parameters,
+  ) => parameters.n < 0
+      ? const Failure(NegativeIndex('n must be >= 0'))
+      : Success(_fib(parameters.n));
 
   static int _fib(int n) {
     if (n < 2) return n;
