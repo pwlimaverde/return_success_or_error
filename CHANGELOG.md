@@ -1,3 +1,17 @@
+## [3.0.1] - 26/07/2026.
+
+**Apenas documentação** — nenhuma mudança de código, testes ou API em relação à 3.0.0.
+
+1 - Documenta por que o `==` de `Success`/`Failure` **ignora os argumentos de tipo**:
+    testá-los tornaria a comparação assimétrica, violando o contrato de `Object.==`, porque
+    genéricos são covariantes em Dart (`Success<String, MeuErro>` é um
+    `Success<String, dynamic>`, mas não o inverso). O efeito prático, agora explícito nos
+    READMEs, é que `expect(result, Success('x'))` funciona sem anotar os tipos — que é
+    justamente onde o `TError` não tem como ser inferido.
+2 - Corrige a contagem de testes citada na entrada da 3.0.0 (61 → 65) e acrescenta os grupos
+    que faltavam na lista de cobertura (simetria do `==`, stack trace entregue ao `mapError`
+    e ao `onUnexpected`, `Repository` fora do contrato).
+
 ## [3.0.0] - 26/07/2026.
 
 Reformulação do **tratamento de erro** e da **padronização do projeto**, alinhando o pacote
